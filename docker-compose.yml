@@ -1,0 +1,76 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: picme-postgres
+    environment:
+      POSTGRES_DB: picme_db
+      POSTGRES_USER: picme_user
+      POSTGRES_PASSWORD: picme_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - picme-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U picme_user -d picme_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Spring Boot Backend
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: picme-backend
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/picme_db
+      SPRING_DATASOURCE_USERNAME: picme_user
+      SPRING_DATASOURCE_PASSWORD: picme_password
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      SPRING_JPA_SHOW_SQL: "true"
+      SERVER_PORT: 8080
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - picme-network
+    volumes:
+      - ./backend:/app
+      - maven_cache:/root/.m2
+    command: ./mvnw spring-boot:run
+
+  # Next.js Frontend
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: picme-frontend
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:8080/api
+      NODE_ENV: development
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    networks:
+      - picme-network
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+      - /app/.next
+    command: npm run dev
+
+networks:
+  picme-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  maven_cache:
