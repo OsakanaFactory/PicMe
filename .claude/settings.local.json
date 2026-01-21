@@ -1,0 +1,34 @@
+{
+    "mcpServers": {
+        "desktop-commander": {
+            "command": "docker",
+            "args": [
+                "run",
+                "--rm",
+                "-i",
+                "--name",
+                "desktop-commander-mcp",
+                "-v",
+                "desktop-commander-data:/data",
+                "-v",
+                "C:/Users/kanas:/home/user",
+                "mcp/desktop-commander:latest"
+            ]
+        },
+        "filesystem": {
+            "command": "npx",
+            "args": [
+                "-y",
+                "@modelcontextprotocol/server-filesystem",
+                "C:/Users/kanas"
+            ]
+        },
+        "context7": {
+            "command": "npx",
+            "args": [
+                "-y",
+                "@upstash/context7-mcp@latest"
+            ]
+        }
+    }
+}
