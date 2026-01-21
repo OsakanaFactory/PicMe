@@ -39,7 +39,7 @@ public class Profile {
 
     @Column(length = 50)
     @Builder.Default
-    private String theme = "default";
+    private String theme = "LIGHT";
 
     @Column(name = "color_primary", length = 7)
     private String colorPrimary;
@@ -52,7 +52,7 @@ public class Profile {
 
     @Column(length = 20)
     @Builder.Default
-    private String layout = "grid";
+    private String layout = "STANDARD";
 
     @Column(name = "created_at")
     @Builder.Default

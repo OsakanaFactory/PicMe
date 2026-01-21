@@ -17,7 +17,6 @@ const artworkSchema = z.object({
   title: z.string().min(1, 'タイトルは必須です').max(100, 'タイトルは100文字以内で入力してください'),
   description: z.string().max(500, '説明は500文字以内で入力してください').optional(),
   imageUrl: z.string().url('有効な画像URLを入力してください'),
-  tags: z.string().optional(),
 });
 
 type ArtworkFormValues = z.infer<typeof artworkSchema>;
@@ -41,7 +40,6 @@ export default function ArtworksPage() {
       title: '',
       description: '',
       imageUrl: '',
-      tags: '',
     },
   });
 
@@ -66,7 +64,6 @@ export default function ArtworksPage() {
       title: '',
       description: '',
       imageUrl: '',
-      tags: '',
     });
     setIsDialogOpen(true);
   };
@@ -77,7 +74,6 @@ export default function ArtworksPage() {
       title: artwork.title,
       description: artwork.description || '',
       imageUrl: artwork.imageUrl,
-      tags: artwork.tags || '',
     });
     setIsDialogOpen(true);
   };
@@ -89,20 +85,19 @@ export default function ArtworksPage() {
         await updateArtwork(editingArtwork.id, {
           ...data,
           description: data.description || '',
-          tags: data.tags || '',
         });
       } else {
         await createArtwork({
           ...data,
           description: data.description || '',
-          tags: data.tags || '',
         });
       }
       setIsDialogOpen(false);
       fetchArtworks();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to save artwork', error);
-      alert('作品の保存に失敗しました');
+      const msg = error.response?.data?.message || '作品の保存に失敗しました';
+      alert(msg);
     } finally {
       setIsSaving(false);
     }
@@ -179,15 +174,6 @@ export default function ArtworksPage() {
                 <p className="text-sm text-slate-500 truncate mt-1">
                   {artwork.description || '説明なし'}
                 </p>
-                {artwork.tags && (
-                  <div className="flex flex-wrap gap-1 mt-2">
-                    {artwork.tags.split(',').map(tag => (
-                      <span key={tag} className="text-[10px] px-1.5 py-0.5 bg-slate-100 text-slate-600 rounded-full">
-                        #{tag.trim()}
-                      </span>
-                    ))}
-                  </div>
-                )}
               </CardContent>
               <CardFooter className="p-4 pt-0 flex justify-end gap-2">
                 <Button variant="ghost" size="sm" onClick={() => openEditDialog(artwork)}>
@@ -255,15 +241,7 @@ export default function ArtworksPage() {
               />
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="tags">タグ (カンマ区切り)</Label>
-              <Input
-                id="tags"
-                placeholder="イラスト, 風景, キャラクター"
-                {...register('tags')}
-                error={errors.tags?.message}
-              />
-            </div>
+
 
             <DialogFooter className="pt-4">
               <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>

@@ -5,7 +5,6 @@ export interface Artwork {
   title: string;
   description: string;
   imageUrl: string;
-  tags: string;
   displayOrder: number;
   createdAt: string;
 }
@@ -14,7 +13,6 @@ export interface ArtworkRequest {
   title: string;
   description: string;
   imageUrl: string;
-  tags?: string;
   displayOrder?: number;
 }
 

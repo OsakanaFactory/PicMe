@@ -155,18 +155,7 @@ export default function PublicPage({ params }: { params: { username: string } })
                                     {artwork.description && (
                                         <p className={`text-sm mt-1 line-clamp-2 ${profile.theme === 'DARK' ? 'text-slate-300' : 'text-slate-500'}`}>{artwork.description}</p>
                                     )}
-                                    {artwork.tags && (
-                                        <div className="flex flex-wrap gap-1 mt-3">
-                                            {artwork.tags.split(',').map(tag => (
-                                                <span 
-                                                    key={tag} 
-                                                    className={`text-[10px] px-2 py-0.5 rounded-full ${profile.theme === 'DARK' ? 'bg-slate-700 text-slate-300' : 'bg-slate-100 text-slate-600'}`}
-                                                >
-                                                    #{tag.trim()}
-                                                </span>
-                                            ))}
-                                        </div>
-                                    )}
+
                                 </CardContent>
                             </Card>
                         ))}

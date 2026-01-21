@@ -100,9 +100,10 @@ export default function SocialLinksPage() {
       }
       setIsDialogOpen(false);
       fetchLinks();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to save social link', error);
-      alert('保存に失敗しました');
+      const msg = error.response?.data?.message || '保存に失敗しました';
+      alert(msg);
     } finally {
       setIsSaving(false);
     }
