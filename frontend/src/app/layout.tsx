@@ -6,6 +6,8 @@ export const metadata: Metadata = {
   description: "簡単に作れる、あなただけのポートフォリオサイト",
 };
 
+import { Providers } from "@/components/providers";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -13,7 +15,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ja">
-      <body>{children}</body>
+      <body className="antialiased min-h-screen bg-slate-50 text-slate-900">
+        <Providers>{children}</Providers>
+      </body>
     </html>
   );
 }
