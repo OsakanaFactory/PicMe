@@ -1,0 +1,23 @@
+package com.picme.backend.dto.response;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.util.List;
+
+/**
+ * 公開ページレスポンスDTO
+ * ユーザーの公開プロフィール、作品、SNSリンクを含む
+ */
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class PublicPageResponse {
+
+    private ProfileResponse profile;
+    private List<ArtworkResponse> artworks;
+    private List<SocialLinkResponse> socialLinks;
+}
