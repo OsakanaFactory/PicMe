@@ -3,12 +3,13 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
-import { 
-  LayoutDashboard, 
-  User, 
-  Image as ImageIcon, 
-  Link as LinkIcon, 
-  LogOut, 
+import {
+  LayoutDashboard,
+  User,
+  Image as ImageIcon,
+  Link as LinkIcon,
+  FileText,
+  LogOut,
   Settings,
   ExternalLink
 } from 'lucide-react';
@@ -29,6 +30,11 @@ const navItems = [
     title: '作品管理',
     href: '/artworks',
     icon: ImageIcon,
+  },
+  {
+    title: 'お知らせ',
+    href: '/posts',
+    icon: FileText,
   },
   {
     title: 'SNSリンク',

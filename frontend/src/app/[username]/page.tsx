@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { notFound } from 'next/navigation';
 import { getPublicPage, PublicPageData } from '@/lib/public';
-import { Loader2, Link as LinkIcon, Twitter, Instagram, Facebook, Youtube, MapPin } from 'lucide-react';
+import { Loader2, Link as LinkIcon, Twitter, Instagram, Facebook, Youtube, MapPin, FileText, Calendar } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 
@@ -65,7 +65,7 @@ export default function PublicPage({ params }: { params: { username: string } })
     );
   }
 
-  const { profile, artworks, socialLinks } = data;
+  const { profile, artworks, socialLinks, posts } = data;
 
   // テーマに応じたスタイル設定 (簡易的)
   const themeClass = profile.theme === 'DARK' ? 'bg-slate-900 text-white' : 'bg-white text-slate-900';
@@ -144,9 +144,9 @@ export default function PublicPage({ params }: { params: { username: string } })
                         {artworks.map(artwork => (
                             <Card key={artwork.id} className={`overflow-hidden border-0 shadow-sm hover:shadow-md transition-shadow ${cardClass}`}>
                                 <div className="aspect-[4/3] bg-slate-100 relative overflow-hidden">
-                                     <img 
-                                        src={artwork.imageUrl} 
-                                        alt={artwork.title} 
+                                     <img
+                                        src={artwork.imageUrl}
+                                        alt={artwork.title}
                                         className="w-full h-full object-cover transition-transform hover:scale-105 duration-500"
                                      />
                                 </div>
@@ -162,6 +162,46 @@ export default function PublicPage({ params }: { params: { username: string } })
                     </div>
                 )}
             </div>
+
+            {/* News/Announcements Section */}
+            {posts && posts.length > 0 && (
+                <div>
+                    <h2 className={`text-xl font-bold mb-4 ${profile.theme === 'DARK' ? 'text-white' : 'text-slate-900'}`}>お知らせ</h2>
+                    <div className="space-y-4">
+                        {posts.map(post => (
+                            <Card key={post.id} className={`overflow-hidden border-0 shadow-sm hover:shadow-md transition-shadow ${cardClass}`}>
+                                <div className="flex flex-col sm:flex-row">
+                                    {post.thumbnailUrl && (
+                                        <div className="sm:w-40 h-32 sm:h-auto bg-slate-100 flex-shrink-0">
+                                            <img
+                                                src={post.thumbnailUrl}
+                                                alt={post.title}
+                                                className="w-full h-full object-cover"
+                                            />
+                                        </div>
+                                    )}
+                                    <CardContent className="p-4 flex-1">
+                                        <div className="flex items-center gap-2 mb-2">
+                                            <FileText className={`h-4 w-4 ${profile.theme === 'DARK' ? 'text-slate-400' : 'text-slate-500'}`} />
+                                            <span className={`text-xs ${profile.theme === 'DARK' ? 'text-slate-400' : 'text-slate-500'}`}>
+                                                {post.publishedAt ? new Date(post.publishedAt).toLocaleDateString('ja-JP', {
+                                                    year: 'numeric',
+                                                    month: 'long',
+                                                    day: 'numeric',
+                                                }) : ''}
+                                            </span>
+                                        </div>
+                                        <h3 className="font-bold text-lg mb-2">{post.title}</h3>
+                                        <p className={`text-sm line-clamp-3 ${profile.theme === 'DARK' ? 'text-slate-300' : 'text-slate-500'}`}>
+                                            {post.content}
+                                        </p>
+                                    </CardContent>
+                                </div>
+                            </Card>
+                        ))}
+                    </div>
+                </div>
+            )}
         </div>
       </div>
     </div>
