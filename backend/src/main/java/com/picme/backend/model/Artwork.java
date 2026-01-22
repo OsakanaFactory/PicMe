@@ -3,6 +3,8 @@ package com.picme.backend.model;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * 作品エンティティ
@@ -42,6 +44,19 @@ public class Artwork {
 
     @Column(length = 50)
     private String category;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "category_id")
+    private Category categoryEntity;
+
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+        name = "artwork_tags",
+        joinColumns = @JoinColumn(name = "artwork_id"),
+        inverseJoinColumns = @JoinColumn(name = "tag_id")
+    )
+    @Builder.Default
+    private Set<Tag> tags = new HashSet<>();
 
     @Column(name = "display_order")
     @Builder.Default

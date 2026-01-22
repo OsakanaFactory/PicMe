@@ -2,14 +2,18 @@ package com.picme.backend.controller;
 
 import com.picme.backend.dto.response.ApiResponse;
 import com.picme.backend.dto.response.ArtworkResponse;
+import com.picme.backend.dto.response.CategoryResponse;
 import com.picme.backend.dto.response.PostResponse;
 import com.picme.backend.dto.response.ProfileResponse;
 import com.picme.backend.dto.response.PublicPageResponse;
 import com.picme.backend.dto.response.SocialLinkResponse;
+import com.picme.backend.dto.response.TagResponse;
 import com.picme.backend.service.ArtworkService;
+import com.picme.backend.service.CategoryService;
 import com.picme.backend.service.PostService;
 import com.picme.backend.service.ProfileService;
 import com.picme.backend.service.SocialLinkService;
+import com.picme.backend.service.TagService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -31,6 +35,8 @@ public class PublicController {
     private final ArtworkService artworkService;
     private final SocialLinkService socialLinkService;
     private final PostService postService;
+    private final CategoryService categoryService;
+    private final TagService tagService;
 
     /**
      * ユーザーの公開ページデータを取得
@@ -47,12 +53,16 @@ public class PublicController {
         List<ArtworkResponse> artworks = artworkService.getPublicArtworks(username);
         List<SocialLinkResponse> socialLinks = socialLinkService.getPublicSocialLinks(username);
         List<PostResponse> posts = postService.getPublicPosts(username);
+        List<CategoryResponse> categories = categoryService.getPublicCategories(username);
+        List<TagResponse> tags = tagService.getPublicTags(username);
 
         PublicPageResponse response = PublicPageResponse.builder()
                 .profile(profile)
                 .artworks(artworks)
                 .socialLinks(socialLinks)
                 .posts(posts)
+                .categories(categories)
+                .tags(tags)
                 .build();
 
         return ResponseEntity.ok(ApiResponse.success(response));
@@ -127,5 +137,33 @@ public class PublicController {
 
         PostResponse post = postService.getPublicPost(username, id);
         return ResponseEntity.ok(ApiResponse.success(post));
+    }
+
+    /**
+     * ユーザーの公開カテゴリー一覧を取得
+     * GET /api/users/:username/categories
+     */
+    @GetMapping("/{username}/categories")
+    public ResponseEntity<ApiResponse<List<CategoryResponse>>> getPublicCategories(
+            @PathVariable String username) {
+
+        log.info("Get public categories request for: {}", username);
+
+        List<CategoryResponse> categories = categoryService.getPublicCategories(username);
+        return ResponseEntity.ok(ApiResponse.success(categories));
+    }
+
+    /**
+     * ユーザーの公開タグ一覧を取得
+     * GET /api/users/:username/tags
+     */
+    @GetMapping("/{username}/tags")
+    public ResponseEntity<ApiResponse<List<TagResponse>>> getPublicTags(
+            @PathVariable String username) {
+
+        log.info("Get public tags request for: {}", username);
+
+        List<TagResponse> tags = tagService.getPublicTags(username);
+        return ResponseEntity.ok(ApiResponse.success(tags));
     }
 }
