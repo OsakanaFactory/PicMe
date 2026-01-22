@@ -119,10 +119,11 @@ export default function PublicPage({ params }: { params: { username: string } })
       {/* Header / Banner */}
       <div className="relative h-48 sm:h-64 bg-slate-200 overflow-hidden">
         {profile.headerUrl ? (
-          <img 
-            src={profile.headerUrl} 
-            alt="Header" 
+          <img
+            src={profile.headerUrl}
+            alt="Header"
             className="h-full w-full object-cover"
+            loading="eager"
           />
         ) : (
           <div className="h-full w-full bg-gradient-to-r from-blue-300 to-indigo-400" />
@@ -134,10 +135,11 @@ export default function PublicPage({ params }: { params: { username: string } })
         <div className="relative -mt-16 sm:-mt-24 mb-8 text-center sm:text-left sm:flex sm:items-end sm:space-x-6">
           <div className="relative mx-auto sm:mx-0 h-32 w-32 sm:h-40 sm:w-40 rounded-full ring-4 ring-white overflow-hidden bg-white">
             {profile.avatarUrl ? (
-                <img 
-                src={profile.avatarUrl} 
-                alt={profile.displayName} 
-                className="h-full w-full object-cover text-slate-300" 
+                <img
+                  src={profile.avatarUrl}
+                  alt={profile.displayName}
+                  className="h-full w-full object-cover text-slate-300"
+                  loading="eager"
                 />
             ) : (
                 <div className="h-full w-full bg-slate-200 flex items-center justify-center text-slate-400 text-4xl font-bold">
@@ -290,6 +292,8 @@ export default function PublicPage({ params }: { params: { username: string } })
                                         src={artwork.imageUrl}
                                         alt={artwork.title}
                                         className="w-full h-full object-cover transition-transform hover:scale-105 duration-500"
+                                        loading="lazy"
+                                        decoding="async"
                                      />
                                 </div>
                                 <CardContent className="p-4">
@@ -320,6 +324,8 @@ export default function PublicPage({ params }: { params: { username: string } })
                                                 src={post.thumbnailUrl}
                                                 alt={post.title}
                                                 className="w-full h-full object-cover"
+                                                loading="lazy"
+                                                decoding="async"
                                             />
                                         </div>
                                     )}
