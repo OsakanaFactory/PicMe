@@ -9,7 +9,7 @@ import java.util.List;
 
 /**
  * 公開ページレスポンスDTO
- * ユーザーの公開プロフィール、作品、SNSリンクを含む
+ * ユーザーの公開プロフィール、作品、SNSリンク、お知らせを含む
  */
 @Data
 @Builder
@@ -20,4 +20,5 @@ public class PublicPageResponse {
     private ProfileResponse profile;
     private List<ArtworkResponse> artworks;
     private List<SocialLinkResponse> socialLinks;
+    private List<PostResponse> posts;
 }

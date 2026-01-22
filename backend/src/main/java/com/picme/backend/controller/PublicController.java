@@ -2,10 +2,12 @@ package com.picme.backend.controller;
 
 import com.picme.backend.dto.response.ApiResponse;
 import com.picme.backend.dto.response.ArtworkResponse;
+import com.picme.backend.dto.response.PostResponse;
 import com.picme.backend.dto.response.ProfileResponse;
 import com.picme.backend.dto.response.PublicPageResponse;
 import com.picme.backend.dto.response.SocialLinkResponse;
 import com.picme.backend.service.ArtworkService;
+import com.picme.backend.service.PostService;
 import com.picme.backend.service.ProfileService;
 import com.picme.backend.service.SocialLinkService;
 import lombok.RequiredArgsConstructor;
@@ -28,6 +30,7 @@ public class PublicController {
     private final ProfileService profileService;
     private final ArtworkService artworkService;
     private final SocialLinkService socialLinkService;
+    private final PostService postService;
 
     /**
      * ユーザーの公開ページデータを取得
@@ -43,11 +46,13 @@ public class PublicController {
         ProfileResponse profile = profileService.getPublicProfile(username);
         List<ArtworkResponse> artworks = artworkService.getPublicArtworks(username);
         List<SocialLinkResponse> socialLinks = socialLinkService.getPublicSocialLinks(username);
+        List<PostResponse> posts = postService.getPublicPosts(username);
 
         PublicPageResponse response = PublicPageResponse.builder()
                 .profile(profile)
                 .artworks(artworks)
                 .socialLinks(socialLinks)
+                .posts(posts)
                 .build();
 
         return ResponseEntity.ok(ApiResponse.success(response));
@@ -93,5 +98,34 @@ public class PublicController {
 
         List<SocialLinkResponse> socialLinks = socialLinkService.getPublicSocialLinks(username);
         return ResponseEntity.ok(ApiResponse.success(socialLinks));
+    }
+
+    /**
+     * ユーザーの公開お知らせ一覧を取得
+     * GET /api/users/:username/posts
+     */
+    @GetMapping("/{username}/posts")
+    public ResponseEntity<ApiResponse<List<PostResponse>>> getPublicPosts(
+            @PathVariable String username) {
+
+        log.info("Get public posts request for: {}", username);
+
+        List<PostResponse> posts = postService.getPublicPosts(username);
+        return ResponseEntity.ok(ApiResponse.success(posts));
+    }
+
+    /**
+     * ユーザーの公開お知らせ詳細を取得
+     * GET /api/users/:username/posts/:id
+     */
+    @GetMapping("/{username}/posts/{id}")
+    public ResponseEntity<ApiResponse<PostResponse>> getPublicPost(
+            @PathVariable String username,
+            @PathVariable Long id) {
+
+        log.info("Get public post request: {} for: {}", id, username);
+
+        PostResponse post = postService.getPublicPost(username, id);
+        return ResponseEntity.ok(ApiResponse.success(post));
     }
 }

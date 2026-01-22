@@ -61,7 +61,7 @@ public class SecurityConfig {
                         // 公開エンドポイント
                         .requestMatchers(
                                 "/api/auth/**",
-                                "/api/users/*",
+                                "/api/users/**",
                                 "/api/health",
                                 "/error")
                         .permitAll()
