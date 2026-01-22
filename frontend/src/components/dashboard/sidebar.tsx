@@ -10,6 +10,8 @@ import {
   Link as LinkIcon,
   FileText,
   Palette,
+  Folder,
+  Tag,
   LogOut,
   Settings,
   ExternalLink
@@ -31,6 +33,18 @@ const navItems = [
     title: '作品管理',
     href: '/artworks',
     icon: ImageIcon,
+  },
+  {
+    title: 'カテゴリー',
+    href: '/categories',
+    icon: Folder,
+    pro: true,
+  },
+  {
+    title: 'タグ',
+    href: '/tags',
+    icon: Tag,
+    pro: true,
   },
   {
     title: 'お知らせ',

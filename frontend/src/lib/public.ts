@@ -3,12 +3,16 @@ import { Profile } from './profile';
 import { Artwork } from './artworks';
 import { SocialLink } from './social-links';
 import { Post } from './posts';
+import { Category } from './categories';
+import { Tag } from './tags';
 
 export interface PublicPageData {
   profile: Profile;
   artworks: Artwork[];
   socialLinks: SocialLink[];
   posts: Post[];
+  categories: Category[];
+  tags: Tag[];
 }
 
 /**
@@ -32,5 +36,21 @@ export async function getPublicPosts(username: string): Promise<Post[]> {
  */
 export async function getPublicPost(username: string, postId: number): Promise<Post> {
   const response = await api.get(`/api/users/${username}/posts/${postId}`);
+  return response.data.data;
+}
+
+/**
+ * 公開カテゴリー一覧取得
+ */
+export async function getPublicCategories(username: string): Promise<Category[]> {
+  const response = await api.get(`/api/users/${username}/categories`);
+  return response.data.data;
+}
+
+/**
+ * 公開タグ一覧取得
+ */
+export async function getPublicTags(username: string): Promise<Tag[]> {
+  const response = await api.get(`/api/users/${username}/tags`);
   return response.data.data;
 }

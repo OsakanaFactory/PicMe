@@ -5,8 +5,14 @@ export interface Artwork {
   title: string;
   description: string;
   imageUrl: string;
+  thumbnailUrl?: string;
+  category?: string;
+  categoryId?: number;
+  tagIds?: number[];
   displayOrder: number;
+  visible?: boolean;
   createdAt: string;
+  updatedAt?: string;
 }
 
 export interface ArtworkRequest {

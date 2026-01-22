@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * 作品レスポンスDTO
@@ -22,6 +23,8 @@ public class ArtworkResponse {
     private String imageUrl;
     private String thumbnailUrl;
     private String category;
+    private Long categoryId;
+    private List<Long> tagIds;
     private Integer displayOrder;
     private Boolean visible;
     private LocalDateTime createdAt;

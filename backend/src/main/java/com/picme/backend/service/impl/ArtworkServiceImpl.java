@@ -15,6 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -186,6 +187,11 @@ public class ArtworkServiceImpl implements ArtworkService {
      * ArtworkエンティティをArtworkResponseにマッピング
      */
     private ArtworkResponse mapToResponse(Artwork artwork) {
+        Long categoryId = artwork.getCategoryEntity() != null ? artwork.getCategoryEntity().getId() : null;
+        List<Long> tagIds = artwork.getTags() != null
+                ? artwork.getTags().stream().map(tag -> tag.getId()).collect(Collectors.toList())
+                : Collections.emptyList();
+
         return ArtworkResponse.builder()
                 .id(artwork.getId())
                 .title(artwork.getTitle())
@@ -193,6 +199,8 @@ public class ArtworkServiceImpl implements ArtworkService {
                 .imageUrl(artwork.getImageUrl())
                 .thumbnailUrl(artwork.getThumbnailUrl())
                 .category(artwork.getCategory())
+                .categoryId(categoryId)
+                .tagIds(tagIds)
                 .displayOrder(artwork.getDisplayOrder())
                 .visible(artwork.getVisible())
                 .createdAt(artwork.getCreatedAt())

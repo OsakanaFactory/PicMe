@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { notFound } from 'next/navigation';
 import { getPublicPage, PublicPageData } from '@/lib/public';
-import { Loader2, Link as LinkIcon, Twitter, Instagram, Facebook, Youtube, MapPin, FileText, Calendar } from 'lucide-react';
+import { Loader2, Link as LinkIcon, Twitter, Instagram, Facebook, Youtube, MapPin, FileText, Calendar, Folder, Tag } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 
@@ -22,6 +22,8 @@ export default function PublicPage({ params }: { params: { username: string } })
   const [data, setData] = useState<PublicPageData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
+  const [selectedTags, setSelectedTags] = useState<number[]>([]);
 
   useEffect(() => {
     const loadData = async () => {
@@ -65,7 +67,7 @@ export default function PublicPage({ params }: { params: { username: string } })
     );
   }
 
-  const { profile, artworks, socialLinks, posts } = data;
+  const { profile, artworks, socialLinks, posts, categories = [], tags = [] } = data;
 
   // テーマに応じたスタイル設定
   const getThemeStyles = () => {
@@ -175,13 +177,113 @@ export default function PublicPage({ params }: { params: { username: string } })
             {/* Artworks Gallery */}
             <div>
                 <h2 className={`text-xl font-bold mb-4 ${themeStyles.text}`}>Gallery</h2>
-                {artworks.length === 0 ? (
+
+                {/* Category and Tag Filters */}
+                {(categories.length > 0 || tags.length > 0) && (
+                    <div className={`rounded-xl p-4 mb-6 ${cardClass} shadow-sm`}>
+                        {categories.length > 0 && (
+                            <div className="mb-4">
+                                <div className="flex items-center gap-2 mb-2">
+                                    <Folder className={`h-4 w-4 ${themeStyles.subtext}`} />
+                                    <span className={`text-sm font-medium ${themeStyles.subtext}`}>カテゴリー</span>
+                                </div>
+                                <div className="flex flex-wrap gap-2">
+                                    <button
+                                        onClick={() => setSelectedCategory(null)}
+                                        className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
+                                            selectedCategory === null
+                                                ? 'text-white'
+                                                : profile.theme === 'DARK'
+                                                    ? 'bg-slate-700 hover:bg-slate-600'
+                                                    : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
+                                        }`}
+                                        style={selectedCategory === null ? { backgroundColor: primaryColor } : {}}
+                                    >
+                                        すべて
+                                    </button>
+                                    {categories.map(cat => (
+                                        <button
+                                            key={cat.id}
+                                            onClick={() => setSelectedCategory(cat.id)}
+                                            className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
+                                                selectedCategory === cat.id
+                                                    ? 'text-white'
+                                                    : profile.theme === 'DARK'
+                                                        ? 'bg-slate-700 hover:bg-slate-600'
+                                                        : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
+                                            }`}
+                                            style={selectedCategory === cat.id ? { backgroundColor: primaryColor } : {}}
+                                        >
+                                            {cat.name}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
+                        {tags.length > 0 && (
+                            <div>
+                                <div className="flex items-center gap-2 mb-2">
+                                    <Tag className={`h-4 w-4 ${themeStyles.subtext}`} />
+                                    <span className={`text-sm font-medium ${themeStyles.subtext}`}>タグ</span>
+                                </div>
+                                <div className="flex flex-wrap gap-2">
+                                    {tags.map(tag => {
+                                        const isSelected = selectedTags.includes(tag.id);
+                                        return (
+                                            <button
+                                                key={tag.id}
+                                                onClick={() => {
+                                                    if (isSelected) {
+                                                        setSelectedTags(selectedTags.filter(id => id !== tag.id));
+                                                    } else {
+                                                        setSelectedTags([...selectedTags, tag.id]);
+                                                    }
+                                                }}
+                                                className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
+                                                    isSelected
+                                                        ? 'text-white'
+                                                        : profile.theme === 'DARK'
+                                                            ? 'bg-slate-700 hover:bg-slate-600'
+                                                            : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
+                                                }`}
+                                                style={isSelected ? { backgroundColor: accentColor } : {}}
+                                            >
+                                                #{tag.name}
+                                            </button>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                )}
+
+                {(() => {
+                    // フィルタリング処理
+                    const filteredArtworks = artworks.filter(artwork => {
+                        // カテゴリーフィルター
+                        if (selectedCategory !== null && artwork.categoryId !== selectedCategory) {
+                            return false;
+                        }
+                        // タグフィルター（選択されたタグのいずれかを含む）
+                        if (selectedTags.length > 0) {
+                            const artworkTagIds = artwork.tagIds || [];
+                            const hasMatchingTag = selectedTags.some(tagId => artworkTagIds.includes(tagId));
+                            if (!hasMatchingTag) {
+                                return false;
+                            }
+                        }
+                        return true;
+                    });
+
+                    return filteredArtworks.length === 0 ? (
                     <div className={`text-center py-12 rounded-xl border border-dashed ${profile.theme === 'DARK' ? 'border-slate-800 text-slate-500' : 'border-slate-300 text-slate-500'}`}>
-                        <p>作品はまだ公開されていません。</p>
+                        <p>{artworks.length === 0 ? '作品はまだ公開されていません。' : '条件に一致する作品がありません。'}</p>
                     </div>
                 ) : (
                     <div className={`grid ${getGridClass()} gap-6`}>
-                        {artworks.map(artwork => (
+                        {filteredArtworks.map(artwork => (
                             <Card key={artwork.id} className={`overflow-hidden border-0 shadow-sm hover:shadow-md transition-shadow ${cardClass}`}>
                                 <div className="aspect-[4/3] bg-slate-100 relative overflow-hidden">
                                      <img
@@ -200,7 +302,8 @@ export default function PublicPage({ params }: { params: { username: string } })
                             </Card>
                         ))}
                     </div>
-                )}
+                );
+                })()}
             </div>
 
             {/* News/Announcements Section */}
