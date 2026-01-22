@@ -9,6 +9,7 @@ import {
   Image as ImageIcon,
   Link as LinkIcon,
   FileText,
+  Palette,
   LogOut,
   Settings,
   ExternalLink
@@ -35,6 +36,11 @@ const navItems = [
     title: 'お知らせ',
     href: '/posts',
     icon: FileText,
+  },
+  {
+    title: 'テーマ設定',
+    href: '/themes',
+    icon: Palette,
   },
   {
     title: 'SNSリンク',

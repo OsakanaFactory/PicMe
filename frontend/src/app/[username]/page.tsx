@@ -67,12 +67,52 @@ export default function PublicPage({ params }: { params: { username: string } })
 
   const { profile, artworks, socialLinks, posts } = data;
 
-  // テーマに応じたスタイル設定 (簡易的)
-  const themeClass = profile.theme === 'DARK' ? 'bg-slate-900 text-white' : 'bg-white text-slate-900';
-  const cardClass = profile.theme === 'DARK' ? 'bg-slate-800 border-slate-700 text-white' : 'bg-white border-slate-200';
+  // テーマに応じたスタイル設定
+  const getThemeStyles = () => {
+    switch (profile.theme) {
+      case 'DARK':
+        return { bg: 'bg-slate-950', card: 'bg-slate-800 border-slate-700', text: 'text-white', subtext: 'text-slate-400' };
+      case 'WARM':
+        return { bg: 'bg-amber-50', card: 'bg-white border-amber-200', text: 'text-slate-900', subtext: 'text-slate-500' };
+      case 'COOL':
+        return { bg: 'bg-sky-50', card: 'bg-white border-sky-200', text: 'text-slate-900', subtext: 'text-slate-500' };
+      default: // LIGHT
+        return { bg: 'bg-slate-50', card: 'bg-white border-slate-200', text: 'text-slate-900', subtext: 'text-slate-500' };
+    }
+  };
+
+  const themeStyles = getThemeStyles();
+  const cardClass = themeStyles.card;
+
+  // フォントファミリーのマッピング
+  const getFontFamily = (fontId?: string) => {
+    switch (fontId) {
+      case 'noto-sans-jp': return '"Noto Sans JP", sans-serif';
+      case 'zen-kaku-gothic': return '"Zen Kaku Gothic New", sans-serif';
+      case 'm-plus-1p': return '"M PLUS 1p", sans-serif';
+      default: return 'system-ui, sans-serif';
+    }
+  };
+
+  // レイアウトのグリッドクラス
+  const getGridClass = () => {
+    switch (profile.layout) {
+      case 'GRID_3': return 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3';
+      case 'GRID_4': return 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-4';
+      case 'MASONRY': return 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3'; // TODO: 実際のメイソンリーはライブラリが必要
+      default: return 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3';
+    }
+  };
+
+  // カスタムカラーのスタイル
+  const primaryColor = profile.colorPrimary || '#3B82F6';
+  const accentColor = profile.colorAccent || '#10B981';
 
   return (
-    <div className={`min-h-screen ${profile.theme === 'DARK' ? 'bg-slate-950' : 'bg-slate-50'}`}>
+    <div
+      className={`min-h-screen ${themeStyles.bg} ${themeStyles.text}`}
+      style={{ fontFamily: getFontFamily(profile.fontFamily) }}
+    >
       
       {/* Header / Banner */}
       <div className="relative h-48 sm:h-64 bg-slate-200 overflow-hidden">
@@ -104,8 +144,8 @@ export default function PublicPage({ params }: { params: { username: string } })
             )}
           </div>
           <div className="mt-4 sm:mt-0 sm:pb-2 flex-1">
-             <h1 className={`text-2xl sm:text-3xl font-bold ${profile.theme === 'DARK' ? 'text-white' : 'text-slate-900'}`}>{profile.displayName}</h1>
-             <p className={`text-sm ${profile.theme === 'DARK' ? 'text-slate-400' : 'text-slate-500'}`}>@{params.username}</p>
+             <h1 className="text-2xl sm:text-3xl font-bold">{profile.displayName}</h1>
+             <p className={`text-sm ${themeStyles.subtext}`}>@{params.username}</p>
           </div>
         </div>
 
@@ -134,13 +174,13 @@ export default function PublicPage({ params }: { params: { username: string } })
             
             {/* Artworks Gallery */}
             <div>
-                <h2 className={`text-xl font-bold mb-4 ${profile.theme === 'DARK' ? 'text-white' : 'text-slate-900'}`}>Gallery</h2>
+                <h2 className={`text-xl font-bold mb-4 ${themeStyles.text}`}>Gallery</h2>
                 {artworks.length === 0 ? (
                     <div className={`text-center py-12 rounded-xl border border-dashed ${profile.theme === 'DARK' ? 'border-slate-800 text-slate-500' : 'border-slate-300 text-slate-500'}`}>
                         <p>作品はまだ公開されていません。</p>
                     </div>
                 ) : (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div className={`grid ${getGridClass()} gap-6`}>
                         {artworks.map(artwork => (
                             <Card key={artwork.id} className={`overflow-hidden border-0 shadow-sm hover:shadow-md transition-shadow ${cardClass}`}>
                                 <div className="aspect-[4/3] bg-slate-100 relative overflow-hidden">
@@ -153,7 +193,7 @@ export default function PublicPage({ params }: { params: { username: string } })
                                 <CardContent className="p-4">
                                     <h3 className="font-bold text-lg">{artwork.title}</h3>
                                     {artwork.description && (
-                                        <p className={`text-sm mt-1 line-clamp-2 ${profile.theme === 'DARK' ? 'text-slate-300' : 'text-slate-500'}`}>{artwork.description}</p>
+                                        <p className={`text-sm mt-1 line-clamp-2 ${themeStyles.subtext}`}>{artwork.description}</p>
                                     )}
 
                                 </CardContent>
@@ -166,7 +206,7 @@ export default function PublicPage({ params }: { params: { username: string } })
             {/* News/Announcements Section */}
             {posts && posts.length > 0 && (
                 <div>
-                    <h2 className={`text-xl font-bold mb-4 ${profile.theme === 'DARK' ? 'text-white' : 'text-slate-900'}`}>お知らせ</h2>
+                    <h2 className={`text-xl font-bold mb-4 ${themeStyles.text}`}>お知らせ</h2>
                     <div className="space-y-4">
                         {posts.map(post => (
                             <Card key={post.id} className={`overflow-hidden border-0 shadow-sm hover:shadow-md transition-shadow ${cardClass}`}>
@@ -182,8 +222,8 @@ export default function PublicPage({ params }: { params: { username: string } })
                                     )}
                                     <CardContent className="p-4 flex-1">
                                         <div className="flex items-center gap-2 mb-2">
-                                            <FileText className={`h-4 w-4 ${profile.theme === 'DARK' ? 'text-slate-400' : 'text-slate-500'}`} />
-                                            <span className={`text-xs ${profile.theme === 'DARK' ? 'text-slate-400' : 'text-slate-500'}`}>
+                                            <FileText className={`h-4 w-4 ${themeStyles.subtext}`} />
+                                            <span className={`text-xs ${themeStyles.subtext}`}>
                                                 {post.publishedAt ? new Date(post.publishedAt).toLocaleDateString('ja-JP', {
                                                     year: 'numeric',
                                                     month: 'long',
@@ -192,7 +232,7 @@ export default function PublicPage({ params }: { params: { username: string } })
                                             </span>
                                         </div>
                                         <h3 className="font-bold text-lg mb-2">{post.title}</h3>
-                                        <p className={`text-sm line-clamp-3 ${profile.theme === 'DARK' ? 'text-slate-300' : 'text-slate-500'}`}>
+                                        <p className={`text-sm line-clamp-3 ${themeStyles.subtext}`}>
                                             {post.content}
                                         </p>
                                     </CardContent>

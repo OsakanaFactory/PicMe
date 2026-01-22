@@ -8,18 +8,22 @@ export interface Profile {
   avatarUrl: string;
   headerUrl: string;
   theme: string;
-  fontFamily: string;
+  colorPrimary?: string;
+  colorAccent?: string;
+  fontFamily?: string;
   layout: string;
 }
 
 export interface ProfileUpdateRequest {
-  displayName: string;
+  displayName?: string;
   bio?: string;
   avatarUrl?: string;
   headerUrl?: string;
-  theme: string;
-  fontFamily: string;
-  layout: string;
+  theme?: string;
+  colorPrimary?: string;
+  colorAccent?: string;
+  fontFamily?: string;
+  layout?: string;
 }
 
 /**
