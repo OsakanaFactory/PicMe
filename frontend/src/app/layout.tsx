@@ -27,7 +27,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ja">
-      <body className={`${outfit.variable} ${notoSansJP.variable} antialiased min-h-screen bg-paper-white text-slate-900 font-sans`}>
+      <body 
+        className={`${outfit.variable} ${notoSansJP.variable} antialiased min-h-screen bg-paper-white text-slate-900 font-sans`}
+        suppressHydrationWarning
+      >
         <Providers>{children}</Providers>
       </body>
     </html>
