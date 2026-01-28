@@ -14,14 +14,14 @@ import { BentoGrid, BentoGridItem } from '@/components/ui/bento-grid';
 import { MasonryGrid } from '@/components/ui/masonry-grid';
 import { SkillBar } from '@/components/ui/skill-bar';
 
-// SNSアイコン
+// SNSアイコン (v2.1: サイズ拡大 24px → 48px)
 const getPlatformIcon = (platform: string) => {
   switch (platform.toLowerCase()) {
-    case 'twitter': return <Twitter className="h-8 w-8" />;
-    case 'instagram': return <Instagram className="h-8 w-8" />;
-    case 'facebook': return <Facebook className="h-8 w-8" />;
-    case 'youtube': return <Youtube className="h-8 w-8" />;
-    default: return <LinkIcon className="h-8 w-8" />;
+    case 'twitter': return <Twitter className="h-10 w-10 md:h-12 md:w-12" />;
+    case 'instagram': return <Instagram className="h-10 w-10 md:h-12 md:w-12" />;
+    case 'facebook': return <Facebook className="h-10 w-10 md:h-12 md:w-12" />;
+    case 'youtube': return <Youtube className="h-10 w-10 md:h-12 md:w-12" />;
+    default: return <LinkIcon className="h-10 w-10 md:h-12 md:w-12" />;
   }
 };
 
@@ -88,56 +88,57 @@ export default function PublicPage({ params }: { params: Promise<{ username: str
   });
 
   return (
-    <div className="min-h-screen bg-paper-white text-slate-900 font-sans pb-32">
-      
-      {/* 1. Header & Intro Section */}
-      <div className="max-w-7xl mx-auto px-6 pt-20 pb-16 sm:px-8 lg:px-12">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-16">
+    <div className="min-h-screen bg-paper-white text-slate-900 font-sans pb-40">
+
+      {/* 1. Header & Intro Section (v2.1: 余白拡大、min-h-[40vh]) */}
+      <div className="max-w-7xl mx-auto px-6 pt-24 pb-20 sm:px-8 lg:px-12 min-h-[45vh]">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-20">
           
-          {/* Left Column: Profile Identity (Magazine Cover Style) */}
-          <div className="lg:col-span-5 space-y-10">
-            <div className="space-y-6">
+          {/* Left Column: Profile Identity (Magazine Cover Style) - v2.1: アバター・余白拡大 */}
+          <div className="lg:col-span-5 space-y-12">
+            <div className="space-y-8">
               <div className="inline-block">
                 <span className="font-outfit text-sm font-bold tracking-widest text-accent-secondary uppercase">
                   Based in Tokyo {/* TODO: Add location field */}
                 </span>
-                <SquigglyLine className="text-accent-primary mt-2 w-32" />
+                <SquigglyLine className="text-accent-primary mt-2 w-40" />
               </div>
-              
+
               <div>
-                <h1 className="font-outfit text-7xl md:text-8xl font-bold tracking-tighter leading-[0.9] mb-4">
+                <h1 className="font-outfit text-6xl md:text-8xl lg:text-9xl font-bold tracking-tighter leading-[0.85] mb-4">
                   {profile.displayName}
                 </h1>
-                <p className="font-outfit text-2xl text-slate-400 font-medium ml-2">
+                <p className="font-outfit text-xl md:text-2xl text-slate-400 font-medium ml-1">
                   @{username}
                 </p>
               </div>
 
-              <div className="flex items-center gap-6 py-6">
-                 <Avatar className="h-40 w-40 rounded-2xl border-4 border-slate-100 shadow-[8px_8px_0px_#000]">
-                    <AvatarImage src={profile.avatarUrl || ''} alt={profile.displayName} />
-                    <AvatarFallback className="text-5xl">{profile.displayName.charAt(0)}</AvatarFallback>
+              {/* v2.1: アバター 160px → 240px (PC) / 180px (SP), rounded-3xl */}
+              <div className="flex items-center gap-8 py-8">
+                 <Avatar className="h-[180px] w-[180px] md:h-[240px] md:w-[240px] rounded-3xl border-4 border-slate-100 shadow-[12px_12px_0px_#1A1A1A] transition-transform hover:translate-x-[-4px] hover:translate-y-[-4px]">
+                    <AvatarImage src={profile.avatarUrl || ''} alt={profile.displayName} className="rounded-3xl" />
+                    <AvatarFallback className="text-6xl md:text-7xl rounded-3xl">{profile.displayName.charAt(0)}</AvatarFallback>
                  </Avatar>
               </div>
 
-              <p className="text-slate-600 leading-relaxed text-xl whitespace-pre-wrap">
+              <p className="text-slate-600 leading-relaxed text-lg md:text-xl whitespace-pre-wrap max-w-lg">
                 {profile.bio || '自己紹介はまだありません。'}
               </p>
             </div>
 
-            {/* Social Links (Horizontal List) */}
+            {/* Social Links (Horizontal List) - v2.1: アイコン・ボタンサイズ拡大 */}
             {socialLinks.length > 0 && (
-              <div className="flex flex-wrap gap-4">
+              <div className="flex flex-wrap gap-4 md:gap-5">
                 {socialLinks.map(link => (
-                  <a 
-                    key={link.id} 
-                    href={link.url} 
-                    target="_blank" 
+                  <a
+                    key={link.id}
+                    href={link.url}
+                    target="_blank"
                     rel="noopener noreferrer"
                   >
-                    <Button variant="outline" size="lg" className="h-14 px-6 gap-3 rounded-full border-2 hover:bg-accent-primary/20 hover:border-accent-primary hover:text-accent-primary transition-all">
+                    <Button variant="outline" size="lg" className="h-16 md:h-18 px-6 md:px-8 gap-3 md:gap-4 rounded-full border-2 hover:bg-accent-primary/20 hover:border-accent-primary hover:text-accent-primary hover:scale-105 transition-all duration-200">
                       {getPlatformIcon(link.platform)}
-                      <span className="text-lg font-bold">{link.platform}</span>
+                      <span className="text-base md:text-lg font-bold">{link.platform}</span>
                     </Button>
                   </a>
                 ))}
@@ -199,18 +200,18 @@ export default function PublicPage({ params }: { params: Promise<{ username: str
         </div>
       </div>
 
-      {/* 2. Works Section */}
-      <div className="max-w-7xl mx-auto px-6 mt-32 sm:px-8 lg:px-12">
-        <SectionTitle number="02" title="WORKS" className="mb-12" />
+      {/* 2. Works Section - v2.1: 余白拡大 */}
+      <div className="max-w-7xl mx-auto px-6 mt-40 md:mt-48 sm:px-8 lg:px-12">
+        <SectionTitle number="02" title="WORKS" className="mb-16" />
         
-        {/* Chips for Tags */}
+        {/* Chips for Tags - v2.1: サイズ拡大 */}
         {tags.length > 0 && (
-            <div className="flex flex-wrap gap-3 mb-10">
+            <div className="flex flex-wrap gap-3 md:gap-4 mb-12 md:mb-16">
                 {tags.map(tag => (
-                    <Badge 
+                    <Badge
                         key={tag.id}
                         variant={selectedTags.includes(tag.id) ? 'coral' : 'secondary'}
-                        className="cursor-pointer px-5 py-2 text-base bg-white border border-slate-200 hover:border-accent-secondary"
+                        className="cursor-pointer px-5 md:px-6 py-2 md:py-2.5 text-base md:text-lg bg-white border-2 border-slate-200 hover:border-accent-secondary hover:scale-105 transition-all duration-200"
                         onClick={() => {
                             if (selectedTags.includes(tag.id)) {
                                 setSelectedTags(selectedTags.filter(id => id !== tag.id));
@@ -226,31 +227,43 @@ export default function PublicPage({ params }: { params: Promise<{ username: str
         )}
 
         {filteredArtworks.length === 0 ? (
-            <div className="text-center py-32 border-2 border-dashed border-slate-200 rounded-xl">
-                <p className="text-slate-400 text-xl">作品が見つかりませんでした</p>
+            <div className="text-center py-40 border-2 border-dashed border-slate-200 rounded-2xl">
+                <p className="text-slate-400 text-xl md:text-2xl">作品が見つかりませんでした</p>
             </div>
         ) : (
-            <MasonryGrid columns={3} gap={32}>
+            /* v2.1: 3カラム → 2カラム（PC）、1カラム（SP）、gap拡大、角丸拡大 */
+            <MasonryGrid columns={2} mobileColumns={1} gap={32}>
                 {filteredArtworks.map(artwork => (
-                    <div key={artwork.id} className="group relative break-inside-avoid mb-8">
-                        <div className="relative overflow-hidden rounded-xl border-2 border-slate-100 bg-white shadow-none hover:shadow-[8px_8px_0px_#1A1A1A] hover:translate-x-[-4px] hover:translate-y-[-4px] transition-all duration-300 cursor-pointer">
-                            <img 
-                                src={artwork.imageUrl} 
-                                alt={artwork.title}
-                                className="w-full h-auto object-cover"
-                                loading="lazy"
-                            />
-                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col items-center justify-center p-6 backdrop-blur-[2px]">
-                                <div className="bg-white/90 text-slate-900 px-6 py-3 rounded-full font-bold font-outfit transform scale-90 group-hover:scale-100 transition-transform duration-300 shadow-xl mb-4">
+                    <div key={artwork.id} className="group relative break-inside-avoid">
+                        <div className="relative overflow-hidden rounded-2xl border-2 border-slate-100 bg-white shadow-none hover:shadow-[12px_12px_0px_#1A1A1A] hover:translate-x-[-6px] hover:translate-y-[-6px] transition-all duration-300 cursor-pointer">
+                            {/* v2.1: 画像を大きく表示、scale効果追加 */}
+                            <div className="overflow-hidden">
+                                <img
+                                    src={artwork.imageUrl}
+                                    alt={artwork.title}
+                                    className="w-full h-auto object-cover transition-transform duration-500 group-hover:scale-105"
+                                    loading="lazy"
+                                />
+                            </div>
+                            {/* v2.1: ホバーオーバーレイ改善 */}
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col items-center justify-center p-8 backdrop-blur-[1px]">
+                                <div className="bg-white text-slate-900 px-8 py-4 rounded-full font-bold font-outfit text-lg transform scale-90 group-hover:scale-100 transition-transform duration-300 shadow-2xl mb-6">
                                   ▶ VIEW WORK
                                 </div>
-                                <div className="text-white text-center transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
-                                    <h3 className="font-bold text-xl mb-2 text-shadow">{artwork.title}</h3>
+                                <div className="text-white text-center transform translate-y-6 group-hover:translate-y-0 transition-transform duration-300">
+                                    <h3 className="font-bold text-xl md:text-2xl mb-3 drop-shadow-lg">{artwork.title}</h3>
                                     {artwork.description && (
-                                        <p className="text-sm text-slate-100 line-clamp-2 px-2">{artwork.description}</p>
+                                        <p className="text-sm md:text-base text-slate-100 line-clamp-2 px-4 drop-shadow">{artwork.description}</p>
                                     )}
                                 </div>
                             </div>
+                        </div>
+                        {/* v2.1: カード下にタイトル表示 */}
+                        <div className="mt-4 px-1">
+                            <h3 className="font-bold text-lg md:text-xl text-slate-900 truncate">{artwork.title}</h3>
+                            <p className="text-sm text-slate-400 mt-1">
+                                {artwork.createdAt ? new Date(artwork.createdAt).toLocaleDateString('ja-JP', { year: 'numeric', month: 'short' }) : ''}
+                            </p>
                         </div>
                     </div>
                 ))}
@@ -258,9 +271,9 @@ export default function PublicPage({ params }: { params: Promise<{ username: str
         )}
       </div>
 
-      {/* 3. Footer */}
-      <footer className="mt-40 border-t border-slate-100 py-16 text-center">
-         <p className="font-outfit text-slate-300 text-base tracking-widest">DESIGNED WITH PICME</p>
+      {/* 3. Footer - v2.1: 余白拡大 */}
+      <footer className="mt-48 md:mt-56 border-t border-slate-100 py-20 text-center">
+         <p className="font-outfit text-slate-300 text-lg tracking-widest">DESIGNED WITH PICME</p>
       </footer>
 
     </div>
