@@ -1,127 +1,92 @@
-# PicMe（ぴくみー）🎨
+# PicMe�E��Eくみー�E�🎨
 
-**イラストレーターのための簡単ポートフォリオサイト作成サービス**
+**イラストレーターのための簡単�Eートフォリオサイト作�Eサービス**
 
 ---
 
-## 📖 プロジェクト概要
-
-PicMeは、イラストレーターが簡単に自分のポートフォリオサイトを作成できるWebサービスです。プログラミングスキルがなくても、魅力的で個性的なプロフィールページを誰でも作成できます。
-
+## 📖 プロジェクト概要E
+PicMeは、イラストレーターが簡単に自刁E�Eポ�Eトフォリオサイトを作�EできるWebサービスです。�Eログラミングスキルがなくても、E��E��皁E��個性皁E��プロフィールペ�Eジを誰でも作�Eできます、E
 ### コンセプト
-- **Twitterプロフィールのビジュアル拡張版**
-- ノーコードで簡単にサイト作成
-- 作品の魅力を最大限に引き出すデザイン
+- **Twitterプロフィールのビジュアル拡張牁E*
+- ノ�Eコードで簡単にサイト作�E
+- 作品の魁E��を最大限に引き出すデザイン
 - SNSとシームレスに連携
 
-### ターゲットユーザー
-- イラストを描くスキルはあるが、プログラミングスキルはない人
-- SNSで活動しているイラストレーター（初心者〜プロまで）
-- 自分の作品紹介サイトが欲しい人
+### ターゲチE��ユーザー
+- イラストを描くスキルはあるが、�EログラミングスキルはなぁE��
+- SNSで活動してぁE��イラストレーター�E��E忁E��E���Eロまで�E�E- 自刁E�E作品紹介サイトが欲しい人
 
 ---
 
-## 📚 ドキュメント
-
-### 設計書（確定版 - v1.1）
-
-| ドキュメント | 説明 | リンク |
+## 📚 ドキュメンチE
+### 設計書�E�確定版 - v1.1�E�E
+| ドキュメンチE| 説昁E| リンク |
 |------------|------|--------|
-| **📋 要件定義書** | プロジェクトの目的、ターゲット、主要機能、MVP、プラン詳細 | [docs/要件定義書.md](./docs/要件定義書.md) ⭐ |
-| **🏗️ 基本設計書** | システムアーキテクチャ、データベース設計、API設計 | [docs/基本設計書.md](./docs/基本設計書.md) |
-| **📐 詳細設計書** | 画面設計、API詳細仕様、エラー処理、テストケース | [docs/詳細設計書.md](./docs/詳細設計書.md) |
-| **✅ 進捗管理（タスク）** | 実装タスクリスト、フェーズ別進捗管理 | [docs/進捗管理（タスク）.md](./docs/進捗管理（タスク）.md) 🚀 |
+| **📋 要件定義書** | プロジェクト�E目皁E��ターゲチE��、主要機�E、MVP、�Eラン詳細 | [docs/要件定義書.md](./docs/要件定義書.md) ⭁E|
+| **🏗�E�E基本設計書** | シスチE��アーキチE��チャ、データベ�Eス設計、API設訁E| [docs/基本設計書.md](./docs/基本設計書.md) |
+| **📐 詳細設計書** | 画面設計、API詳細仕様、エラー処琁E��テストケース | [docs/詳細設計書.md](./docs/詳細設計書.md) |
+| **✁E進捗管琁E��タスク�E�E* | 実裁E��スクリスト、フェーズ別進捗管琁E| [docs/進捗管琁E��タスク�E�Emd](./docs/進捗管琁E��タスク�E�Emd) 🚀 |
 
-### 主な決定事項
-
-- **プラン構成**: 4段階フリーミアム（Free / Starter / Pro / Studio）
-- **収益モデル**: サブスクリプション + Google AdSense（Freeプランのみ）
-- **技術スタック**: Next.js 15 + Spring Boot 3.x + PostgreSQL 15
-- **インフラ**: Vercel（フロント） + Railway（バックエンド・DB） + Cloudinary（画像）
-
+### 主な決定事頁E
+- **プラン構�E**: 4段階フリーミアム�E�Eree / Starter / Pro / Studio�E�E- **収益モチE��**: サブスクリプション + Google AdSense�E�Ereeプランのみ�E�E- **技術スタチE��**: Next.js 15 + Spring Boot 3.x + PostgreSQL 15
+- **インフラ**: Vercel�E�フロント！E+ Railway�E�バチE��エンド�EDB�E�E+ Cloudinary�E�画像！E
 ---
 
-## ✨ 主要機能
+## ✨ 主要機�E
 
-### MVP機能（Phase 1）
-- ✅ ユーザー認証（メール+パスワード、Twitter/Google OAuth）
-- ✅ 基本プロフィール編集（名前、アイコン、自己紹介）
-- ✅ 画像ギャラリー（作品のアップロード・表示）
-- ✅ SNSリンク管理
-- ✅ 公開ページ（username.picme.com）
-
-### Phase 2以降
-- お知らせ・ブログ機能
-- テーマ・デザインカスタマイズ
-- サブスクリプション機能（有料プラン）
-- アクセス解析
-- 独自ドメイン接続
-
+### MVP機�E�E�Ehase 1�E�E- ✁Eユーザー認証�E�メール+パスワード、Twitter/Google OAuth�E�E- ✁E基本プロフィール編雁E��名前、アイコン、�E己紹介！E- ✁E画像ギャラリー�E�作品のアチE�Eロード�E表示�E�E- ✁ESNSリンク管琁E- ✁E公開�Eージ�E�Esername.picme.com�E�E
+### Phase 2以陁E- お知らせ・ブログ機�E
+- チE�Eマ�EチE��インカスタマイズ
+- サブスクリプション機�E�E�有料�Eラン�E�E- アクセス解极E- 独自ドメイン接綁E
 ---
 
-## 🛠️ 技術スタック
+## 🛠�E�E技術スタチE��
 
-### フロントエンド（推奨）
-- **Next.js 15** (App Router)
+### フロントエンド（推奨�E�E- **Next.js 15** (App Router)
 - **React 19**
 - **TypeScript**
 - **TailwindCSS**
 - **shadcn/ui**
 
-### バックエンド（確定）
-- **Spring Boot 3.x**
+### バックエンド（確定！E- **Spring Boot 3.x**
 - **Spring Security**
 - **Spring Data JPA**
 - **PostgreSQL**
 
-### インフラ（推奨）
-- **Vercel** (フロントエンド)
-- **Railway** (バックエンド + DB)
+### インフラ�E�推奨�E�E- **Vercel** (フロントエンチE
+- **Railway** (バックエンチE+ DB)
 - **Cloudinary** (画像ストレージ)
 
 ### 外部サービス
-- **Stripe** (決済)
+- **Stripe** (決渁E
 - **Twitter API** (OAuth)
 - **Google OAuth**
 
 ---
 
-## 💎 収益モデル
+## 💎 収益モチE��
 
-### 2段階プラン（初期リリース）
-
-| プラン | 価格 | 主な機能 |
+### 2段階�Eラン�E��E期リリース�E�E
+| プラン | 価格 | 主な機�E |
 |-------|------|---------|
-| **Free** | 無料 | 基本機能、画像15枚、SNSリンク3個、広告表示 |
-| **Pro** | ¥680/月 or ¥6,800/年 | 広告非表示、画像・リンク無制限、カスタマイズ、アクセス解析 |
+| **Free** | 無斁E| 基本機�E、画僁E5枚、SNSリンク3個、庁E��表示 |
+| **Pro** | ¥680/朁Eor ¥6,800/年 | 庁E��非表示、画像�Eリンク無制限、カスタマイズ、アクセス解极E|
 
-詳細は [monetization-strategy.md](./monetization-strategy.md) を参照。
-（旧版: [premium-features-proposal.md](./premium-features-proposal.md)）
+詳細は [monetization-strategy.md](./monetization-strategy.md) を参照、E�E�旧牁E [premium-features-proposal.md](./premium-features-proposal.md)�E�E
+---
+
+## 📅 開発スケジュール�E�目安！E
+```
+2026年1朁E Phase 0�E�事前準備�E�E2026年2月、E朁E Phase 1�E�EVP開発�E�E2026年4朁E Phase 2�E�追加機�E�E�E2026年5朁E Phase 3�E�有料機�E�E�E2026年6朁E Phase 4�E�β版�E開！E2026年7朁E Phase 5�E�正式リリース�E�E```
 
 ---
 
-## 📅 開発スケジュール（目安）
+## 🎯 KPI・目樁E
+### β版リリース晁E- 登録ユーザー: 100人
+- アクチE��ブユーザー: 50人
 
-```
-2026年1月: Phase 0（事前準備）
-2026年2月〜3月: Phase 1（MVP開発）
-2026年4月: Phase 2（追加機能）
-2026年5月: Phase 3（有料機能）
-2026年6月: Phase 4（β版公開）
-2026年7月: Phase 5（正式リリース）
-```
-
----
-
-## 🎯 KPI・目標
-
-### β版リリース時
-- 登録ユーザー: 100人
-- アクティブユーザー: 50人
-
-### 正式リリース後3ヶ月
-- 登録ユーザー: 1,000人
-- アクティブユーザー: 500人
+### 正式リリース征Eヶ朁E- 登録ユーザー: 1,000人
+- アクチE��ブユーザー: 500人
 - 有料プラン転換率: 10%
 - 月間収益: ¥50,000
 
@@ -129,88 +94,67 @@ PicMeは、イラストレーターが簡単に自分のポートフォリオサ
 
 ## 🚀 はじめに
 
-### 1. 📋 まず決定事項サマリーを読む
+### 1. 📋 まず決定事頁E��マリーを読む
 
-プロジェクトの全体像を素早く把握するには、まずこちらを読んでください：
-
-**⭐ [decisions-summary.md](./decisions-summary.md)** - 確定した技術スタック・プラン・戦略のまとめ
-
+プロジェクト�E全体像を素早く把握するには、まずこちらを読んでください�E�E
+**⭁E[decisions-summary.md](./decisions-summary.md)** - 確定した技術スタチE��・プラン・戦略のまとめE
 ### 2. 📚 詳細ドキュメントを読む
 
-さらに詳しく知りたい場合は、以下を順番に読んでください：
-
+さらに詳しく知りたぁE��合�E、以下を頁E��に読んでください�E�E
 1. [requirements.md](./requirements.md) - 要件定義
 2. [monetization-strategy.md](./monetization-strategy.md) - マネタイゼーション戦略
-3. [infrastructure-comparison.md](./infrastructure-comparison.md) - インフラ詳細比較
-4. [system-architecture.md](./system-architecture.md) - システム設計
-5. [next-steps.md](./next-steps.md) - 次のアクション
+3. [infrastructure-comparison.md](./infrastructure-comparison.md) - インフラ詳細比輁E4. [system-architecture.md](./system-architecture.md) - シスチE��設訁E5. [next-steps.md](./next-steps.md) - 次のアクション
 
-### 3. 競合分析を実施する
+### 3. 競合�E析を実施する
 
-Linktree、lit.link、Carrd等の競合サービスを分析し、差別化ポイントを明確にします。
+Linktree、lit.link、Carrd等�E競合サービスを�E析し、差別化�Eイントを明確にします、E
+### 4. インフラの最終確誁E
+推奨構�E�E�Eercel + Railway + Cloudinary�E�で良ぁE��最終確認します、E詳細は [infrastructure-comparison.md](./infrastructure-comparison.md) を参照、E
+### 5. 開発環墁E��セチE��アチE�Eする
 
-### 4. インフラの最終確認
-
-推奨構成（Vercel + Railway + Cloudinary）で良いか最終確認します。
-詳細は [infrastructure-comparison.md](./infrastructure-comparison.md) を参照。
-
-### 5. 開発環境をセットアップする
-
-[next-steps.md](./next-steps.md) の「Phase 0: 事前準備」を参照し、開発環境を構築します。
-
-### 6. MVP開発を開始する
-
-[next-steps.md](./next-steps.md) の「Phase 1: MVP開発」を参照し、開発を進めます。
-
+[next-steps.md](./next-steps.md) の「Phase 0: 事前準備」を参�Eし、E��発環墁E��構築します、E
+### 6. MVP開発を開始すめE
+[next-steps.md](./next-steps.md) の「Phase 1: MVP開発」を参�Eし、E��発を進めます、E
 ---
 
-## 📦 リポジトリ構成
+## 📦 リポジトリ構�E
 
 ```
 PicMe/
-├── frontend/              # Next.js 15 フロントエンド
-│   ├── src/
-│   │   ├── app/          # Next.js App Router
-│   │   ├── components/   # Reactコンポーネント
-│   │   └── lib/          # ユーティリティ
-│   ├── Dockerfile
-│   ├── package.json
-│   └── tsconfig.json
-├── backend/               # Spring Boot 3.x バックエンド
-│   ├── src/main/java/com/picme/backend/
-│   │   ├── config/       # 設定クラス
-│   │   ├── controller/   # コントローラー
-│   │   ├── service/      # サービス層
-│   │   ├── repository/   # リポジトリ層
-│   │   ├── model/        # エンティティ
-│   │   ├── dto/          # データ転送オブジェクト
-│   │   ├── security/     # セキュリティ
-│   │   └── exception/    # 例外処理
-│   ├── Dockerfile
-│   └── pom.xml
-├── docs/                  # ドキュメント
-│   ├── 要件定義書.md
-│   ├── 基本設計書.md
-│   ├── 詳細設計書.md
-│   └── 進捗管理（タスク）.md
-├── docker-compose.yml     # Docker Compose設定
-├── .gitignore
+├── frontend/              # Next.js 15 フロントエンチE━E  ├── src/
+━E  ━E  ├── app/          # Next.js App Router
+━E  ━E  ├── components/   # Reactコンポ�EネンチE━E  ━E  └── lib/          # ユーチE��リチE��
+━E  ├── Dockerfile
+━E  ├── package.json
+━E  └── tsconfig.json
+├── backend/               # Spring Boot 3.x バックエンチE━E  ├── src/main/java/com/picme/backend/
+━E  ━E  ├── config/       # 設定クラス
+━E  ━E  ├── controller/   # コントローラー
+━E  ━E  ├── service/      # サービス層
+━E  ━E  ├── repository/   # リポジトリ層
+━E  ━E  ├── model/        # エンチE��チE��
+━E  ━E  ├── dto/          # チE�Eタ転送オブジェクチE━E  ━E  ├── security/     # セキュリチE��
+━E  ━E  └── exception/    # 例外�E琁E━E  ├── Dockerfile
+━E  └── pom.xml
+├── docs/                  # ドキュメンチE━E  ├── 要件定義書.md
+━E  ├── 基本設計書.md
+━E  ├── 詳細設計書.md
+━E  └── 進捗管琁E��タスク�E�Emd
+├── docker-compose.yml     # Docker Compose設宁E├── .gitignore
 └── README.md
 ```
 
 ---
 
-## 🚀 開発環境セットアップ
+## 🚀 開発環墁E��チE��アチE�E
 
 ### 前提条件
 
-以下のソフトウェアがインストールされている必要があります：
-
-- **Docker Desktop** (最新版)
+以下�Eソフトウェアがインスト�EルされてぁE��忁E��があります！E
+- **Docker Desktop** (最新牁E
 - **Git**
 
-### セットアップ手順
-
+### セチE��アチE�E手頁E
 #### 1. リポジトリのクローン
 
 ```bash
@@ -218,27 +162,23 @@ git clone https://github.com/OsakanaFactory/PicMe.git
 cd PicMe
 ```
 
-#### 2. Docker Composeで環境を起動
-
+#### 2. Docker Composeで環墁E��起勁E
 ```bash
 docker-compose up -d
 ```
 
-これにより、以下のサービスが起動します：
-
+これにより、以下�Eサービスが起動します！E
 - **PostgreSQL**: `localhost:5432`
 - **Spring Boot Backend**: `localhost:8080`
-- **Next.js Frontend**: `localhost:3000`
+- **Next.js Frontend**: `localhost:3001`
 
-#### 3. 動作確認
-
-##### バックエンドのヘルスチェック
+#### 3. 動作確誁E
+##### バックエンド�EヘルスチェチE��
 ```bash
 curl http://localhost:8080/api/health
 ```
 
-期待されるレスポンス：
-```json
+期征E��れるレスポンス�E�E```json
 {
   "status": "UP",
   "service": "PicMe Backend",
@@ -248,71 +188,57 @@ curl http://localhost:8080/api/health
 }
 ```
 
-##### フロントエンドの確認
-ブラウザで `http://localhost:3000` を開く
-
-#### 4. ログの確認
-
+##### フロントエンド�E確誁Eブラウザで `http://localhost:3001` を開ぁE
+#### 4. ログの確誁E
 ```bash
 # すべてのサービスのログを表示
 docker-compose logs -f
 
-# 特定のサービスのログを表示
+# 特定�Eサービスのログを表示
 docker-compose logs -f backend
 docker-compose logs -f frontend
 docker-compose logs -f postgres
 ```
 
-#### 5. 停止・再起動
-
+#### 5. 停止・再起勁E
 ```bash
 # 停止
 docker-compose down
 
-# 再起動
-docker-compose restart
+# 再起勁Edocker-compose restart
 
-# データベースを含めて完全に削除
+# チE�Eタベ�Eスを含めて完�Eに削除
 docker-compose down -v
 ```
 
-### トラブルシューティング
+### トラブルシューチE��ング
 
-#### ポートが既に使用されている場合
-
-`docker-compose.yml`のポート番号を変更してください：
-
+#### ポ�Eトが既に使用されてぁE��場吁E
+`docker-compose.yml`のポ�Eト番号を変更してください�E�E
 ```yaml
 ports:
-  - "3001:3000"  # フロントエンド
-  - "8081:8080"  # バックエンド
-  - "5433:5432"  # PostgreSQL
+  - "3001:3001"  # フロントエンチE  - "8081:8080"  # バックエンチE  - "5433:5432"  # PostgreSQL
 ```
 
-#### コンテナがビルドできない場合
-
+#### コンチE��がビルドできなぁE��吁E
 ```bash
-# キャッシュをクリアして再ビルド
-docker-compose build --no-cache
+# キャチE��ュをクリアして再ビルチEdocker-compose build --no-cache
 docker-compose up -d
 ```
 
-#### データベース接続エラーの場合
-
+#### チE�Eタベ�Eス接続エラーの場吁E
 ```bash
-# PostgreSQLコンテナに接続して確認
-docker-compose exec postgres psql -U picme_user -d picme_db
+# PostgreSQLコンチE��に接続して確誁Edocker-compose exec postgres psql -U picme_user -d picme_db
 
-# テーブル一覧を表示
+# チE�Eブル一覧を表示
 \dt
 ```
 
 ---
 
-## 🤝 貢献
+## 🤁E貢献
 
-現在は個人プロジェクトとして開発中です。
-
+現在は個人プロジェクトとして開発中です、E
 ---
 
 ## 📄 ライセンス
@@ -321,42 +247,24 @@ TBD
 
 ---
 
-## 📞 お問い合わせ
+## 📞 お問ぁE��わせ
 
-- プロジェクトに関する質問: （後で追加）
-- バグ報告: （後で追加）
-
+- プロジェクトに関する質啁E �E�後で追加�E�E- バグ報呁E �E�後で追加�E�E
 ---
 
-## 🎉 ステータス
+## 🎉 スチE�Eタス
 
-**現在のフェーズ**: Phase 1（MVP開発準備完了）
+**現在のフェーズ**: Phase 1�E�EVP開発準備完亁E��E
+### Phase 0 完亁E��スク ✁E- ✁E要件定義
+- ✁E技術スタチE��提桁E- ✁E技術スタチE��確定！Eext.js + Spring Boot + PostgreSQL�E�E- ✁Eインフラ詳細比輁E��Eercel + Railway + Cloudinary推奨�E�E- ✁E有料プラン設計！Eree + Pro 2段階！E- ✁Eマネタイゼーション戦略�E�課金俁E��の忁E��学皁E��法！E- ✁EシスチE��アーキチE��チャ設訁E- ✁E開発計画策宁E- ✁E**Gitリポジトリ初期化�EGitHub接綁E*
+- ✁E**Docker Compose環墁E��篁E*
+- ✁E**Spring Boot 3.x プロジェクト作�E�E�Eaven�E�E*
+- ✁E**Next.js 15 プロジェクト作�E�E�EailwindCSS�E�E*
+- ✁E**PostgreSQL環墁E��篁E*
+- ✁E**開発環墁E��チE��アチE�E手頁E��加**
 
-### Phase 0 完了タスク ✅
-- ✅ 要件定義
-- ✅ 技術スタック提案
-- ✅ 技術スタック確定（Next.js + Spring Boot + PostgreSQL）
-- ✅ インフラ詳細比較（Vercel + Railway + Cloudinary推奨）
-- ✅ 有料プラン設計（Free + Pro 2段階）
-- ✅ マネタイゼーション戦略（課金促進の心理学的手法）
-- ✅ システムアーキテクチャ設計
-- ✅ 開発計画策定
-- ✅ **Gitリポジトリ初期化・GitHub接続**
-- ✅ **Docker Compose環境構築**
-- ✅ **Spring Boot 3.x プロジェクト作成（Maven）**
-- ✅ **Next.js 15 プロジェクト作成（TailwindCSS）**
-- ✅ **PostgreSQL環境構築**
-- ✅ **開発環境セットアップ手順追加**
-
-### 次のタスク（Phase 1）
-- [ ] ユーザー認証機能の実装
-- [ ] プロフィール機能の実装
-- [ ] 作品ギャラリー機能の実装
-- [ ] SNSリンク管理機能の実装
-- [ ] 公開ページ機能の実装
-
-詳細は [docs/進捗管理（タスク）.md](./docs/進捗管理（タスク）.md) を参照してください。
-
+### 次のタスク�E�Ehase 1�E�E- [ ] ユーザー認証機�Eの実裁E- [ ] プロフィール機�Eの実裁E- [ ] 作品ギャラリー機�Eの実裁E- [ ] SNSリンク管琁E���Eの実裁E- [ ] 公開�Eージ機�Eの実裁E
+詳細は [docs/進捗管琁E��タスク�E�Emd](./docs/進捗管琁E��タスク�E�Emd) を参照してください、E
 ---
 
 **Let's build something amazing! 🚀**
