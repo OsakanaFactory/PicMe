@@ -2,16 +2,17 @@ import Link from 'next/link';
 import { Metadata } from 'next';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
+const INTERNAL_API_URL = process.env.INTERNAL_API_URL || API_BASE_URL;
 
 type Props = {
   params: { username: string };
 };
 
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { username } = params;
+export async function generateMetadata({ params }: { params: Promise<{ username: string }> }): Promise<Metadata> {
+  const { username } = await params;
 
   try {
-    const response = await fetch(`${API_BASE_URL}/api/users/${username}`, {
+    const response = await fetch(`${INTERNAL_API_URL}/api/users/${username}`, {
       cache: 'no-store',
     });
 

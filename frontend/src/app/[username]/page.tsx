@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, use } from 'react';
 import { notFound } from 'next/navigation';
 import { getPublicPage, PublicPageData } from '@/lib/public';
 import { Loader2, Link as LinkIcon, Twitter, Instagram, Facebook, Youtube, AlertCircle } from 'lucide-react';
@@ -25,8 +25,8 @@ const getPlatformIcon = (platform: string) => {
   }
 };
 
-export default function PublicPage({ params }: { params: { username: string } }) {
-  // ... (省略: useState等は変更なし)
+export default function PublicPage({ params }: { params: Promise<{ username: string }> }) {
+  const { username } = use(params);
   const [data, setData] = useState<PublicPageData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -36,7 +36,7 @@ export default function PublicPage({ params }: { params: { username: string } })
   useEffect(() => {
     const loadData = async () => {
       try {
-        const pageData = await getPublicPage(params.username);
+        const pageData = await getPublicPage(username);
         setData(pageData);
       } catch (err: any) {
         console.error('Failed to load public page', err);
@@ -51,7 +51,7 @@ export default function PublicPage({ params }: { params: { username: string } })
     };
 
     loadData();
-  }, [params.username]);
+  }, [username]);
 
   if (isLoading) {
     return (
@@ -109,7 +109,7 @@ export default function PublicPage({ params }: { params: { username: string } })
                   {profile.displayName}
                 </h1>
                 <p className="font-outfit text-2xl text-slate-400 font-medium ml-2">
-                  @{params.username}
+                  @{username}
                 </p>
               </div>
 
