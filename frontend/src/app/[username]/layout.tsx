@@ -58,8 +58,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
         images: profile.avatarUrl ? [profile.avatarUrl] : [],
       },
     };
-  } catch (error) {
-    console.error('Failed to fetch metadata:', error);
+  } catch (error: any) {
+    console.error(`[Metadata Error] Failed to fetch data from ${API_BASE_URL}/api/users/${username}`, {
+      message: error.message,
+      cause: error.cause,
+      url: `${API_BASE_URL}/api/users/${username}`
+    });
     return {
       title: 'PicMe',
       description: 'クリエイターのためのポートフォリオサービス',
