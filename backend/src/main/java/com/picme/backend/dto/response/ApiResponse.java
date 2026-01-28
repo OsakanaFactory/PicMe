@@ -68,6 +68,19 @@ public class ApiResponse<T> {
     }
 
     /**
+     * エラーレスポンスを作成（メッセージのみ）
+     */
+    public static <T> ApiResponse<T> error(String message) {
+        return ApiResponse.<T>builder()
+                .success(false)
+                .error(ErrorDto.builder()
+                        .code("ERROR")
+                        .message(message)
+                        .build())
+                .build();
+    }
+
+    /**
      * エラーレスポンスを作成
      */
     public static <T> ApiResponse<T> error(String code, String message) {

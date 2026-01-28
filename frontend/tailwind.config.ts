@@ -22,6 +22,10 @@ const config: Config = {
         ring: "hsl(var(--ring))",
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
+        // Magazine Pop Theme Colors
+        "paper-white": "#FFFFFF",
+        "brand-green": "#D9F99D", // Lime Green
+        "brand-coral": "#FF8A65", // Coral Orange
         primary: {
           DEFAULT: "hsl(var(--primary))",
           foreground: "hsl(var(--primary-foreground))",
@@ -50,6 +54,10 @@ const config: Config = {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+      },
+      fontFamily: {
+        sans: ["var(--font-noto-sans-jp)", "sans-serif"],
+        outfit: ["var(--font-outfit)", "sans-serif"],
       },
       borderRadius: {
         lg: "var(--radius)",

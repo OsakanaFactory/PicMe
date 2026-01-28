@@ -91,6 +91,13 @@ public class ApiException extends RuntimeException {
                 HttpStatus.FORBIDDEN);
     }
 
+    public static ApiException forbidden(String message) {
+        return new ApiException(
+                "FORBIDDEN",
+                message,
+                HttpStatus.FORBIDDEN);
+    }
+
     public static ApiException notFound(String resource) {
         return new ApiException(
                 "NOT_FOUND",

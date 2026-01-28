@@ -1,0 +1,121 @@
+テストID,カテゴリ,機能,テスト名,テスト種別,前提条件,テスト手順,期待結果,対象Phase
+AUTH-001,認証,サインアップ,正常なサインアップ,正常系,未登録ユーザー,"1. /api/auth/signup にPOST
+2. username: test_user, email: test@example.com, password: Password123!","status: 201, accessToken/refreshToken返却",Phase1
+AUTH-002,認証,サインアップ,既存ユーザー名でのサインアップ,異常系,ユーザー名が既に存在,"1. 同じusernameでサインアップ","status: 409, error: USERNAME_ALREADY_EXISTS",Phase1
+AUTH-003,認証,サインアップ,既存メールでのサインアップ,異常系,メールが既に存在,"1. 同じemailでサインアップ","status: 409, error: EMAIL_ALREADY_EXISTS",Phase1
+AUTH-004,認証,サインアップ,無効なメール形式,異常系,なし,"1. email: invalid-email でサインアップ","status: 400, バリデーションエラー",Phase1
+AUTH-005,認証,サインアップ,短いパスワード,境界値,なし,"1. password: Pass1! (7文字) でサインアップ","status: 400, パスワードは8文字以上",Phase1
+AUTH-006,認証,サインアップ,最小パスワード長,境界値,なし,"1. password: Pass123! (8文字) でサインアップ","status: 201, 成功",Phase1
+AUTH-007,認証,サインアップ,短いユーザー名,境界値,なし,"1. username: ab (2文字) でサインアップ","status: 400, ユーザー名は3文字以上",Phase1
+AUTH-008,認証,サインアップ,最小ユーザー名長,境界値,なし,"1. username: abc (3文字) でサインアップ","status: 201, 成功",Phase1
+AUTH-009,認証,サインアップ,最大ユーザー名長,境界値,なし,"1. username: 30文字 でサインアップ","status: 201, 成功",Phase1
+AUTH-010,認証,サインアップ,ユーザー名超過,境界値,なし,"1. username: 31文字 でサインアップ","status: 400, ユーザー名は30文字以内",Phase1
+AUTH-011,認証,ログイン,正常なログイン,正常系,登録済みユーザー,"1. /api/auth/login にPOST
+2. 正しいemail/password","status: 200, accessToken/refreshToken返却",Phase1
+AUTH-012,認証,ログイン,無効なパスワード,異常系,登録済みユーザー,"1. 間違ったpasswordでログイン","status: 401, error: INVALID_CREDENTIALS",Phase1
+AUTH-013,認証,ログイン,存在しないメール,異常系,なし,"1. 未登録emailでログイン","status: 401, error: INVALID_CREDENTIALS",Phase1
+AUTH-014,認証,ログイン,空のメール,異常系,なし,"1. email: 空でログイン","status: 400, バリデーションエラー",Phase1
+AUTH-015,認証,ログイン,空のパスワード,異常系,なし,"1. password: 空でログイン","status: 400, バリデーションエラー",Phase1
+AUTH-016,認証,トークン更新,正常なトークン更新,正常系,有効なrefreshToken,"1. /api/auth/refresh にPOST","status: 200, 新accessToken返却",Phase1
+AUTH-017,認証,トークン更新,無効なrefreshToken,異常系,なし,"1. 不正なrefreshTokenで更新","status: 401, error: INVALID_TOKEN",Phase1
+AUTH-018,認証,トークン更新,期限切れrefreshToken,異常系,期限切れToken,"1. 期限切れrefreshTokenで更新","status: 401, error: TOKEN_EXPIRED",Phase1
+AUTH-019,認証,認証情報取得,認証済みユーザー情報取得,正常系,ログイン済み,"1. /api/auth/me にGET (Bearer Token)","status: 200, ユーザー情報返却",Phase1
+AUTH-020,認証,認証情報取得,未認証でのアクセス,異常系,未ログイン,"1. Token無しで /api/auth/me にGET","status: 401, error: UNAUTHORIZED",Phase1
+AUTH-021,認証,認証情報取得,無効なトークン,異常系,なし,"1. 不正なTokenで /api/auth/me にGET","status: 401, error: INVALID_TOKEN",Phase1
+AUTH-022,認証,ログアウト,正常なログアウト,正常系,ログイン済み,"1. /api/auth/logout にPOST","status: 200, 成功メッセージ",Phase1
+PROF-001,プロフィール,取得,自分のプロフィール取得,正常系,ログイン済み,"1. /api/profile にGET","status: 200, プロフィール情報返却",Phase1
+PROF-002,プロフィール,取得,未認証でのプロフィール取得,異常系,未ログイン,"1. Token無しで /api/profile にGET","status: 401",Phase1
+PROF-003,プロフィール,更新,表示名の更新,正常系,ログイン済み,"1. /api/profile にPUT
+2. displayName: 新しい名前","status: 200, 更新されたプロフィール",Phase1
+PROF-004,プロフィール,更新,自己紹介の更新,正常系,ログイン済み,"1. bio: 新しい自己紹介 で更新","status: 200",Phase1
+PROF-005,プロフィール,更新,全フィールド更新,正常系,ログイン済み,"1. displayName, bio, location, website 全て更新","status: 200, 全フィールド更新確認",Phase1
+PROF-006,プロフィール,更新,表示名の最大長,境界値,ログイン済み,"1. displayName: 50文字で更新","status: 200, 成功",Phase1
+PROF-007,プロフィール,更新,表示名の超過,境界値,ログイン済み,"1. displayName: 51文字で更新","status: 400, 50文字以内",Phase1
+PROF-008,プロフィール,更新,自己紹介の最大長,境界値,ログイン済み,"1. bio: 500文字で更新","status: 200, 成功",Phase1
+PROF-009,プロフィール,更新,自己紹介の超過,境界値,ログイン済み,"1. bio: 501文字で更新","status: 400, 500文字以内",Phase1
+PROF-010,プロフィール,更新,無効なURL形式,異常系,ログイン済み,"1. website: invalid-url で更新","status: 400, URL形式エラー",Phase1
+ART-001,作品,一覧取得,自分の作品一覧取得,正常系,ログイン済み/作品あり,"1. /api/artworks にGET","status: 200, 作品一覧返却",Phase1
+ART-002,作品,一覧取得,作品なしの一覧取得,正常系,ログイン済み/作品なし,"1. /api/artworks にGET","status: 200, 空配列",Phase1
+ART-003,作品,作成,新規作品作成,正常系,ログイン済み,"1. /api/artworks にPOST
+2. title, imageUrl 必須","status: 201, 作成された作品",Phase1
+ART-004,作品,作成,タイトルなしで作成,異常系,ログイン済み,"1. title無しでPOST","status: 400, titleは必須",Phase1
+ART-005,作品,作成,画像URLなしで作成,異常系,ログイン済み,"1. imageUrl無しでPOST","status: 400, imageUrlは必須",Phase1
+ART-006,作品,作成,最大タイトル長,境界値,ログイン済み,"1. title: 100文字で作成","status: 201, 成功",Phase1
+ART-007,作品,作成,タイトル超過,境界値,ログイン済み,"1. title: 101文字で作成","status: 400, 100文字以内",Phase1
+ART-008,作品,取得,作品詳細取得,正常系,ログイン済み/作品あり,"1. /api/artworks/{id} にGET","status: 200, 作品詳細",Phase1
+ART-009,作品,取得,存在しない作品取得,異常系,ログイン済み,"1. 存在しないIDでGET","status: 404, NOT_FOUND",Phase1
+ART-010,作品,取得,他ユーザーの作品取得,異常系,ログイン済み,"1. 他ユーザーの作品IDでGET","status: 403, FORBIDDEN",Phase1
+ART-011,作品,更新,作品タイトル更新,正常系,ログイン済み/作品あり,"1. /api/artworks/{id} にPUT","status: 200, 更新された作品",Phase1
+ART-012,作品,更新,他ユーザーの作品更新,異常系,ログイン済み,"1. 他ユーザーの作品をPUT","status: 403, FORBIDDEN",Phase1
+ART-013,作品,削除,作品削除,正常系,ログイン済み/作品あり,"1. /api/artworks/{id} にDELETE","status: 200 or 204",Phase1
+ART-014,作品,削除,他ユーザーの作品削除,異常系,ログイン済み,"1. 他ユーザーの作品をDELETE","status: 403, FORBIDDEN",Phase1
+ART-015,作品,並び替え,作品の並び替え,正常系,ログイン済み/複数作品,"1. /api/artworks/reorder にPUT
+2. orderedIds配列","status: 200, 並び順更新",Phase1
+ART-016,作品,プラン制限,FREE: 10作品まで作成可能,プラン制限,FREEプラン/9作品,"1. 10個目の作品作成","status: 201, 成功",Phase1
+ART-017,作品,プラン制限,FREE: 11作品目で制限,プラン制限,FREEプラン/10作品,"1. 11個目の作品作成","status: 403, LIMIT_EXCEEDED",Phase1
+ART-018,作品,プラン制限,PRO: 無制限作成,プラン制限,PROプラン,"1. 11個目以上の作品作成","status: 201, 成功",Phase1
+SOCIAL-001,SNSリンク,一覧取得,SNSリンク一覧取得,正常系,ログイン済み,"1. /api/social-links にGET","status: 200, リンク一覧",Phase1
+SOCIAL-002,SNSリンク,作成,新規SNSリンク作成,正常系,ログイン済み,"1. /api/social-links にPOST
+2. platform, url 必須","status: 201, 作成されたリンク",Phase1
+SOCIAL-003,SNSリンク,作成,URL無しで作成,異常系,ログイン済み,"1. url無しでPOST","status: 400, urlは必須",Phase1
+SOCIAL-004,SNSリンク,作成,無効なURL形式,異常系,ログイン済み,"1. url: invalid-url でPOST","status: 400, URL形式エラー",Phase1
+SOCIAL-005,SNSリンク,更新,SNSリンク更新,正常系,ログイン済み/リンクあり,"1. /api/social-links/{id} にPUT","status: 200",Phase1
+SOCIAL-006,SNSリンク,削除,SNSリンク削除,正常系,ログイン済み/リンクあり,"1. /api/social-links/{id} にDELETE","status: 200 or 204",Phase1
+SOCIAL-007,SNSリンク,並び替え,SNSリンク並び替え,正常系,複数リンクあり,"1. /api/social-links/reorder にPUT","status: 200",Phase1
+SOCIAL-008,SNSリンク,プラン制限,FREE: 5リンクまで,プラン制限,FREEプラン/4リンク,"1. 5個目のリンク作成","status: 201, 成功",Phase1
+SOCIAL-009,SNSリンク,プラン制限,FREE: 6リンク目で制限,プラン制限,FREEプラン/5リンク,"1. 6個目のリンク作成","status: 403, LIMIT_EXCEEDED",Phase1
+PUBLIC-001,公開ページ,取得,公開ページ表示,正常系,公開プロフィールあり,"1. /api/public/{username} にGET","status: 200, 公開情報",Phase1
+PUBLIC-002,公開ページ,取得,存在しないユーザー,異常系,なし,"1. 存在しないusernameでGET","status: 404, USER_NOT_FOUND",Phase1
+PUBLIC-003,公開ページ,取得,作品一覧含む,正常系,公開作品あり,"1. /api/public/{username} にGET","artworks配列に作品含む",Phase1
+PUBLIC-004,公開ページ,取得,SNSリンク含む,正常系,公開リンクあり,"1. /api/public/{username} にGET","socialLinks配列にリンク含む",Phase1
+POST-001,投稿,一覧取得,投稿一覧取得,正常系,ログイン済み,"1. /api/posts にGET","status: 200, 投稿一覧",Phase2
+POST-002,投稿,作成,新規投稿作成,正常系,ログイン済み,"1. /api/posts にPOST
+2. title, content 必須","status: 201, 作成された投稿",Phase2
+POST-003,投稿,作成,タイトルなしで作成,異常系,ログイン済み,"1. title無しでPOST","status: 400, titleは必須",Phase2
+POST-004,投稿,作成,コンテンツなしで作成,異常系,ログイン済み,"1. content無しでPOST","status: 400, contentは必須",Phase2
+POST-005,投稿,作成,最大タイトル長,境界値,ログイン済み,"1. title: 200文字で作成","status: 201, 成功",Phase2
+POST-006,投稿,作成,タイトル超過,境界値,ログイン済み,"1. title: 201文字で作成","status: 400, 200文字以内",Phase2
+POST-007,投稿,更新,投稿更新,正常系,ログイン済み/投稿あり,"1. /api/posts/{id} にPUT","status: 200",Phase2
+POST-008,投稿,削除,投稿削除,正常系,ログイン済み/投稿あり,"1. /api/posts/{id} にDELETE","status: 200 or 204",Phase2
+POST-009,投稿,公開,投稿の公開設定,正常系,ログイン済み,"1. published: true で更新","status: 200, 公開状態",Phase2
+POST-010,投稿,プラン制限,FREE: 3投稿まで,プラン制限,FREEプラン/2投稿,"1. 3個目の投稿作成","status: 201, 成功",Phase2
+POST-011,投稿,プラン制限,FREE: 4投稿目で制限,プラン制限,FREEプラン/3投稿,"1. 4個目の投稿作成","status: 403, LIMIT_EXCEEDED",Phase2
+THEME-001,テーマ,取得,テーマ設定取得,正常系,ログイン済み,"1. /api/profile/theme にGET","status: 200, テーマ設定",Phase2
+THEME-002,テーマ,更新,primaryColor更新,正常系,ログイン済み,"1. primaryColor: #FF0000 で更新","status: 200, 色更新",Phase2
+THEME-003,テーマ,更新,backgroundColor更新,正常系,ログイン済み,"1. backgroundColor: #000000 で更新","status: 200",Phase2
+THEME-004,テーマ,更新,無効なカラーコード,異常系,ログイン済み,"1. primaryColor: invalid で更新","status: 400, 無効な色形式",Phase2
+THEME-005,テーマ,更新,layoutType更新,正常系,ログイン済み,"1. layoutType: GRID で更新","status: 200",Phase2
+THEME-006,テーマ,プラン制限,FREE: 基本テーマのみ,プラン制限,FREEプラン,"1. カスタムカラー設定","status: 403 or 200 (制限あり)",Phase2
+THEME-007,テーマ,プラン制限,PRO: 全テーマ利用可能,プラン制限,PROプラン,"1. 全カスタマイズ設定","status: 200",Phase2
+CAT-001,カテゴリ,一覧取得,カテゴリ一覧取得,正常系,ログイン済み,"1. /api/categories にGET","status: 200, カテゴリ一覧",Phase2
+CAT-002,カテゴリ,作成,新規カテゴリ作成,正常系,ログイン済み,"1. /api/categories にPOST
+2. name 必須","status: 201, 作成されたカテゴリ",Phase2
+CAT-003,カテゴリ,作成,名前なしで作成,異常系,ログイン済み,"1. name無しでPOST","status: 400, nameは必須",Phase2
+CAT-004,カテゴリ,作成,重複名で作成,異常系,同名カテゴリあり,"1. 既存名でPOST","status: 409 or 400, 重複エラー",Phase2
+CAT-005,カテゴリ,作成,最大名前長,境界値,ログイン済み,"1. name: 50文字で作成","status: 201, 成功",Phase2
+CAT-006,カテゴリ,作成,名前超過,境界値,ログイン済み,"1. name: 51文字で作成","status: 400, 50文字以内",Phase2
+CAT-007,カテゴリ,更新,カテゴリ更新,正常系,カテゴリあり,"1. /api/categories/{id} にPUT","status: 200",Phase2
+CAT-008,カテゴリ,削除,カテゴリ削除,正常系,カテゴリあり,"1. /api/categories/{id} にDELETE","status: 200 or 204",Phase2
+CAT-009,カテゴリ,並び替え,カテゴリ並び替え,正常系,複数カテゴリ,"1. /api/categories/reorder にPUT","status: 200",Phase2
+TAG-001,タグ,一覧取得,タグ一覧取得,正常系,ログイン済み,"1. /api/tags にGET","status: 200, タグ一覧",Phase2
+TAG-002,タグ,作成,新規タグ作成,正常系,ログイン済み,"1. /api/tags にPOST
+2. name 必須","status: 201, 作成されたタグ",Phase2
+TAG-003,タグ,作成,名前なしで作成,異常系,ログイン済み,"1. name無しでPOST","status: 400, nameは必須",Phase2
+TAG-004,タグ,作成,最大名前長,境界値,ログイン済み,"1. name: 30文字で作成","status: 201, 成功",Phase2
+TAG-005,タグ,作成,名前超過,境界値,ログイン済み,"1. name: 31文字で作成","status: 400, 30文字以内",Phase2
+TAG-006,タグ,更新,タグ更新,正常系,タグあり,"1. /api/tags/{id} にPUT","status: 200",Phase2
+TAG-007,タグ,削除,タグ削除,正常系,タグあり,"1. /api/tags/{id} にDELETE","status: 200 or 204",Phase2
+TAG-008,タグ,作品紐付け,作品にタグ紐付け,正常系,作品/タグあり,"1. 作品更新時にtagIds指定","status: 200, タグ紐付け",Phase2
+ART-CAT-001,作品カテゴリ,紐付け,作品にカテゴリ紐付け,正常系,作品/カテゴリあり,"1. 作品更新時にcategoryId指定","status: 200, カテゴリ紐付け",Phase2
+ART-CAT-002,作品カテゴリ,解除,作品のカテゴリ解除,正常系,紐付けあり,"1. categoryId: null で更新","status: 200, 紐付け解除",Phase2
+PUBLIC-CAT-001,公開ページカテゴリ,フィルタ,カテゴリでフィルタ,正常系,カテゴリ紐付けあり,"1. /api/public/{username}?categoryId={id}","フィルタされた作品",Phase2
+PUBLIC-TAG-001,公開ページタグ,フィルタ,タグでフィルタ,正常系,タグ紐付けあり,"1. /api/public/{username}?tagId={id}","フィルタされた作品",Phase2
+PUBLIC-POST-001,公開ページ投稿,取得,公開投稿一覧,正常系,公開投稿あり,"1. /api/public/{username} にGET","posts配列に投稿含む",Phase2
+PUBLIC-POST-002,公開ページ投稿,取得,非公開投稿除外,正常系,非公開投稿あり,"1. /api/public/{username} にGET","非公開投稿は含まない",Phase2
+DASH-001,ダッシュボード,表示,ダッシュボード表示,正常系,ログイン済み,"1. /dashboard にアクセス","統計情報表示",Phase1
+DASH-002,ダッシュボード,表示,未認証リダイレクト,異常系,未ログイン,"1. /dashboard にアクセス","/login にリダイレクト",Phase1
+UI-001,UI,ログインフォーム,ログイン画面表示,正常系,なし,"1. /login にアクセス","ログインフォーム表示",Phase1
+UI-002,UI,サインアップフォーム,サインアップ画面表示,正常系,なし,"1. /signup にアクセス","サインアップフォーム表示",Phase1
+UI-003,UI,サイドバー,サイドバーナビゲーション,正常系,ログイン済み,"1. ダッシュボードでサイドバー確認","全メニュー項目表示",Phase1
+UI-004,UI,レスポンシブ,モバイル表示,正常系,なし,"1. モバイルサイズで表示","レスポンシブ対応",Phase1
+UI-005,UI,公開ページ,公開ページ表示,正常系,公開プロフィールあり,"1. /{username} にアクセス","公開ページ正常表示",Phase1

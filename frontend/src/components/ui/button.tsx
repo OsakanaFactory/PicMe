@@ -2,7 +2,7 @@ import * as React from "react"
 
 export interface ButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: 'primary' | 'secondary' | 'outline' | 'ghost' | 'link';
+  variant?: 'primary' | 'secondary' | 'outline' | 'ghost' | 'link' | 'accent';
   size?: 'default' | 'sm' | 'lg' | 'icon';
   isLoading?: boolean;
 }
@@ -11,11 +11,12 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className = "", variant = "primary", size = "default", isLoading, children, ...props }, ref) => {
     
     const variants = {
-      primary: "bg-slate-900 text-slate-50 hover:bg-slate-900/90 shadow-sm hover:shadow-md",
-      secondary: "bg-slate-100 text-slate-900 hover:bg-slate-100/80",
-      outline: "border border-slate-200 bg-white hover:bg-slate-100 hover:text-slate-900",
-      ghost: "hover:bg-slate-100 hover:text-slate-900",
-      link: "text-slate-900 underline-offset-4 hover:underline",
+      primary: "bg-primary text-paper-white border-2 border-primary hover:bg-primary/90 shadow-[4px_4px_0px_#000] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_#000] active:translate-x-[4px] active:translate-y-[4px] active:shadow-none transition-all",
+      secondary: "bg-paper-white text-primary border-2 border-primary hover:bg-slate-50 shadow-[4px_4px_0px_#000] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_#000] active:translate-x-[4px] active:translate-y-[4px] active:shadow-none transition-all",
+      outline: "border-2 border-input bg-paper-white hover:bg-accent hover:text-accent-foreground",
+      ghost: "hover:bg-accent hover:text-accent-foreground",
+      link: "text-primary underline-offset-4 hover:underline",
+      accent: "bg-accent text-accent-foreground border-2 border-primary shadow-[4px_4px_0px_#000] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_#000] active:translate-x-[4px] active:translate-y-[4px] active:shadow-none transition-all"
     }
 
     const sizes = {
@@ -25,7 +26,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       icon: "h-10 w-10",
     }
 
-    const baseStyles = "inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-white transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-950 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 active:scale-[0.98]"
+    const baseStyles = "inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-bold ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
 
     return (
       <button

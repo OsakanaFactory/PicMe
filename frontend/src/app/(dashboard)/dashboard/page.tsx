@@ -71,16 +71,16 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
 
-        <Card className="bg-slate-900 text-slate-50 hover:bg-slate-800 transition-colors border-slate-900">
+        <Card className="bg-primary text-primary-foreground hover:bg-primary/90 transition-colors border-primary">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-slate-200">公開ページを確認</CardTitle>
-            <Eye className="h-4 w-4 text-slate-400" />
+            <CardTitle className="text-sm font-medium text-primary-foreground">公開ページを確認</CardTitle>
+            <Eye className="h-4 w-4 text-primary-foreground/70" />
           </CardHeader>
           <CardContent>
-             <div className="text-xs text-slate-400 mb-4">
+             <div className="text-xs text-primary-foreground/70 mb-4">
               あなたのポートフォリオがどう見えるか確認します
             </div>
-            <Link href={`/users/${user?.username}`} target="_blank">
+            <Link href={`/${user?.username}`} target="_blank">
               <Button size="sm" variant="secondary" className="w-full">
                 ページを見る
               </Button>

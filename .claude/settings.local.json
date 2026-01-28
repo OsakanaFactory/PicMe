@@ -1,34 +1,47 @@
 {
-    "mcpServers": {
-        "desktop-commander": {
-            "command": "docker",
-            "args": [
-                "run",
-                "--rm",
-                "-i",
-                "--name",
-                "desktop-commander-mcp",
-                "-v",
-                "desktop-commander-data:/data",
-                "-v",
-                "C:/Users/kanas:/home/user",
-                "mcp/desktop-commander:latest"
-            ]
-        },
-        "filesystem": {
-            "command": "npx",
-            "args": [
-                "-y",
-                "@modelcontextprotocol/server-filesystem",
-                "C:/Users/kanas"
-            ]
-        },
-        "context7": {
-            "command": "npx",
-            "args": [
-                "-y",
-                "@upstash/context7-mcp@latest"
-            ]
-        }
+  "permissions": {
+    "allow": [
+      "Bash(./mvnw compile:*)",
+      "mcp__git__git_add",
+      "mcp__git__git_commit",
+      "mcp__git__git_status",
+      "Bash(java -version:*)",
+      "Bash(echo:*)",
+      "Bash(docker start:*)",
+      "Skill(xlsx)",
+      "Bash(python3:*)"
+    ]
+  },
+  "mcpServers": {
+    "desktop-commander": {
+      "command": "docker",
+      "args": [
+        "run",
+        "--rm",
+        "-i",
+        "--name",
+        "desktop-commander-mcp",
+        "-v",
+        "desktop-commander-data:/data",
+        "-v",
+        "C:/Users/kanas:/home/user",
+        "mcp/desktop-commander:latest"
+      ]
+    },
+    "filesystem": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-filesystem",
+        "C:/Users/kanas"
+      ]
+    },
+    "context7": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@upstash/context7-mcp@latest"
+      ]
     }
+  }
 }

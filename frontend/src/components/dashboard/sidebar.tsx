@@ -102,7 +102,7 @@ export function Sidebar() {
           <p className="text-xs font-semibold text-slate-500 mb-1">公開ページを確認</p>
           {user ? (
             <Link 
-              href={`/users/${user.username}`} 
+              href={`/${user.username}`} 
               target="_blank"
               className="flex items-center gap-2 text-sm text-blue-600 hover:underline"
             >

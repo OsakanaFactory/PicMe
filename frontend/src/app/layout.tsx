@@ -1,5 +1,17 @@
-import type { Metadata } from "next";
+import { Outfit, Noto_Sans_JP } from "next/font/google";
 import "./globals.css";
+
+const outfit = Outfit({
+  subsets: ["latin"],
+  variable: "--font-outfit",
+  display: "swap",
+});
+
+const notoSansJP = Noto_Sans_JP({
+  subsets: ["latin"],
+  variable: "--font-noto-sans-jp",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: "PicMe - イラストレーターのためのポートフォリオ",
@@ -15,7 +27,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ja">
-      <body className="antialiased min-h-screen bg-slate-50 text-slate-900">
+      <body className={`${outfit.variable} ${notoSansJP.variable} antialiased min-h-screen bg-paper-white text-slate-900 font-sans`}>
         <Providers>{children}</Providers>
       </body>
     </html>
