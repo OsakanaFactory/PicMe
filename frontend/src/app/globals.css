@@ -24,6 +24,11 @@
     --input: 220 13% 91%;
     --ring: 0 0% 10%;
     --radius: 0.3rem;
+    
+    /* Phase 5: Design Expansion Variables */
+    --accent-primary: 81 88% 80%; /* #D9F99D Lime Green */
+    --accent-secondary: 14 100% 70%; /* #FF8A65 Pop Coral */
+    --spacing-section: 4rem; /* 64px */
   }
 
   .dark {

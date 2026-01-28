@@ -24,8 +24,10 @@ const config: Config = {
         foreground: "hsl(var(--foreground))",
         // Magazine Pop Theme Colors
         "paper-white": "#FFFFFF",
-        "brand-green": "#D9F99D", // Lime Green
-        "brand-coral": "#FF8A65", // Coral Orange
+        "brand-green": "hsl(var(--accent-primary))", // Linked to CSS variable
+        "brand-coral": "hsl(var(--accent-secondary))", // Linked to CSS variable
+        "accent-primary": "hsl(var(--accent-primary))",
+        "accent-secondary": "hsl(var(--accent-secondary))",
         primary: {
           DEFAULT: "hsl(var(--primary))",
           foreground: "hsl(var(--primary-foreground))",
