@@ -25,10 +25,10 @@ public class Category {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @Column(nullable = false, length = 100)
+    @Column(nullable = false, length = 50)
     private String name;
 
-    @Column(length = 100)
+    @Column(length = 50)
     private String slug;
 
     @Column(name = "display_order")

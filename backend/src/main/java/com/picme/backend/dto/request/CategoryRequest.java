@@ -17,7 +17,7 @@ import lombok.NoArgsConstructor;
 public class CategoryRequest {
 
     @NotBlank(message = "カテゴリー名は必須です")
-    @Size(max = 100, message = "カテゴリー名は100文字以内で入力してください")
+    @Size(max = 50, message = "カテゴリー名は50文字以内で入力してください")
     private String name;
 
     private Integer displayOrder;

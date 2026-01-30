@@ -15,7 +15,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class ProfileUpdateRequest {
 
-    @Size(max = 100, message = "表示名は100文字以内で入力してください")
+    @Size(max = 32, message = "表示名は32文字以内で入力してください")
     private String displayName;
 
     @Size(max = 500, message = "自己紹介は500文字以内で入力してください")

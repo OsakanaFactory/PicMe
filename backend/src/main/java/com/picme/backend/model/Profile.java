@@ -25,7 +25,7 @@ public class Profile {
     @JoinColumn(name = "user_id", nullable = false, unique = true)
     private User user;
 
-    @Column(name = "display_name", length = 100)
+    @Column(name = "display_name", length = 32)
     private String displayName;
 
     @Column(columnDefinition = "TEXT")

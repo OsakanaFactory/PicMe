@@ -25,10 +25,10 @@ public class Tag {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @Column(nullable = false, length = 50)
+    @Column(nullable = false, length = 30)
     private String name;
 
-    @Column(length = 50)
+    @Column(length = 30)
     private String slug;
 
     @Column(name = "created_at")

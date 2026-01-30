@@ -202,9 +202,10 @@ public class PostServiceImpl implements PostService {
      */
     private int getPostLimit(PlanType planType) {
         return switch (planType) {
-            case FREE -> 5;
-            case STARTER -> 20;
-            case PRO, STUDIO -> Integer.MAX_VALUE; // 無制限
+            case FREE -> 1;
+            case STARTER -> 5;
+            case PRO -> 20;
+            case STUDIO -> Integer.MAX_VALUE; // 無制限
         };
     }
 
