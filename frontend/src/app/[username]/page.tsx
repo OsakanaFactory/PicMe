@@ -14,14 +14,29 @@ import { BentoGrid, BentoGridItem } from '@/components/ui/bento-grid';
 import { MasonryGrid } from '@/components/ui/masonry-grid';
 import { SkillBar } from '@/components/ui/skill-bar';
 
-// SNSアイコン (v2.1: サイズ拡大 24px → 48px)
+// SNSアイコン (v2.1.4: 大型アイコンデザイン)
 const getPlatformIcon = (platform: string) => {
+  const iconClass = "h-8 w-8 md:h-10 md:w-10";
   switch (platform.toLowerCase()) {
-    case 'twitter': return <Twitter className="h-10 w-10 md:h-12 md:w-12" />;
-    case 'instagram': return <Instagram className="h-10 w-10 md:h-12 md:w-12" />;
-    case 'facebook': return <Facebook className="h-10 w-10 md:h-12 md:w-12" />;
-    case 'youtube': return <Youtube className="h-10 w-10 md:h-12 md:w-12" />;
-    default: return <LinkIcon className="h-10 w-10 md:h-12 md:w-12" />;
+    case 'twitter': return <Twitter className={iconClass} />;
+    case 'x': return <Twitter className={iconClass} />;
+    case 'instagram': return <Instagram className={iconClass} />;
+    case 'facebook': return <Facebook className={iconClass} />;
+    case 'youtube': return <Youtube className={iconClass} />;
+    default: return <LinkIcon className={iconClass} />;
+  }
+};
+
+// SNSプラットフォームごとの背景色
+const getPlatformColor = (platform: string) => {
+  switch (platform.toLowerCase()) {
+    case 'twitter':
+    case 'x': return 'bg-black hover:bg-gray-800 text-white';
+    case 'instagram': return 'bg-gradient-to-br from-purple-600 via-pink-500 to-orange-400 hover:from-purple-700 hover:via-pink-600 hover:to-orange-500 text-white';
+    case 'facebook': return 'bg-blue-600 hover:bg-blue-700 text-white';
+    case 'youtube': return 'bg-red-600 hover:bg-red-700 text-white';
+    case 'pixiv': return 'bg-[#0096fa] hover:bg-[#0080d8] text-white';
+    default: return 'bg-slate-800 hover:bg-slate-700 text-white';
   }
 };
 
@@ -113,11 +128,11 @@ export default function PublicPage({ params }: { params: Promise<{ username: str
                 </p>
               </div>
 
-              {/* v2.1: アバター 160px → 240px (PC) / 180px (SP), rounded-3xl */}
-              <div className="flex items-center gap-8 py-8">
-                 <Avatar className="h-[180px] w-[180px] md:h-[240px] md:w-[240px] rounded-3xl border-4 border-slate-100 shadow-[12px_12px_0px_#1A1A1A] transition-transform hover:translate-x-[-4px] hover:translate-y-[-4px]">
-                    <AvatarImage src={profile.avatarUrl || ''} alt={profile.displayName} className="rounded-3xl" />
-                    <AvatarFallback className="text-6xl md:text-7xl rounded-3xl">{profile.displayName.charAt(0)}</AvatarFallback>
+              {/* v2.1.4: アバター - ビューポート対応で画面に収まるサイズ */}
+              <div className="flex items-center gap-6 py-6 md:py-8">
+                 <Avatar className="h-[min(45vw,220px)] w-[min(45vw,220px)] md:h-[min(30vw,280px)] md:w-[min(30vw,280px)] lg:h-[min(25vw,320px)] lg:w-[min(25vw,320px)] rounded-[1.5rem] md:rounded-[2rem] border-4 border-white shadow-[12px_12px_0px_#1A1A1A] md:shadow-[16px_16px_0px_#1A1A1A] transition-all duration-300 hover:translate-x-[-4px] hover:translate-y-[-4px] hover:shadow-[18px_18px_0px_#1A1A1A]">
+                    <AvatarImage src={profile.avatarUrl || ''} alt={profile.displayName} className="rounded-[1.5rem] md:rounded-[2rem]" />
+                    <AvatarFallback className="text-5xl md:text-7xl lg:text-8xl rounded-[1.5rem] md:rounded-[2rem] bg-gradient-to-br from-brand-green to-brand-coral">{profile.displayName.charAt(0)}</AvatarFallback>
                  </Avatar>
               </div>
 
@@ -126,7 +141,7 @@ export default function PublicPage({ params }: { params: Promise<{ username: str
               </p>
             </div>
 
-            {/* Social Links (Horizontal List) - v2.1: アイコン・ボタンサイズ拡大 */}
+            {/* Social Links - v2.1.4: 大型カラフルアイコンデザイン */}
             {socialLinks.length > 0 && (
               <div className="flex flex-wrap gap-4 md:gap-5">
                 {socialLinks.map(link => (
@@ -135,11 +150,23 @@ export default function PublicPage({ params }: { params: Promise<{ username: str
                     href={link.url}
                     target="_blank"
                     rel="noopener noreferrer"
+                    className="group"
                   >
-                    <Button variant="outline" size="lg" className="h-16 md:h-18 px-6 md:px-8 gap-3 md:gap-4 rounded-full border-2 hover:bg-accent-primary/20 hover:border-accent-primary hover:text-accent-primary hover:scale-105 transition-all duration-200">
+                    <div className={`
+                      w-16 h-16 md:w-20 md:h-20 lg:w-24 lg:h-24
+                      rounded-2xl md:rounded-3xl
+                      flex items-center justify-center
+                      ${getPlatformColor(link.platform)}
+                      shadow-lg hover:shadow-xl
+                      transform hover:scale-110 hover:-rotate-3
+                      transition-all duration-300
+                      border-2 border-white/20
+                    `}>
                       {getPlatformIcon(link.platform)}
-                      <span className="text-base md:text-lg font-bold">{link.platform}</span>
-                    </Button>
+                    </div>
+                    <p className="text-center text-xs md:text-sm font-medium text-slate-500 mt-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                      {link.platform}
+                    </p>
                   </a>
                 ))}
               </div>
