@@ -159,7 +159,7 @@ public class SocialLinkServiceImpl implements SocialLinkService {
             case FREE -> 2;
             case STARTER -> 5;
             case PRO -> 10;
-            case STUDIO -> 20;
+            case STUDIO -> Integer.MAX_VALUE;
         };
     }
 

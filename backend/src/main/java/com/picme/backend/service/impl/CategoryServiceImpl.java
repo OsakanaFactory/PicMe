@@ -57,6 +57,7 @@ public class CategoryServiceImpl implements CategoryService {
     public CategoryResponse createCategory(String email, CategoryRequest request) {
         User user = getUserByEmail(email);
         checkCategoryFeatureAvailable(user);
+        checkCategoryLimit(user);
 
         // 現在のカテゴリー数から表示順を決定
         long currentCount = categoryRepository.countByUser(user);
@@ -135,5 +136,29 @@ public class CategoryServiceImpl implements CategoryService {
         if (user.getPlanType() != PlanType.PRO && user.getPlanType() != PlanType.STUDIO) {
             throw ApiException.forbidden("カテゴリー機能はProプラン以上でご利用いただけます");
         }
+    }
+
+    /**
+     * カテゴリー数の制限をチェック
+     */
+    private void checkCategoryLimit(User user) {
+        long currentCount = categoryRepository.countByUser(user);
+        int limit = getCategoryLimit(user.getPlanType());
+
+        if (currentCount >= limit) {
+            throw ApiException.limitExceeded(
+                    String.format("カテゴリーの上限（%d個）に達しています。プランをアップグレードしてください。", limit));
+        }
+    }
+
+    /**
+     * プランごとのカテゴリー数上限を取得
+     */
+    private int getCategoryLimit(PlanType planType) {
+        return switch (planType) {
+            case FREE, STARTER -> 0;
+            case PRO -> 5;
+            case STUDIO -> Integer.MAX_VALUE;
+        };
     }
 }
