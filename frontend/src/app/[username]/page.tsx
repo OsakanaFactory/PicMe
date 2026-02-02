@@ -13,6 +13,7 @@ import { SquigglyLine } from '@/components/ui/squiggly-line';
 import { BentoGrid, BentoGridItem } from '@/components/ui/bento-grid';
 import { MasonryGrid } from '@/components/ui/masonry-grid';
 import { SkillBar } from '@/components/ui/skill-bar';
+import { FreeUserAd } from '@/components/ads';
 
 // SNSアイコン (v2.1.4: 大型アイコンデザイン)
 const getPlatformIcon = (platform: string) => {
@@ -91,6 +92,7 @@ export default function PublicPage({ params }: { params: Promise<{ username: str
   }
 
   const { profile, artworks, socialLinks, posts, categories = [], tags = [] } = data;
+  const userPlanType = profile.planType || 'FREE';
 
   // フィルタリング処理
   const filteredArtworks = artworks.filter(artwork => {
@@ -227,9 +229,15 @@ export default function PublicPage({ params }: { params: Promise<{ username: str
         </div>
       </div>
 
+      {/* Ad: ヘッダー下広告 */}
+      <FreeUserAd planType={userPlanType} slot="header" className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 my-8" />
+
       {/* 2. Works Section - v2.1: 余白拡大 */}
       <div className="max-w-7xl mx-auto px-6 mt-40 md:mt-48 sm:px-8 lg:px-12">
         <SectionTitle number="02" title="WORKS" className="mb-16" />
+
+        {/* Ad: ギャラリータイトル下広告 */}
+        <FreeUserAd planType={userPlanType} slot="gallery" className="mb-12" />
         
         {/* Chips for Tags - v2.1: サイズ拡大 */}
         {tags.length > 0 && (
@@ -297,6 +305,9 @@ export default function PublicPage({ params }: { params: Promise<{ username: str
             </MasonryGrid>
         )}
       </div>
+
+      {/* Ad: フッター上広告 */}
+      <FreeUserAd planType={userPlanType} slot="profile" className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 mt-20" />
 
       {/* 3. Footer - v2.1: 余白拡大 */}
       <footer className="mt-48 md:mt-56 border-t border-slate-100 py-20 text-center">

@@ -12,6 +12,7 @@ export interface Profile {
   colorAccent?: string;
   fontFamily?: string;
   layout: string;
+  planType?: string;
 }
 
 export interface ProfileUpdateRequest {
