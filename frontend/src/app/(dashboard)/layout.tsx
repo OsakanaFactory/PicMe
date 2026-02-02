@@ -1,6 +1,7 @@
 'use client';
 
 import { useAuth } from '@/contexts/AuthContext';
+import { SubscriptionProvider } from '@/contexts/SubscriptionContext';
 import { Sidebar } from '@/components/dashboard/sidebar';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
@@ -32,18 +33,20 @@ export default function DashboardLayout({
   }
 
   return (
-    <div className="flex h-screen bg-slate-50">
-      <div className="hidden md:block">
-        <Sidebar />
+    <SubscriptionProvider>
+      <div className="flex h-screen bg-slate-50">
+        <div className="hidden md:block">
+          <Sidebar />
+        </div>
+        <div className="flex-1 flex flex-col overflow-hidden">
+          {/* Mobile Header could go here */}
+          <main className="flex-1 overflow-y-auto p-4 md:p-8">
+            <div className="mx-auto max-w-5xl">
+              {children}
+            </div>
+          </main>
+        </div>
       </div>
-      <div className="flex-1 flex flex-col overflow-hidden">
-        {/* Mobile Header could go here */}
-        <main className="flex-1 overflow-y-auto p-4 md:p-8">
-          <div className="mx-auto max-w-5xl">
-            {children}
-          </div>
-        </main>
-      </div>
-    </div>
+    </SubscriptionProvider>
   );
 }
