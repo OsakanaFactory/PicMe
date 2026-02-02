@@ -62,6 +62,8 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/api/auth/**",
                                 "/api/users/**",
+                                "/api/public/**",
+                                "/api/subscriptions/webhook",
                                 "/api/health",
                                 "/error")
                         .permitAll()
