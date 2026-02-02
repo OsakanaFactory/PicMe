@@ -1,5 +1,10 @@
+import type { Metadata } from "next";
+import Script from "next/script";
 import { Outfit, Noto_Sans_JP } from "next/font/google";
+import { Providers } from "@/components/providers";
 import "./globals.css";
+
+const adsenseClientId = process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID;
 
 const outfit = Outfit({
   subsets: ["latin"],
@@ -16,9 +21,19 @@ const notoSansJP = Noto_Sans_JP({
 export const metadata: Metadata = {
   title: "PicMe - イラストレーターのためのポートフォリオ",
   description: "簡単に作れる、あなただけのポートフォリオサイト",
+  openGraph: {
+    title: "PicMe - イラストレーターのためのポートフォリオ",
+    description: "簡単に作れる、あなただけのポートフォリオサイト",
+    type: "website",
+    siteName: "PicMe",
+    locale: "ja_JP",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "PicMe - イラストレーターのためのポートフォリオ",
+    description: "簡単に作れる、あなただけのポートフォリオサイト",
+  },
 };
-
-import { Providers } from "@/components/providers";
 
 export default function RootLayout({
   children,
@@ -27,7 +42,17 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ja">
-      <body 
+      <head>
+        {adsenseClientId && (
+          <Script
+            async
+            src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${adsenseClientId}`}
+            crossOrigin="anonymous"
+            strategy="afterInteractive"
+          />
+        )}
+      </head>
+      <body
         className={`${outfit.variable} ${notoSansJP.variable} antialiased min-h-screen bg-paper-white text-slate-900 font-sans`}
         suppressHydrationWarning
       >
