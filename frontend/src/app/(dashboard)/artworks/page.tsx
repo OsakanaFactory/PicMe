@@ -12,6 +12,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Plus, Pencil, Trash2, Image as ImageIcon, Loader2 } from 'lucide-react';
+import { useSubscription } from '@/contexts/SubscriptionContext';
+import { UpgradePrompt, LimitBadge } from '@/components/ui/upgrade-prompt';
 
 const artworkSchema = z.object({
   title: z.string().min(1, 'タイトルは必須です').max(100, 'タイトルは100文字以内で入力してください'),
@@ -28,6 +30,8 @@ export default function ArtworksPage() {
   const [editingArtwork, setEditingArtwork] = useState<Artwork | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState<number | null>(null);
+  const { getLimit } = useSubscription();
+  const artworkLimit = getLimit('artworks');
 
   const {
     register,
@@ -126,6 +130,8 @@ export default function ArtworksPage() {
     );
   }
 
+  const isAtLimit = artworkLimit > 0 && artworks.length >= artworkLimit;
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -133,12 +139,23 @@ export default function ArtworksPage() {
           <h1 className="text-3xl font-bold tracking-tight">作品管理</h1>
           <p className="text-slate-500">
             ポートフォリオに表示する作品を追加・編集します
+            {artworkLimit > 0 && (
+              <span className="ml-2">
+                （<LimitBadge current={artworks.length} limit={artworkLimit} />）
+              </span>
+            )}
           </p>
         </div>
-        <Button onClick={openCreateDialog}>
+        <Button onClick={openCreateDialog} disabled={isAtLimit}>
           <Plus className="mr-2 h-4 w-4" /> 新規追加
         </Button>
       </div>
+
+      <UpgradePrompt
+        currentCount={artworks.length}
+        limit={artworkLimit}
+        itemName="作品"
+      />
 
       {artworks.length === 0 ? (
         <Card className="flex flex-col items-center justify-center p-12 text-center border-dashed">

@@ -23,9 +23,13 @@ import {
   deleteCategory,
 } from '@/lib/categories';
 import { Plus, Edit2, Trash2, Folder, Lock } from 'lucide-react';
+import { useSubscription } from '@/contexts/SubscriptionContext';
+import { UpgradePrompt, LimitBadge } from '@/components/ui/upgrade-prompt';
+import Link from 'next/link';
 
 export default function CategoriesPage() {
   const { user } = useAuth();
+  const { getLimit } = useSubscription();
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -35,6 +39,8 @@ export default function CategoriesPage() {
   const [formData, setFormData] = useState({ name: '' });
 
   const isPro = user?.planType === 'PRO' || user?.planType === 'STUDIO';
+  const categoryLimit = getLimit('categories');
+  const isAtLimit = categoryLimit > 0 && categoryLimit !== 2147483647 && categories.length >= categoryLimit;
 
   useEffect(() => {
     if (isPro) {
@@ -119,9 +125,11 @@ export default function CategoriesPage() {
             </CardDescription>
           </CardHeader>
           <CardContent className="text-center">
-            <Button variant="default">
-              プランをアップグレード
-            </Button>
+            <Link href="/upgrade">
+              <Button variant="default">
+                プランをアップグレード
+              </Button>
+            </Link>
           </CardContent>
         </Card>
       </div>
@@ -133,11 +141,18 @@ export default function CategoriesPage() {
       <div className="flex justify-between items-center mb-6">
         <div>
           <h1 className="text-2xl font-bold">カテゴリー管理</h1>
-          <p className="text-muted-foreground">作品を分類するカテゴリーを管理します</p>
+          <p className="text-muted-foreground">
+            作品を分類するカテゴリーを管理します
+            {categoryLimit > 0 && categoryLimit !== 2147483647 && (
+              <span className="ml-2">
+                （<LimitBadge current={categories.length} limit={categoryLimit} />）
+              </span>
+            )}
+          </p>
         </div>
         <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
           <DialogTrigger asChild>
-            <Button>
+            <Button disabled={isAtLimit}>
               <Plus className="w-4 h-4 mr-2" />
               カテゴリー追加
             </Button>
@@ -175,6 +190,12 @@ export default function CategoriesPage() {
           {error}
         </div>
       )}
+
+      <UpgradePrompt
+        currentCount={categories.length}
+        limit={categoryLimit}
+        itemName="カテゴリー"
+      />
 
       {loading ? (
         <div className="text-center py-8">読み込み中...</div>

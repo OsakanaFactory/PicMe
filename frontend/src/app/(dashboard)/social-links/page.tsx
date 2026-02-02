@@ -12,6 +12,8 @@ import { Select } from '@/components/ui/select';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Plus, Pencil, Trash2, Link as LinkIcon, Loader2, Twitter, Instagram, Facebook, Youtube } from 'lucide-react';
+import { useSubscription } from '@/contexts/SubscriptionContext';
+import { UpgradePrompt, LimitBadge } from '@/components/ui/upgrade-prompt';
 
 const socialLinkSchema = z.object({
   platform: z.string().min(1, 'プラットフォームを選択してください'),
@@ -37,6 +39,8 @@ export default function SocialLinksPage() {
   const [editingLink, setEditingLink] = useState<SocialLink | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState<number | null>(null);
+  const { getLimit } = useSubscription();
+  const linkLimit = getLimit('socialLinks');
 
   const {
     register,
@@ -138,6 +142,8 @@ export default function SocialLinksPage() {
     );
   }
 
+  const isAtLimit = linkLimit > 0 && linkLimit !== 2147483647 && links.length >= linkLimit;
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -145,12 +151,23 @@ export default function SocialLinksPage() {
           <h1 className="text-3xl font-bold tracking-tight">SNSリンク管理</h1>
           <p className="text-slate-500">
             プロフィールに表示するソーシャルメディアやウェブサイトのリンクを管理します
+            {linkLimit > 0 && linkLimit !== 2147483647 && (
+              <span className="ml-2">
+                （<LimitBadge current={links.length} limit={linkLimit} />）
+              </span>
+            )}
           </p>
         </div>
-        <Button onClick={openCreateDialog}>
+        <Button onClick={openCreateDialog} disabled={isAtLimit}>
           <Plus className="mr-2 h-4 w-4" /> リンクを追加
         </Button>
       </div>
+
+      <UpgradePrompt
+        currentCount={links.length}
+        limit={linkLimit}
+        itemName="SNSリンク"
+      />
 
       <div className="space-y-4">
         {links.length === 0 ? (

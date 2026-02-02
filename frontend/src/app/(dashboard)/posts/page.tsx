@@ -12,6 +12,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Plus, Pencil, Trash2, FileText, Loader2, Eye, EyeOff } from 'lucide-react';
+import { useSubscription } from '@/contexts/SubscriptionContext';
+import { UpgradePrompt, LimitBadge } from '@/components/ui/upgrade-prompt';
 
 const postSchema = z.object({
   title: z.string().min(1, 'タイトルは必須です').max(200, 'タイトルは200文字以内で入力してください'),
@@ -30,6 +32,8 @@ export default function PostsPage() {
   const [isSaving, setIsSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState<number | null>(null);
   const [isToggling, setIsToggling] = useState<number | null>(null);
+  const { getLimit } = useSubscription();
+  const postLimit = getLimit('posts');
 
   const {
     register,
@@ -161,6 +165,8 @@ export default function PostsPage() {
     );
   }
 
+  const isAtLimit = postLimit > 0 && postLimit !== 2147483647 && posts.length >= postLimit;
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -168,12 +174,23 @@ export default function PostsPage() {
           <h1 className="text-3xl font-bold tracking-tight">お知らせ管理</h1>
           <p className="text-slate-500">
             お知らせやブログ記事を投稿・管理します
+            {postLimit > 0 && postLimit !== 2147483647 && (
+              <span className="ml-2">
+                （<LimitBadge current={posts.length} limit={postLimit} />）
+              </span>
+            )}
           </p>
         </div>
-        <Button onClick={openCreateDialog}>
+        <Button onClick={openCreateDialog} disabled={isAtLimit}>
           <Plus className="mr-2 h-4 w-4" /> 新規投稿
         </Button>
       </div>
+
+      <UpgradePrompt
+        currentCount={posts.length}
+        limit={postLimit}
+        itemName="お知らせ"
+      />
 
       {posts.length === 0 ? (
         <Card className="flex flex-col items-center justify-center p-12 text-center border-dashed">
