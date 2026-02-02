@@ -14,7 +14,8 @@ import {
   Tag,
   LogOut,
   Settings,
-  ExternalLink
+  ExternalLink,
+  Crown
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
@@ -60,6 +61,11 @@ const navItems = [
     title: 'SNSリンク',
     href: '/social-links',
     icon: LinkIcon,
+  },
+  {
+    title: 'プラン・課金',
+    href: '/upgrade',
+    icon: Crown,
   },
 ];
 
