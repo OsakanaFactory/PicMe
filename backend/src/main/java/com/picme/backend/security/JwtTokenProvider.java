@@ -58,6 +58,40 @@ public class JwtTokenProvider {
     }
 
     /**
+     * 管理者用アクセストークンを生成
+     */
+    public String generateAdminAccessToken(String email) {
+        Date now = new Date();
+        Date expiryDate = new Date(now.getTime() + accessTokenExpiration);
+
+        return Jwts.builder()
+                .subject(email)
+                .issuedAt(now)
+                .expiration(expiryDate)
+                .claim("type", "access")
+                .claim("admin", true)
+                .signWith(secretKey)
+                .compact();
+    }
+
+    /**
+     * トークンが管理者トークンかどうかを確認
+     */
+    public boolean isAdminToken(String token) {
+        try {
+            Claims claims = Jwts.parser()
+                    .verifyWith(secretKey)
+                    .build()
+                    .parseSignedClaims(token)
+                    .getPayload();
+
+            return Boolean.TRUE.equals(claims.get("admin", Boolean.class));
+        } catch (Exception ex) {
+            return false;
+        }
+    }
+
+    /**
      * リフレッシュトークンを生成
      */
     public String generateRefreshToken(String email) {

@@ -27,6 +27,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtTokenProvider jwtTokenProvider;
     private final CustomUserDetailsService userDetailsService;
+    private final AdminUserDetailsService adminUserDetailsService;
 
     @Override
     protected void doFilterInternal(
@@ -40,7 +41,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             if (StringUtils.hasText(jwt) && jwtTokenProvider.validateToken(jwt)) {
                 String email = jwtTokenProvider.getEmailFromToken(jwt);
 
-                UserDetails userDetails = userDetailsService.loadUserByUsername(email);
+                // 管理者トークンかどうかを判定
+                UserDetails userDetails;
+                if (jwtTokenProvider.isAdminToken(jwt)) {
+                    userDetails = adminUserDetailsService.loadUserByUsername(email);
+                } else {
+                    userDetails = userDetailsService.loadUserByUsername(email);
+                }
 
                 UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
                         userDetails,
