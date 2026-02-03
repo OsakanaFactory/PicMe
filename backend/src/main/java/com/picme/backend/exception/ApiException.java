@@ -84,6 +84,13 @@ public class ApiException extends RuntimeException {
                 HttpStatus.UNAUTHORIZED);
     }
 
+    public static ApiException unauthorized(String message) {
+        return new ApiException(
+                "UNAUTHORIZED",
+                message,
+                HttpStatus.UNAUTHORIZED);
+    }
+
     public static ApiException forbidden() {
         return new ApiException(
                 "FORBIDDEN",
@@ -110,5 +117,19 @@ public class ApiException extends RuntimeException {
                 "LIMIT_EXCEEDED",
                 message,
                 HttpStatus.FORBIDDEN);
+    }
+
+    public static ApiException conflict(String message) {
+        return new ApiException(
+                "CONFLICT",
+                message,
+                HttpStatus.CONFLICT);
+    }
+
+    public static ApiException badRequest(String message) {
+        return new ApiException(
+                "BAD_REQUEST",
+                message,
+                HttpStatus.BAD_REQUEST);
     }
 }

@@ -22,6 +22,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.beans.factory.annotation.Qualifier;
 
 import java.util.Arrays;
 import java.util.List;
@@ -32,11 +33,17 @@ import java.util.List;
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
-@RequiredArgsConstructor
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final UserDetailsService userDetailsService;
+
+    public SecurityConfig(
+            JwtAuthenticationFilter jwtAuthenticationFilter,
+            @Qualifier("customUserDetailsService") UserDetailsService userDetailsService) {
+        this.jwtAuthenticationFilter = jwtAuthenticationFilter;
+        this.userDetailsService = userDetailsService;
+    }
 
     @Value("${cors.allowed-origins}")
     private String allowedOrigins;
@@ -61,6 +68,7 @@ public class SecurityConfig {
                         // 公開エンドポイント
                         .requestMatchers(
                                 "/api/auth/**",
+                                "/api/admin/auth/**",
                                 "/api/users/**",
                                 "/api/public/**",
                                 "/api/subscriptions/webhook",
@@ -68,7 +76,7 @@ public class SecurityConfig {
                                 "/error")
                         .permitAll()
 
-                        // 管理者エンドポイント
+                        // 管理者エンドポイント（認証後）
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
 
                         // その他のエンドポイントは認証必須
