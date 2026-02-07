@@ -23,7 +23,7 @@ spring:
       max-request-size: 10MB
 
 server:
-  port: ${SERVER_PORT:8080}
+  port: ${PORT:8080}
 
 # JWT設定
 jwt:
@@ -63,6 +63,6 @@ cors:
 # ログ設定
 logging:
   level:
-    com.picme: DEBUG
+    com.picme: ${LOG_LEVEL:DEBUG}
     org.springframework.web: INFO
     org.hibernate: INFO

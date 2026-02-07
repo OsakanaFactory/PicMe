@@ -79,8 +79,8 @@ export const PLAN_INFO: Record<PlanType, {
   },
   STARTER: {
     name: 'Starter',
-    price: 500,
-    priceLabel: '¥500/月',
+    price: 480,
+    priceLabel: '¥480/月',
     description: '個人クリエイター向け',
     features: [
       '作品20枚まで',
@@ -92,8 +92,8 @@ export const PLAN_INFO: Record<PlanType, {
   },
   PRO: {
     name: 'Pro',
-    price: 1000,
-    priceLabel: '¥1,000/月',
+    price: 680,
+    priceLabel: '¥680/月',
     description: '本格的に活動する方に',
     recommended: true,
     features: [
@@ -107,8 +107,8 @@ export const PLAN_INFO: Record<PlanType, {
   },
   STUDIO: {
     name: 'Studio',
-    price: 2000,
-    priceLabel: '¥2,000/月',
+    price: 1980,
+    priceLabel: '¥1,980/月',
     description: 'プロフェッショナル向け',
     features: [
       '作品200枚まで',
