@@ -37,4 +37,6 @@ public class ProfileUpdateRequest {
 
     @Size(max = 20, message = "レイアウト名は20文字以内で入力してください")
     private String layout;
+
+    private Boolean contactFormEnabled;
 }

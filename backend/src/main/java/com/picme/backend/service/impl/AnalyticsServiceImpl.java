@@ -2,6 +2,7 @@ package com.picme.backend.service.impl;
 
 import com.picme.backend.exception.ApiException;
 import com.picme.backend.model.PageView;
+import com.picme.backend.model.PlanType;
 import com.picme.backend.model.User;
 import com.picme.backend.repository.PageViewRepository;
 import com.picme.backend.repository.UserRepository;
@@ -43,6 +44,8 @@ public class AnalyticsServiceImpl implements AnalyticsService {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(ApiException::userNotFound);
 
+        checkAnalyticsPlanAccess(user);
+
         long totalViews = pageViewRepository.countByUserId(user.getId());
         long todayViews = pageViewRepository.countByUserIdAndViewedAtAfter(
                 user.getId(), LocalDate.now().atStartOfDay());
@@ -74,6 +77,8 @@ public class AnalyticsServiceImpl implements AnalyticsService {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(ApiException::userNotFound);
 
+        checkAnalyticsPlanAccess(user);
+
         LocalDateTime since = LocalDateTime.now().minusDays(days);
         List<Object[]> rawData = pageViewRepository.getDailyViewCounts(user.getId(), since);
 
@@ -100,5 +105,12 @@ public class AnalyticsServiceImpl implements AnalyticsService {
         }
 
         return timeline;
+    }
+
+    private void checkAnalyticsPlanAccess(User user) {
+        PlanType plan = user.getPlanType();
+        if (plan != PlanType.PRO && plan != PlanType.STUDIO) {
+            throw ApiException.forbidden("アクセス解析はPRO以上のプランで利用できます");
+        }
     }
 }

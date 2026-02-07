@@ -47,8 +47,22 @@ public class SubscriptionServiceImpl implements SubscriptionService {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(ApiException::userNotFound);
 
+        // Stripe未設定かつサブスクリプション未登録の場合はデフォルトFREEレスポンスを返却
         Subscription subscription = subscriptionRepository.findByUserId(user.getId())
                 .orElse(null);
+
+        if (!stripeConfig.isConfigured() && subscription == null) {
+            PlanType fallbackPlan = user.getPlanType() != null ? user.getPlanType() : PlanType.FREE;
+            return SubscriptionResponse.builder()
+                    .success(true)
+                    .data(SubscriptionResponse.SubscriptionDto.builder()
+                            .planType(fallbackPlan)
+                            .status(SubscriptionStatus.ACTIVE)
+                            .cancelAtPeriodEnd(false)
+                            .limits(getPlanLimits(fallbackPlan))
+                            .build())
+                    .build();
+        }
 
         PlanType planType = subscription != null ? subscription.getPlanType() : user.getPlanType();
         SubscriptionStatus status = subscription != null ? subscription.getStatus() : SubscriptionStatus.ACTIVE;

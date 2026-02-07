@@ -18,6 +18,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.Set;
+
 /**
  * プロフィールサービス実装
  */
@@ -25,6 +27,8 @@ import org.springframework.web.multipart.MultipartFile;
 @RequiredArgsConstructor
 @Slf4j
 public class ProfileServiceImpl implements ProfileService {
+
+    private static final Set<String> VALID_THEMES = Set.of("LIGHT", "DARK", "WARM", "COOL");
 
     private final ProfileRepository profileRepository;
     private final UserRepository userRepository;
@@ -65,6 +69,9 @@ public class ProfileServiceImpl implements ProfileService {
             profile.setHeaderUrl(request.getHeaderUrl());
         }
         if (request.getTheme() != null) {
+            if (!VALID_THEMES.contains(request.getTheme())) {
+                throw ApiException.badRequest("無効なテーマ名です。有効な値: LIGHT, DARK, WARM, COOL");
+            }
             profile.setTheme(request.getTheme());
         }
         if (request.getColorPrimary() != null) {
@@ -78,6 +85,9 @@ public class ProfileServiceImpl implements ProfileService {
         }
         if (request.getLayout() != null) {
             profile.setLayout(request.getLayout());
+        }
+        if (request.getContactFormEnabled() != null) {
+            profile.setContactFormEnabled(request.getContactFormEnabled());
         }
 
         profile = profileRepository.save(profile);
