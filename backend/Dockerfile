@@ -4,15 +4,15 @@ FROM eclipse-temurin:17-jdk-alpine AS build
 WORKDIR /app
 
 # Mavenラッパーをコピー
-COPY .mvn .mvn
-COPY mvnw .
-COPY pom.xml .
+COPY backend/.mvn .mvn
+COPY backend/mvnw .
+COPY backend/pom.xml .
 
 # 依存関係を事前ダウンロード（キャッシュ最適化）
 RUN ./mvnw dependency:go-offline -B || true
 
 # ソースコードをコピーしてビルド
-COPY src src
+COPY backend/src src
 RUN ./mvnw package -DskipTests -B
 
 # 実行ステージ
