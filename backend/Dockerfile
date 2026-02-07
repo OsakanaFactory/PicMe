@@ -8,6 +8,9 @@ COPY backend/.mvn .mvn
 COPY backend/mvnw .
 COPY backend/pom.xml .
 
+# 実行権限を付与
+RUN chmod +x mvnw
+
 # 依存関係を事前ダウンロード（キャッシュ最適化）
 RUN ./mvnw dependency:go-offline -B || true
 
