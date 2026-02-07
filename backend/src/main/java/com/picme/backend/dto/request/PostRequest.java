@@ -28,4 +28,8 @@ public class PostRequest {
 
     @Builder.Default
     private Boolean visible = true;
+
+    @Size(max = 20, message = "コンテンツ形式は20文字以内です")
+    @Builder.Default
+    private String contentFormat = "PLAIN";
 }

@@ -14,6 +14,8 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Plus, Pencil, Trash2, FileText, Loader2, Eye, EyeOff } from 'lucide-react';
 import { useSubscription } from '@/contexts/SubscriptionContext';
 import { UpgradePrompt, LimitBadge } from '@/components/ui/upgrade-prompt';
+import { MarkdownEditor } from '@/components/dashboard/markdown-editor';
+import { useAuth } from '@/contexts/AuthContext';
 
 const postSchema = z.object({
   title: z.string().min(1, 'タイトルは必須です').max(200, 'タイトルは200文字以内で入力してください'),
@@ -32,7 +34,10 @@ export default function PostsPage() {
   const [isSaving, setIsSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState<number | null>(null);
   const [isToggling, setIsToggling] = useState<number | null>(null);
+  const [useMarkdown, setUseMarkdown] = useState(false);
   const { getLimit } = useSubscription();
+  const { user } = useAuth();
+  const isPro = user?.planType === 'PRO' || user?.planType === 'STUDIO';
   const postLimit = getLimit('posts');
 
   const {
@@ -71,6 +76,7 @@ export default function PostsPage() {
 
   const openCreateDialog = () => {
     setEditingPost(null);
+    setUseMarkdown(false);
     reset({
       title: '',
       content: '',
@@ -82,6 +88,7 @@ export default function PostsPage() {
 
   const openEditDialog = (post: Post) => {
     setEditingPost(post);
+    setUseMarkdown(post.contentFormat === 'MARKDOWN');
     reset({
       title: post.title,
       content: post.content,
@@ -94,10 +101,12 @@ export default function PostsPage() {
   const onSubmit = async (data: PostFormValues) => {
     setIsSaving(true);
     try {
+      const contentFormat = useMarkdown ? 'MARKDOWN' : 'PLAIN';
       if (editingPost) {
         await updatePost(editingPost.id, {
           title: data.title,
           content: data.content,
+          contentFormat,
           thumbnailUrl: data.thumbnailUrl || undefined,
           visible: data.visible,
         });
@@ -105,6 +114,7 @@ export default function PostsPage() {
         await createPost({
           title: data.title,
           content: data.content,
+          contentFormat,
           thumbnailUrl: data.thumbnailUrl || undefined,
           visible: data.visible,
         });
@@ -312,17 +322,39 @@ export default function PostsPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="content">本文</Label>
-              <Textarea
-                id="content"
-                placeholder="お知らせの本文を入力してください"
-                className="resize-none h-48"
-                {...register('content')}
-                error={errors.content?.message}
-              />
-              <p className="text-xs text-slate-500">
-                ※ Proプラン以上でマークダウン記法が使用可能です
-              </p>
+              <div className="flex items-center justify-between">
+                <Label htmlFor="content">本文</Label>
+                {isPro && (
+                  <button
+                    type="button"
+                    className={`text-xs px-2 py-1 rounded ${useMarkdown ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'} transition-colors`}
+                    onClick={() => setUseMarkdown(!useMarkdown)}
+                  >
+                    {useMarkdown ? 'Markdown ON' : 'Markdown OFF'}
+                  </button>
+                )}
+              </div>
+              {useMarkdown && isPro ? (
+                <MarkdownEditor
+                  value={watch('content')}
+                  onChange={(val) => setValue('content', val, { shouldValidate: true })}
+                  height={300}
+                  placeholder="マークダウンで記述できます"
+                />
+              ) : (
+                <Textarea
+                  id="content"
+                  placeholder="お知らせの本文を入力してください"
+                  className="resize-none h-48"
+                  {...register('content')}
+                  error={errors.content?.message}
+                />
+              )}
+              {!isPro && (
+                <p className="text-xs text-slate-500">
+                  ※ Proプラン以上でマークダウン記法が使用可能です
+                </p>
+              )}
             </div>
 
             <div className="space-y-2">

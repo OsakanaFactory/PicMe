@@ -11,9 +11,11 @@ import { Label } from '@/components/ui/label';
 import { Select } from '@/components/ui/select';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Plus, Pencil, Trash2, Link as LinkIcon, Loader2, Twitter, Instagram, Facebook, Youtube } from 'lucide-react';
+import { Plus, Pencil, Trash2, Link as LinkIcon, Loader2, Twitter, Instagram, Facebook, Youtube, ArrowUpDown } from 'lucide-react';
 import { useSubscription } from '@/contexts/SubscriptionContext';
 import { UpgradePrompt, LimitBadge } from '@/components/ui/upgrade-prompt';
+import { SortableSocialLinkList } from '@/components/dashboard/sortable-social-link-list';
+import { reorderSocialLinks } from '@/lib/social-links';
 
 const socialLinkSchema = z.object({
   platform: z.string().min(1, 'プラットフォームを選択してください'),
@@ -39,6 +41,7 @@ export default function SocialLinksPage() {
   const [editingLink, setEditingLink] = useState<SocialLink | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState<number | null>(null);
+  const [isReorderMode, setIsReorderMode] = useState(false);
   const { getLimit } = useSubscription();
   const linkLimit = getLimit('socialLinks');
 
@@ -158,9 +161,20 @@ export default function SocialLinksPage() {
             )}
           </p>
         </div>
-        <Button onClick={openCreateDialog} disabled={isAtLimit}>
-          <Plus className="mr-2 h-4 w-4" /> リンクを追加
-        </Button>
+        <div className="flex gap-2">
+          {links.length > 1 && (
+            <Button
+              variant={isReorderMode ? 'primary' : 'outline'}
+              onClick={() => setIsReorderMode(!isReorderMode)}
+            >
+              <ArrowUpDown className="mr-2 h-4 w-4" />
+              {isReorderMode ? '並び替え完了' : '並び替え'}
+            </Button>
+          )}
+          <Button onClick={openCreateDialog} disabled={isAtLimit}>
+            <Plus className="mr-2 h-4 w-4" /> リンクを追加
+          </Button>
+        </div>
       </div>
 
       <UpgradePrompt
@@ -183,6 +197,19 @@ export default function SocialLinksPage() {
               リンクを追加する
             </Button>
           </Card>
+        ) : isReorderMode ? (
+          <SortableSocialLinkList
+            links={links}
+            onReorder={async (ids) => {
+              try {
+                await reorderSocialLinks(ids);
+                fetchLinks();
+              } catch (err) {
+                console.error('Failed to reorder', err);
+                alert('並び替えに失敗しました');
+              }
+            }}
+          />
         ) : (
           links.map((link) => (
             <Card key={link.id} className="flex items-center justify-between p-4">

@@ -13,9 +13,11 @@ import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { FileUpload } from '@/components/ui/file-upload';
-import { Plus, Pencil, Trash2, Image as ImageIcon, Loader2 } from 'lucide-react';
+import { Plus, Pencil, Trash2, Image as ImageIcon, Loader2, ArrowUpDown } from 'lucide-react';
 import { useSubscription } from '@/contexts/SubscriptionContext';
 import { UpgradePrompt, LimitBadge } from '@/components/ui/upgrade-prompt';
+import { SortableArtworkList } from '@/components/dashboard/sortable-artwork-list';
+import { reorderArtworks } from '@/lib/artworks';
 
 const editSchema = z.object({
   title: z.string().min(1, 'タイトルは必須です').max(100, 'タイトルは100文字以内で入力してください'),
@@ -33,6 +35,7 @@ export default function ArtworksPage() {
   const [editingArtwork, setEditingArtwork] = useState<Artwork | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState<number | null>(null);
+  const [isReorderMode, setIsReorderMode] = useState(false);
   const [uploadFile, setUploadFile] = useState<File | null>(null);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [uploadTitle, setUploadTitle] = useState('');
@@ -167,9 +170,20 @@ export default function ArtworksPage() {
             )}
           </p>
         </div>
-        <Button onClick={openCreateDialog} disabled={isAtLimit}>
-          <Plus className="mr-2 h-4 w-4" /> 新規追加
-        </Button>
+        <div className="flex gap-2">
+          {artworks.length > 1 && (
+            <Button
+              variant={isReorderMode ? 'primary' : 'outline'}
+              onClick={() => setIsReorderMode(!isReorderMode)}
+            >
+              <ArrowUpDown className="mr-2 h-4 w-4" />
+              {isReorderMode ? '並び替え完了' : '並び替え'}
+            </Button>
+          )}
+          <Button onClick={openCreateDialog} disabled={isAtLimit}>
+            <Plus className="mr-2 h-4 w-4" /> 新規追加
+          </Button>
+        </div>
       </div>
 
       <UpgradePrompt
@@ -191,6 +205,19 @@ export default function ArtworksPage() {
               作品を追加する
             </Button>
         </Card>
+      ) : isReorderMode ? (
+        <SortableArtworkList
+          artworks={artworks}
+          onReorder={async (ids) => {
+            try {
+              await reorderArtworks(ids);
+              fetchArtworks();
+            } catch (err) {
+              console.error('Failed to reorder', err);
+              alert('並び替えに失敗しました');
+            }
+          }}
+        />
       ) : (
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {artworks.map((artwork) => (

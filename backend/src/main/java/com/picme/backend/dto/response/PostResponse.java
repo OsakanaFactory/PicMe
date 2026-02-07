@@ -20,6 +20,7 @@ public class PostResponse {
     private Long id;
     private String title;
     private String content;
+    private String contentFormat;
     private String contentHtml;
     private String thumbnailUrl;
     private Boolean visible;
@@ -36,6 +37,7 @@ public class PostResponse {
                 .id(post.getId())
                 .title(post.getTitle())
                 .content(post.getContent())
+                .contentFormat(post.getContentFormat())
                 .contentHtml(null) // Markdown変換はService層で行う
                 .thumbnailUrl(post.getThumbnailUrl())
                 .visible(post.getVisible())

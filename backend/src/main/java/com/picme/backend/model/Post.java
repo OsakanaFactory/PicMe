@@ -31,6 +31,10 @@ public class Post {
     @Column(columnDefinition = "TEXT", nullable = false)
     private String content;
 
+    @Column(name = "content_format", length = 20)
+    @Builder.Default
+    private String contentFormat = "PLAIN";
+
     @Column(name = "thumbnail_url", length = 500)
     private String thumbnailUrl;
 

@@ -4,6 +4,7 @@ export interface Post {
   id: number;
   title: string;
   content: string;
+  contentFormat?: string;
   contentHtml?: string;
   thumbnailUrl?: string;
   visible: boolean;
@@ -16,6 +17,7 @@ export interface Post {
 export interface PostRequest {
   title: string;
   content: string;
+  contentFormat?: string;
   thumbnailUrl?: string;
   visible?: boolean;
 }

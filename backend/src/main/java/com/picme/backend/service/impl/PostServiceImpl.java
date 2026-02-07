@@ -64,10 +64,17 @@ public class PostServiceImpl implements PostService {
             throw ApiException.forbidden("マークダウン記法はProプラン以上でご利用いただけます");
         }
 
+        // MARKDOWN形式はPro以上のみ
+        String format = request.getContentFormat() != null ? request.getContentFormat() : "PLAIN";
+        if ("MARKDOWN".equals(format) && !canUseMarkdown(user.getPlanType())) {
+            throw ApiException.forbidden("マークダウン記法はProプラン以上でご利用いただけます");
+        }
+
         Post post = Post.builder()
                 .user(user)
                 .title(request.getTitle())
                 .content(request.getContent())
+                .contentFormat(format)
                 .thumbnailUrl(request.getThumbnailUrl())
                 .visible(request.getVisible() != null ? request.getVisible() : true)
                 .publishedAt(request.getVisible() != null && request.getVisible() ? LocalDateTime.now() : null)
@@ -109,6 +116,12 @@ public class PostServiceImpl implements PostService {
                 post.setPublishedAt(LocalDateTime.now());
             }
             post.setVisible(request.getVisible());
+        }
+        if (request.getContentFormat() != null) {
+            if ("MARKDOWN".equals(request.getContentFormat()) && !canUseMarkdown(user.getPlanType())) {
+                throw ApiException.forbidden("マークダウン記法はProプラン以上でご利用いただけます");
+            }
+            post.setContentFormat(request.getContentFormat());
         }
 
         post = postRepository.save(post);
@@ -238,7 +251,8 @@ public class PostServiceImpl implements PostService {
                 .id(post.getId())
                 .title(post.getTitle())
                 .content(post.getContent())
-                .contentHtml(null) // TODO: Markdown変換が必要な場合はここで行う
+                .contentFormat(post.getContentFormat())
+                .contentHtml(null)
                 .thumbnailUrl(post.getThumbnailUrl())
                 .visible(post.getVisible())
                 .viewCount(post.getViewCount())
