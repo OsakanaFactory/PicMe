@@ -23,6 +23,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.beans.factory.annotation.Qualifier;
+import jakarta.servlet.http.HttpServletResponse;
 
 import java.util.Arrays;
 import java.util.List;
@@ -65,6 +66,9 @@ public class SecurityConfig {
 
                 // エンドポイントの認可設定
                 .authorizeHttpRequests(auth -> auth
+                        // CORSプリフライトリクエストを許可
+                        .requestMatchers(org.springframework.web.cors.CorsUtils::isPreFlightRequest).permitAll()
+
                         // 公開エンドポイント
                         .requestMatchers(
                                 "/api/auth/**",
@@ -81,6 +85,14 @@ public class SecurityConfig {
 
                         // その他のエンドポイントは認証必須
                         .anyRequest().authenticated())
+
+                // 未認証リクエストに401を返すカスタムEntryPoint
+                .exceptionHandling(ex -> ex
+                        .authenticationEntryPoint((request, response, authException) -> {
+                            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                            response.setContentType("application/json;charset=UTF-8");
+                            response.getWriter().write("{\"success\":false,\"errorCode\":\"UNAUTHORIZED\",\"message\":\"認証が必要です\"}");
+                        }))
 
                 // JWTフィルターの追加
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
