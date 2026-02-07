@@ -54,6 +54,13 @@ public class Profile {
     @Builder.Default
     private String layout = "STANDARD";
 
+    @Column(name = "custom_css", columnDefinition = "TEXT")
+    private String customCss;
+
+    @Column(name = "contact_form_enabled")
+    @Builder.Default
+    private Boolean contactFormEnabled = false;
+
     @Column(name = "created_at")
     @Builder.Default
     private LocalDateTime createdAt = LocalDateTime.now();

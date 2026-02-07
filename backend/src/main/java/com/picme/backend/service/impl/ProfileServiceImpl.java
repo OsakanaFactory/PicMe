@@ -7,9 +7,11 @@ import com.picme.backend.model.Profile;
 import com.picme.backend.model.User;
 import com.picme.backend.repository.ProfileRepository;
 import com.picme.backend.repository.UserRepository;
+import com.picme.backend.model.PlanType;
 import com.picme.backend.service.CloudinaryService;
 import com.picme.backend.service.CloudinaryService.CloudinaryUploadResult;
 import com.picme.backend.service.ProfileService;
+import com.picme.backend.util.CssSanitizer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -139,6 +141,38 @@ public class ProfileServiceImpl implements ProfileService {
         return mapToResponse(profile);
     }
 
+    @Override
+    @Transactional
+    public ProfileResponse updateCustomCss(String email, String customCss) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(ApiException::userNotFound);
+
+        // PRO/STUDIO のみカスタムCSS利用可
+        PlanType plan = user.getPlanType();
+        if (plan != PlanType.PRO && plan != PlanType.STUDIO) {
+            throw ApiException.forbidden("カスタムCSSはPRO以上のプランで利用できます");
+        }
+
+        Profile profile = profileRepository.findByUserId(user.getId())
+                .orElseThrow(() -> ApiException.notFound("プロフィール"));
+
+        // 行数制限: PRO 100行, STUDIO 500行
+        int maxLines = (plan == PlanType.STUDIO) ? 500 : 100;
+        String validationError = CssSanitizer.validate(customCss, maxLines);
+        if (validationError != null) {
+            throw ApiException.badRequest(validationError);
+        }
+
+        // サニタイズして保存
+        String sanitizedCss = CssSanitizer.sanitize(customCss);
+        profile.setCustomCss(sanitizedCss);
+        profile = profileRepository.save(profile);
+
+        log.info("Custom CSS updated for user: {}", email);
+
+        return mapToResponse(profile);
+    }
+
     /**
      * ProfileエンティティをProfileResponseにマッピング
      */
@@ -156,6 +190,8 @@ public class ProfileServiceImpl implements ProfileService {
                 .colorAccent(profile.getColorAccent())
                 .fontFamily(profile.getFontFamily())
                 .layout(profile.getLayout())
+                .customCss(profile.getCustomCss())
+                .contactFormEnabled(profile.getContactFormEnabled())
                 .createdAt(profile.getCreatedAt())
                 .updatedAt(profile.getUpdatedAt())
                 .build();

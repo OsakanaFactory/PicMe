@@ -33,4 +33,9 @@ public interface ProfileService {
      * ヘッダー画像をアップロード
      */
     ProfileResponse uploadHeader(String email, MultipartFile file);
+
+    /**
+     * カスタムCSSを更新
+     */
+    ProfileResponse updateCustomCss(String email, String customCss);
 }

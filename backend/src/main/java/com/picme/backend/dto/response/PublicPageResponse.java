@@ -23,4 +23,6 @@ public class PublicPageResponse {
     private List<PostResponse> posts;
     private List<CategoryResponse> categories;
     private List<TagResponse> tags;
+    private Boolean contactFormEnabled;
+    private String customCss;
 }

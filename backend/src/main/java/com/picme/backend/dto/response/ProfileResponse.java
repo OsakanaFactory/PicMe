@@ -28,6 +28,8 @@ public class ProfileResponse {
     private String colorAccent;
     private String fontFamily;
     private String layout;
+    private String customCss;
+    private Boolean contactFormEnabled;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }

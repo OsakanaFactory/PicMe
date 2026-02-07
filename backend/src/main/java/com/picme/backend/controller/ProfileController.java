@@ -1,5 +1,6 @@
 package com.picme.backend.controller;
 
+import com.picme.backend.dto.request.CustomCssRequest;
 import com.picme.backend.dto.request.ProfileUpdateRequest;
 import com.picme.backend.dto.response.ApiResponse;
 import com.picme.backend.dto.response.ProfileResponse;
@@ -84,5 +85,22 @@ public class ProfileController {
 
         ProfileResponse profile = profileService.uploadHeader(userDetails.getUsername(), file);
         return ResponseEntity.ok(ApiResponse.success("ヘッダーを更新しました", profile));
+    }
+
+    /**
+     * カスタムCSSを更新（PRO/STUDIO のみ）
+     * PUT /api/profile/custom-css
+     */
+    @PutMapping("/custom-css")
+    public ResponseEntity<ApiResponse<ProfileResponse>> updateCustomCss(
+            @AuthenticationPrincipal UserDetails userDetails,
+            @Valid @RequestBody CustomCssRequest request) {
+
+        log.info("Update custom CSS request for: {}", userDetails.getUsername());
+
+        ProfileResponse profile = profileService.updateCustomCss(
+                userDetails.getUsername(), request.getCustomCss());
+
+        return ResponseEntity.ok(ApiResponse.success("カスタムCSSを更新しました", profile));
     }
 }

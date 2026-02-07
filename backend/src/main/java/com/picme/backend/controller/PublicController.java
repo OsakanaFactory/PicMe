@@ -1,5 +1,6 @@
 package com.picme.backend.controller;
 
+import com.picme.backend.dto.request.PublicInquiryRequest;
 import com.picme.backend.dto.response.ApiResponse;
 import com.picme.backend.dto.response.ArtworkResponse;
 import com.picme.backend.dto.response.CategoryResponse;
@@ -8,14 +9,17 @@ import com.picme.backend.dto.response.ProfileResponse;
 import com.picme.backend.dto.response.PublicPageResponse;
 import com.picme.backend.dto.response.SocialLinkResponse;
 import com.picme.backend.dto.response.TagResponse;
-import com.picme.backend.service.ArtworkService;
-import com.picme.backend.service.CategoryService;
-import com.picme.backend.service.PostService;
-import com.picme.backend.service.ProfileService;
-import com.picme.backend.service.SocialLinkService;
-import com.picme.backend.service.TagService;
+import com.picme.backend.exception.ApiException;
+import com.picme.backend.model.Inquiry;
+import com.picme.backend.model.PlanType;
+import com.picme.backend.model.User;
+import com.picme.backend.repository.InquiryRepository;
+import com.picme.backend.repository.UserRepository;
+import com.picme.backend.service.*;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -37,16 +41,29 @@ public class PublicController {
     private final PostService postService;
     private final CategoryService categoryService;
     private final TagService tagService;
+    private final UserRepository userRepository;
+    private final InquiryRepository inquiryRepository;
+    private final EmailService emailService;
 
     /**
      * ユーザーの公開ページデータを取得
      * GET /api/users/:username
      */
+    private final AnalyticsService analyticsService;
+
     @GetMapping("/{username}")
     public ResponseEntity<ApiResponse<PublicPageResponse>> getPublicPage(
-            @PathVariable String username) {
+            @PathVariable String username,
+            @RequestHeader(value = "X-Forwarded-For", required = false) String forwardedFor,
+            @RequestHeader(value = "Referer", required = false) String referer,
+            @RequestHeader(value = "User-Agent", required = false) String userAgent) {
 
         log.info("Get public page request for: {}", username);
+
+        // ページビュー記録（非同期）
+        userRepository.findByUsername(username).ifPresent(user ->
+            analyticsService.recordPageView(user, forwardedFor, referer, userAgent)
+        );
 
         // 各サービスから公開データを取得
         ProfileResponse profile = profileService.getPublicProfile(username);
@@ -63,6 +80,8 @@ public class PublicController {
                 .posts(posts)
                 .categories(categories)
                 .tags(tags)
+                .contactFormEnabled(profile.getContactFormEnabled())
+                .customCss(profile.getCustomCss())
                 .build();
 
         return ResponseEntity.ok(ApiResponse.success(response));
@@ -165,5 +184,46 @@ public class PublicController {
 
         List<TagResponse> tags = tagService.getPublicTags(username);
         return ResponseEntity.ok(ApiResponse.success(tags));
+    }
+
+    /**
+     * 問い合わせを送信（PRO/STUDIO のみ受付）
+     * POST /api/users/:username/inquiries
+     */
+    @PostMapping("/{username}/inquiries")
+    public ResponseEntity<ApiResponse<Void>> submitInquiry(
+            @PathVariable String username,
+            @Valid @RequestBody PublicInquiryRequest request) {
+
+        log.info("Inquiry submission for user: {}", username);
+
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(ApiException::userNotFound);
+
+        // PRO/STUDIO のみ問い合わせフォーム有効
+        if (user.getPlanType() != PlanType.PRO && user.getPlanType() != PlanType.STUDIO) {
+            throw ApiException.badRequest("このユーザーは問い合わせフォームを利用できません");
+        }
+
+        Inquiry inquiry = Inquiry.builder()
+                .user(user)
+                .name(request.getName())
+                .email(request.getEmail())
+                .subject(request.getSubject())
+                .message(request.getMessage())
+                .build();
+
+        inquiryRepository.save(inquiry);
+
+        // メール通知
+        emailService.sendInquiryNotification(
+                user.getEmail(),
+                request.getName(),
+                request.getEmail(),
+                request.getSubject(),
+                request.getMessage()
+        );
+
+        return new ResponseEntity<>(ApiResponse.success("問い合わせを送信しました"), HttpStatus.CREATED);
     }
 }

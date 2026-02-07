@@ -15,7 +15,9 @@ import {
   LogOut,
   Settings,
   ExternalLink,
-  Crown
+  Crown,
+  BarChart3,
+  Code
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
@@ -61,6 +63,18 @@ const navItems = [
     title: 'SNSリンク',
     href: '/social-links',
     icon: LinkIcon,
+  },
+  {
+    title: 'アクセス解析',
+    href: '/analytics',
+    icon: BarChart3,
+    pro: true,
+  },
+  {
+    title: 'カスタムCSS',
+    href: '/custom-css',
+    icon: Code,
+    pro: true,
   },
   {
     title: 'プラン・課金',

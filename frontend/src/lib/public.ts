@@ -13,6 +13,8 @@ export interface PublicPageData {
   posts: Post[];
   categories: Category[];
   tags: Tag[];
+  contactFormEnabled?: boolean;
+  customCss?: string;
 }
 
 /**
@@ -53,4 +55,18 @@ export async function getPublicCategories(username: string): Promise<Category[]>
 export async function getPublicTags(username: string): Promise<Tag[]> {
   const response = await api.get(`/api/users/${username}/tags`);
   return response.data.data;
+}
+
+export interface InquiryRequest {
+  name: string;
+  email: string;
+  subject: string;
+  message: string;
+}
+
+/**
+ * 問い合わせ送信
+ */
+export async function submitInquiry(username: string, data: InquiryRequest): Promise<void> {
+  await api.post(`/api/users/${username}/inquiries`, data);
 }

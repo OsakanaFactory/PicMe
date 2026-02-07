@@ -12,6 +12,8 @@ export interface Profile {
   colorAccent?: string;
   fontFamily?: string;
   layout: string;
+  customCss?: string;
+  contactFormEnabled?: boolean;
   planType?: string;
 }
 
@@ -48,5 +50,13 @@ export async function updateProfile(data: ProfileUpdateRequest): Promise<Profile
  */
 export async function getPublicProfile(username: string): Promise<Profile> {
   const response = await api.get(`/api/users/${username}/profile`);
+  return response.data.data;
+}
+
+/**
+ * カスタムCSS更新
+ */
+export async function updateCustomCss(customCss: string): Promise<Profile> {
+  const response = await api.put('/api/profile/custom-css', { customCss });
   return response.data.data;
 }

@@ -14,6 +14,7 @@ import { BentoGrid, BentoGridItem } from '@/components/ui/bento-grid';
 import { MasonryGrid } from '@/components/ui/masonry-grid';
 import { SkillBar } from '@/components/ui/skill-bar';
 import { FreeUserAd } from '@/components/ads';
+import { ContactForm } from '@/components/public/contact-form';
 
 // SNSアイコン (v2.1.4: 大型アイコンデザイン)
 const getPlatformIcon = (platform: string) => {
@@ -91,7 +92,7 @@ export default function PublicPage({ params }: { params: Promise<{ username: str
     );
   }
 
-  const { profile, artworks, socialLinks, posts, categories = [], tags = [] } = data;
+  const { profile, artworks, socialLinks, posts, categories = [], tags = [], contactFormEnabled, customCss } = data;
   const userPlanType = profile.planType || 'FREE';
 
   // フィルタリング処理
@@ -106,6 +107,9 @@ export default function PublicPage({ params }: { params: Promise<{ username: str
 
   return (
     <div className="min-h-screen bg-paper-white text-slate-900 font-sans pb-40">
+
+      {/* カスタムCSS適用 */}
+      {customCss && <style dangerouslySetInnerHTML={{ __html: customCss }} />}
 
       {/* 1. Header & Intro Section (v2.1: 余白拡大、min-h-[40vh]) */}
       <div className="max-w-7xl mx-auto px-6 pt-24 pb-20 sm:px-8 lg:px-12 min-h-[45vh]">
@@ -308,6 +312,13 @@ export default function PublicPage({ params }: { params: Promise<{ username: str
 
       {/* Ad: フッター上広告 */}
       <FreeUserAd planType={userPlanType} slot="profile" className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 mt-20" />
+
+      {/* 問い合わせフォーム（PRO/STUDIO + contactFormEnabled の場合） */}
+      {contactFormEnabled && (
+        <div className="max-w-2xl mx-auto px-6 mt-20 sm:px-8 lg:px-12">
+          <ContactForm username={username} />
+        </div>
+      )}
 
       {/* 3. Footer - v2.1: 余白拡大 */}
       <footer className="mt-48 md:mt-56 border-t border-slate-100 py-20 text-center">
