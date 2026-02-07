@@ -9,7 +9,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -28,8 +28,8 @@ public class SubscriptionController {
      */
     @GetMapping("/status")
     public ResponseEntity<SubscriptionResponse> getSubscriptionStatus(
-            @AuthenticationPrincipal Jwt jwt) {
-        String email = jwt.getClaimAsString("email");
+            @AuthenticationPrincipal UserDetails userDetails) {
+        String email = userDetails.getUsername();
         return ResponseEntity.ok(subscriptionService.getSubscription(email));
     }
 
@@ -38,9 +38,9 @@ public class SubscriptionController {
      */
     @PostMapping("/checkout")
     public ResponseEntity<CheckoutResponse> createCheckoutSession(
-            @AuthenticationPrincipal Jwt jwt,
+            @AuthenticationPrincipal UserDetails userDetails,
             @Valid @RequestBody CheckoutRequest request) {
-        String email = jwt.getClaimAsString("email");
+        String email = userDetails.getUsername();
         return ResponseEntity.ok(subscriptionService.createCheckoutSession(email, request));
     }
 
@@ -49,8 +49,8 @@ public class SubscriptionController {
      */
     @PostMapping("/cancel")
     public ResponseEntity<SubscriptionResponse> cancelSubscription(
-            @AuthenticationPrincipal Jwt jwt) {
-        String email = jwt.getClaimAsString("email");
+            @AuthenticationPrincipal UserDetails userDetails) {
+        String email = userDetails.getUsername();
         return ResponseEntity.ok(subscriptionService.cancelSubscription(email));
     }
 
@@ -59,8 +59,8 @@ public class SubscriptionController {
      */
     @PostMapping("/resume")
     public ResponseEntity<SubscriptionResponse> resumeSubscription(
-            @AuthenticationPrincipal Jwt jwt) {
-        String email = jwt.getClaimAsString("email");
+            @AuthenticationPrincipal UserDetails userDetails) {
+        String email = userDetails.getUsername();
         return ResponseEntity.ok(subscriptionService.resumeSubscription(email));
     }
 
