@@ -29,4 +29,24 @@ public interface AuthService {
      * ログアウト（将来的にトークンブラックリスト対応予定）
      */
     void logout(String token);
+
+    /**
+     * メール認証
+     */
+    void verifyEmail(String token);
+
+    /**
+     * パスワードリセットリクエスト
+     */
+    void forgotPassword(String email);
+
+    /**
+     * パスワードリセット実行
+     */
+    void resetPassword(String token, String newPassword);
+
+    /**
+     * 認証メール再送
+     */
+    void resendVerification(String email);
 }

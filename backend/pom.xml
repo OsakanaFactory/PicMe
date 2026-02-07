@@ -24,6 +24,7 @@
         <jjwt.version>0.12.3</jjwt.version>
         <cloudinary.version>1.36.0</cloudinary.version>
         <stripe.version>24.15.0</stripe.version>
+        <sendgrid.version>4.10.1</sendgrid.version>
     </properties>
 
     <dependencies>
@@ -91,6 +92,19 @@
             <groupId>com.stripe</groupId>
             <artifactId>stripe-java</artifactId>
             <version>${stripe.version}</version>
+        </dependency>
+
+        <!-- SendGrid (メール送信) -->
+        <dependency>
+            <groupId>com.sendgrid</groupId>
+            <artifactId>sendgrid-java</artifactId>
+            <version>${sendgrid.version}</version>
+        </dependency>
+
+        <!-- Spring Boot Mail -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-mail</artifactId>
         </dependency>
 
         <!-- Lombok -->

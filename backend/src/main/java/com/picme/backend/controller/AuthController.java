@@ -1,8 +1,6 @@
 package com.picme.backend.controller;
 
-import com.picme.backend.dto.request.LoginRequest;
-import com.picme.backend.dto.request.RefreshTokenRequest;
-import com.picme.backend.dto.request.SignupRequest;
+import com.picme.backend.dto.request.*;
 import com.picme.backend.dto.response.ApiResponse;
 import com.picme.backend.dto.response.AuthResponse;
 import com.picme.backend.service.AuthService;
@@ -79,5 +77,52 @@ public class AuthController {
 
         AuthResponse response = authService.refreshToken(request);
         return ResponseEntity.ok(response);
+    }
+
+    /**
+     * メール認証
+     * GET /api/auth/verify?token=xxx
+     */
+    @GetMapping("/verify")
+    public ResponseEntity<ApiResponse<Void>> verifyEmail(@RequestParam String token) {
+        log.info("Email verification request received");
+        authService.verifyEmail(token);
+        return ResponseEntity.ok(ApiResponse.success("メールアドレスを認証しました"));
+    }
+
+    /**
+     * パスワードリセットリクエスト
+     * POST /api/auth/forgot-password
+     */
+    @PostMapping("/forgot-password")
+    public ResponseEntity<ApiResponse<Void>> forgotPassword(
+            @Valid @RequestBody ForgotPasswordRequest request) {
+        log.info("Forgot password request for: {}", request.getEmail());
+        authService.forgotPassword(request.getEmail());
+        return ResponseEntity.ok(ApiResponse.success("パスワードリセットメールを送信しました"));
+    }
+
+    /**
+     * パスワードリセット実行
+     * POST /api/auth/reset-password
+     */
+    @PostMapping("/reset-password")
+    public ResponseEntity<ApiResponse<Void>> resetPassword(
+            @Valid @RequestBody ResetPasswordRequest request) {
+        log.info("Password reset request received");
+        authService.resetPassword(request.getToken(), request.getNewPassword());
+        return ResponseEntity.ok(ApiResponse.success("パスワードを変更しました"));
+    }
+
+    /**
+     * 認証メール再送
+     * POST /api/auth/resend-verification
+     */
+    @PostMapping("/resend-verification")
+    public ResponseEntity<ApiResponse<Void>> resendVerification(
+            @Valid @RequestBody ResendVerificationRequest request) {
+        log.info("Resend verification request for: {}", request.getEmail());
+        authService.resendVerification(request.getEmail());
+        return ResponseEntity.ok(ApiResponse.success("認証メールを再送しました"));
     }
 }

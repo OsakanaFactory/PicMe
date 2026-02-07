@@ -104,3 +104,31 @@ export function clearTokens(): void {
   localStorage.removeItem('accessToken');
   localStorage.removeItem('refreshToken');
 }
+
+/**
+ * メール認証
+ */
+export async function verifyEmail(token: string): Promise<void> {
+  await api.get(`/api/auth/verify?token=${encodeURIComponent(token)}`);
+}
+
+/**
+ * パスワードリセットリクエスト
+ */
+export async function forgotPassword(email: string): Promise<void> {
+  await api.post('/api/auth/forgot-password', { email });
+}
+
+/**
+ * パスワードリセット実行
+ */
+export async function resetPassword(token: string, newPassword: string): Promise<void> {
+  await api.post('/api/auth/reset-password', { token, newPassword });
+}
+
+/**
+ * 認証メール再送
+ */
+export async function resendVerification(email: string): Promise<void> {
+  await api.post('/api/auth/resend-verification', { email });
+}

@@ -3,6 +3,7 @@
 import { useAuth } from '@/contexts/AuthContext';
 import { SubscriptionProvider } from '@/contexts/SubscriptionContext';
 import { Sidebar } from '@/components/dashboard/sidebar';
+import { EmailVerificationBanner } from '@/components/dashboard/email-verification-banner';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 
@@ -42,6 +43,7 @@ export default function DashboardLayout({
           {/* Mobile Header could go here */}
           <main className="flex-1 overflow-y-auto p-4 md:p-8">
             <div className="mx-auto max-w-5xl">
+              <EmailVerificationBanner />
               {children}
             </div>
           </main>

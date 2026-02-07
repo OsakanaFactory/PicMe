@@ -5,12 +5,17 @@ import com.picme.backend.dto.request.RefreshTokenRequest;
 import com.picme.backend.dto.request.SignupRequest;
 import com.picme.backend.dto.response.AuthResponse;
 import com.picme.backend.exception.ApiException;
+import com.picme.backend.model.PasswordResetToken;
 import com.picme.backend.model.Profile;
 import com.picme.backend.model.User;
+import com.picme.backend.model.VerificationToken;
+import com.picme.backend.repository.PasswordResetTokenRepository;
 import com.picme.backend.repository.ProfileRepository;
 import com.picme.backend.repository.UserRepository;
+import com.picme.backend.repository.VerificationTokenRepository;
 import com.picme.backend.security.JwtTokenProvider;
 import com.picme.backend.service.AuthService;
+import com.picme.backend.service.EmailService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -18,6 +23,9 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
+import java.util.UUID;
 
 /**
  * 認証サービス実装
@@ -32,6 +40,9 @@ public class AuthServiceImpl implements AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
     private final AuthenticationManager authenticationManager;
+    private final EmailService emailService;
+    private final VerificationTokenRepository verificationTokenRepository;
+    private final PasswordResetTokenRepository passwordResetTokenRepository;
 
     @Override
     @Transactional
@@ -64,6 +75,9 @@ public class AuthServiceImpl implements AuthService {
                 .build();
 
         profileRepository.save(profile);
+
+        // メール認証トークン生成・送信
+        sendVerificationToken(user);
 
         // トークン生成
         String accessToken = jwtTokenProvider.generateAccessToken(user.getEmail());
@@ -137,6 +151,93 @@ public class AuthServiceImpl implements AuthService {
         // クライアント側でトークンを削除するだけ
         // 将来的にはトークンブラックリストを実装予定
         log.info("User logged out");
+    }
+
+    @Override
+    @Transactional
+    public void verifyEmail(String token) {
+        VerificationToken verificationToken = verificationTokenRepository.findByTokenAndUsedFalse(token)
+                .orElseThrow(() -> ApiException.badRequest("無効な認証トークンです"));
+
+        if (verificationToken.getExpiresAt().isBefore(LocalDateTime.now())) {
+            throw ApiException.badRequest("認証トークンの有効期限が切れています。再送してください。");
+        }
+
+        User user = verificationToken.getUser();
+        user.setEmailVerified(true);
+        userRepository.save(user);
+
+        verificationToken.setUsed(true);
+        verificationTokenRepository.save(verificationToken);
+
+        log.info("Email verified for user: {}", user.getEmail());
+    }
+
+    @Override
+    @Transactional
+    public void forgotPassword(String email) {
+        // ユーザーが存在しなくても成功レスポンスを返す（セキュリティ上）
+        userRepository.findByEmail(email).ifPresent(user -> {
+            String token = UUID.randomUUID().toString();
+            PasswordResetToken resetToken = PasswordResetToken.builder()
+                    .token(token)
+                    .user(user)
+                    .expiresAt(LocalDateTime.now().plusHours(1))
+                    .build();
+            passwordResetTokenRepository.save(resetToken);
+
+            emailService.sendPasswordResetEmail(user.getEmail(), token);
+            log.info("Password reset email sent to: {}", user.getEmail());
+        });
+    }
+
+    @Override
+    @Transactional
+    public void resetPassword(String token, String newPassword) {
+        PasswordResetToken resetToken = passwordResetTokenRepository.findByTokenAndUsedFalse(token)
+                .orElseThrow(() -> ApiException.badRequest("無効なリセットトークンです"));
+
+        if (resetToken.getExpiresAt().isBefore(LocalDateTime.now())) {
+            throw ApiException.badRequest("リセットトークンの有効期限が切れています。再度リクエストしてください。");
+        }
+
+        User user = resetToken.getUser();
+        user.setPasswordHash(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+
+        resetToken.setUsed(true);
+        passwordResetTokenRepository.save(resetToken);
+
+        log.info("Password reset for user: {}", user.getEmail());
+    }
+
+    @Override
+    @Transactional
+    public void resendVerification(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(ApiException::userNotFound);
+
+        if (user.getEmailVerified()) {
+            throw ApiException.badRequest("このメールアドレスは既に認証済みです");
+        }
+
+        sendVerificationToken(user);
+        log.info("Verification email resent to: {}", user.getEmail());
+    }
+
+    /**
+     * メール認証トークンを生成して送信
+     */
+    private void sendVerificationToken(User user) {
+        String token = UUID.randomUUID().toString();
+        VerificationToken verificationToken = VerificationToken.builder()
+                .token(token)
+                .user(user)
+                .expiresAt(LocalDateTime.now().plusHours(24))
+                .build();
+        verificationTokenRepository.save(verificationToken);
+
+        emailService.sendVerificationEmail(user.getEmail(), token);
     }
 
     /**
