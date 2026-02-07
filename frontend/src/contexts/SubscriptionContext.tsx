@@ -37,6 +37,22 @@ export function SubscriptionProvider({ children }: { children: React.ReactNode }
     } catch (err) {
       console.error('Failed to fetch subscription:', err);
       setError('サブスクリプション情報の取得に失敗しました');
+      // エラー時はデフォルトFREEプランとして動作
+      setSubscription({
+        planType: 'FREE',
+        status: 'ACTIVE',
+        currentPeriodStart: null,
+        currentPeriodEnd: null,
+        cancelAtPeriodEnd: false,
+        limits: {
+          maxArtworks: 5,
+          maxSocialLinks: 2,
+          maxPosts: 1,
+          maxCategories: 0,
+          maxStorageMb: 300,
+          hasAds: true,
+        },
+      });
     } finally {
       setLoading(false);
     }
