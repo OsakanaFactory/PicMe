@@ -192,6 +192,7 @@ public class ProfileServiceImpl implements ProfileService {
                 .layout(profile.getLayout())
                 .customCss(profile.getCustomCss())
                 .contactFormEnabled(profile.getContactFormEnabled())
+                .planType(profile.getUser().getPlanType() != null ? profile.getUser().getPlanType().name() : "FREE")
                 .createdAt(profile.getCreatedAt())
                 .updatedAt(profile.getUpdatedAt())
                 .build();

@@ -30,6 +30,7 @@ public class ProfileResponse {
     private String layout;
     private String customCss;
     private Boolean contactFormEnabled;
+    private String planType;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }

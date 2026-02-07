@@ -39,7 +39,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
               username: profile.username,
               email: '', // プロフィールにはメールがないため空
               emailVerified: true,
-              planType: 'FREE', // プロフィールからは取得できないためデフォルト
+              planType: profile.planType || 'FREE',
             });
           }
         } catch (error) {
