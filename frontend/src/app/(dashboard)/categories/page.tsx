@@ -126,7 +126,7 @@ export default function CategoriesPage() {
           </CardHeader>
           <CardContent className="text-center">
             <Link href="/upgrade">
-              <Button variant="default">
+              <Button variant="primary">
                 プランをアップグレード
               </Button>
             </Link>

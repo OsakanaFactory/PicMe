@@ -37,7 +37,7 @@ export function UpgradePrompt({
             プランをアップグレードすると、より多くの{itemName}を追加できます。
           </span>
           <Link href="/upgrade">
-            <Button size="sm" variant="default" className="gap-2">
+            <Button size="sm" variant="primary" className="gap-2">
               <Crown className="h-4 w-4" />
               プランをアップグレード
             </Button>

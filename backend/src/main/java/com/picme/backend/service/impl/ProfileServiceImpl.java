@@ -7,11 +7,14 @@ import com.picme.backend.model.Profile;
 import com.picme.backend.model.User;
 import com.picme.backend.repository.ProfileRepository;
 import com.picme.backend.repository.UserRepository;
+import com.picme.backend.service.CloudinaryService;
+import com.picme.backend.service.CloudinaryService.CloudinaryUploadResult;
 import com.picme.backend.service.ProfileService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
  * プロフィールサービス実装
@@ -23,6 +26,7 @@ public class ProfileServiceImpl implements ProfileService {
 
     private final ProfileRepository profileRepository;
     private final UserRepository userRepository;
+    private final CloudinaryService cloudinaryService;
 
     @Override
     @Transactional(readOnly = true)
@@ -91,6 +95,46 @@ public class ProfileServiceImpl implements ProfileService {
         if (!profile.getUser().getIsActive()) {
             throw ApiException.notFound("ユーザー");
         }
+
+        return mapToResponse(profile);
+    }
+
+    @Override
+    @Transactional
+    public ProfileResponse uploadAvatar(String email, MultipartFile file) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(ApiException::userNotFound);
+
+        Profile profile = profileRepository.findByUserId(user.getId())
+                .orElseThrow(() -> ApiException.notFound("プロフィール"));
+
+        // 既存のアバターがCloudinaryにある場合は削除
+        // avatarUrlからpublicIdを抽出する代わりに、新しい画像で上書き
+        CloudinaryUploadResult result = cloudinaryService.uploadImage(file, "avatars", user.getId());
+
+        profile.setAvatarUrl(result.secureUrl());
+        profile = profileRepository.save(profile);
+
+        log.info("Avatar uploaded for user: {}", email);
+
+        return mapToResponse(profile);
+    }
+
+    @Override
+    @Transactional
+    public ProfileResponse uploadHeader(String email, MultipartFile file) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(ApiException::userNotFound);
+
+        Profile profile = profileRepository.findByUserId(user.getId())
+                .orElseThrow(() -> ApiException.notFound("プロフィール"));
+
+        CloudinaryUploadResult result = cloudinaryService.uploadImage(file, "headers", user.getId());
+
+        profile.setHeaderUrl(result.secureUrl());
+        profile = profileRepository.save(profile);
+
+        log.info("Header uploaded for user: {}", email);
 
         return mapToResponse(profile);
     }

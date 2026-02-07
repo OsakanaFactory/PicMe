@@ -1,5 +1,6 @@
 package com.picme.backend.service.impl;
 
+import com.picme.backend.dto.request.AdminCreateUserRequest;
 import com.picme.backend.dto.request.InquiryStatusUpdateRequest;
 import com.picme.backend.dto.response.*;
 import com.picme.backend.exception.ApiException;
@@ -10,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,11 +33,13 @@ import java.util.stream.Collectors;
 public class AdminServiceImpl implements AdminService {
 
     private final UserRepository userRepository;
+    private final ProfileRepository profileRepository;
     private final SubscriptionRepository subscriptionRepository;
     private final ArtworkRepository artworkRepository;
     private final SocialLinkRepository socialLinkRepository;
     private final PostRepository postRepository;
     private final InquiryRepository inquiryRepository;
+    private final PasswordEncoder passwordEncoder;
 
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
@@ -114,6 +118,41 @@ public class AdminServiceImpl implements AdminService {
                 .recentUsers(recentUsers)
                 .pendingInquiries(pendingInquiries)
                 .build();
+    }
+
+    @Override
+    @Transactional
+    public AdminUserResponse createUser(AdminCreateUserRequest request) {
+        // 重複チェック
+        if (userRepository.existsByUsername(request.getUsername())) {
+            throw ApiException.usernameAlreadyExists();
+        }
+        if (userRepository.existsByEmail(request.getEmail())) {
+            throw ApiException.emailAlreadyExists();
+        }
+
+        // ユーザー作成
+        User user = User.builder()
+                .username(request.getUsername())
+                .email(request.getEmail())
+                .passwordHash(passwordEncoder.encode(request.getPassword()))
+                .planType(request.getPlanType() != null ? request.getPlanType() : PlanType.FREE)
+                .emailVerified(request.getEmailVerified() != null ? request.getEmailVerified() : true)
+                .build();
+
+        user = userRepository.save(user);
+
+        // プロフィール作成
+        Profile profile = Profile.builder()
+                .user(user)
+                .displayName(request.getUsername())
+                .build();
+
+        profileRepository.save(profile);
+
+        log.info("管理者によるユーザー作成: username={}, planType={}", user.getUsername(), user.getPlanType());
+
+        return toAdminUserResponse(user);
     }
 
     @Override

@@ -9,10 +9,12 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -57,7 +59,7 @@ public class ArtworkController {
     }
 
     /**
-     * 作品を作成
+     * 作品を作成（JSON）
      * POST /api/artworks
      */
     @PostMapping
@@ -68,6 +70,28 @@ public class ArtworkController {
         log.info("Create artwork request for: {}", userDetails.getUsername());
 
         ArtworkResponse artwork = artworkService.createArtwork(userDetails.getUsername(), request);
+        return new ResponseEntity<>(
+                ApiResponse.success("作品をアップロードしました", artwork),
+                HttpStatus.CREATED);
+    }
+
+    /**
+     * 画像ファイルをアップロードして作品を作成
+     * POST /api/artworks/upload
+     */
+    @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<ApiResponse<ArtworkResponse>> uploadArtwork(
+            @AuthenticationPrincipal UserDetails userDetails,
+            @RequestParam("file") MultipartFile file,
+            @RequestParam(required = false) String title,
+            @RequestParam(required = false) String description,
+            @RequestParam(required = false) Long categoryId,
+            @RequestParam(required = false) List<Long> tagIds) {
+
+        log.info("Upload artwork request for: {}", userDetails.getUsername());
+
+        ArtworkResponse artwork = artworkService.createArtworkWithUpload(
+                userDetails.getUsername(), file, title, description, categoryId, tagIds);
         return new ResponseEntity<>(
                 ApiResponse.success("作品をアップロードしました", artwork),
                 HttpStatus.CREATED);

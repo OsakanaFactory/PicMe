@@ -7,10 +7,12 @@ import com.picme.backend.service.ProfileService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
  * プロフィールコントローラー
@@ -52,5 +54,35 @@ public class ProfileController {
                 userDetails.getUsername(), request);
 
         return ResponseEntity.ok(ApiResponse.success("プロフィールを更新しました", profile));
+    }
+
+    /**
+     * アバター画像をアップロード
+     * POST /api/profile/avatar
+     */
+    @PostMapping(value = "/avatar", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<ApiResponse<ProfileResponse>> uploadAvatar(
+            @AuthenticationPrincipal UserDetails userDetails,
+            @RequestParam("file") MultipartFile file) {
+
+        log.info("Upload avatar request for: {}", userDetails.getUsername());
+
+        ProfileResponse profile = profileService.uploadAvatar(userDetails.getUsername(), file);
+        return ResponseEntity.ok(ApiResponse.success("アバターを更新しました", profile));
+    }
+
+    /**
+     * ヘッダー画像をアップロード
+     * POST /api/profile/header
+     */
+    @PostMapping(value = "/header", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<ApiResponse<ProfileResponse>> uploadHeader(
+            @AuthenticationPrincipal UserDetails userDetails,
+            @RequestParam("file") MultipartFile file) {
+
+        log.info("Upload header request for: {}", userDetails.getUsername());
+
+        ProfileResponse profile = profileService.uploadHeader(userDetails.getUsername(), file);
+        return ResponseEntity.ok(ApiResponse.success("ヘッダーを更新しました", profile));
     }
 }

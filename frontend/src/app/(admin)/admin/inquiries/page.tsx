@@ -67,7 +67,7 @@ export default function AdminInquiriesPage() {
         <CardContent className="pt-6">
           <div className="flex gap-2 flex-wrap">
             <Button
-              variant={statusFilter === '' ? 'default' : 'outline'}
+              variant={statusFilter === '' ? 'primary' : 'outline'}
               size="sm"
               onClick={() => { setStatusFilter(''); setCurrentPage(0); }}
             >
@@ -76,7 +76,7 @@ export default function AdminInquiriesPage() {
             {Object.entries(statusConfig).map(([status, config]) => (
               <Button
                 key={status}
-                variant={statusFilter === status ? 'default' : 'outline'}
+                variant={statusFilter === status ? 'primary' : 'outline'}
                 size="sm"
                 onClick={() => { setStatusFilter(status); setCurrentPage(0); }}
               >
@@ -216,7 +216,7 @@ export default function AdminInquiriesPage() {
                     {Object.entries(statusConfig).map(([status, config]) => (
                       <Button
                         key={status}
-                        variant={selectedInquiry.status === status ? 'default' : 'outline'}
+                        variant={selectedInquiry.status === status ? 'primary' : 'outline'}
                         size="sm"
                         onClick={() => handleStatusUpdate(selectedInquiry.id, status)}
                         disabled={updateLoading || selectedInquiry.status === status}

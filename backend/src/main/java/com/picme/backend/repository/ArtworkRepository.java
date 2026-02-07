@@ -48,4 +48,10 @@ public interface ArtworkRepository extends JpaRepository<Artwork, Long> {
     @Modifying
     @Query("UPDATE Artwork a SET a.displayOrder = :order WHERE a.id = :id AND a.user.id = :userId")
     int updateDisplayOrder(@Param("id") Long id, @Param("userId") Long userId, @Param("order") int order);
+
+    /**
+     * ユーザーの合計ファイルサイズを取得（ストレージ使用量）
+     */
+    @Query("SELECT COALESCE(SUM(a.fileSize), 0) FROM Artwork a WHERE a.user.id = :userId")
+    long sumFileSizeByUserId(@Param("userId") Long userId);
 }

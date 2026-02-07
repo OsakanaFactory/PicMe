@@ -3,7 +3,7 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
 import { adminLogin, adminRefreshToken, AdminLoginRequest, AdminLoginResponse } from '@/lib/admin';
-import { api } from '@/lib/api';
+import api from '@/lib/api';
 
 interface AdminUser {
   id: number;

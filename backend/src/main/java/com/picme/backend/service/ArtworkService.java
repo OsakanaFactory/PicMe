@@ -3,6 +3,7 @@ package com.picme.backend.service;
 import com.picme.backend.dto.request.ArtworkReorderRequest;
 import com.picme.backend.dto.request.ArtworkRequest;
 import com.picme.backend.dto.response.ArtworkResponse;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -25,6 +26,13 @@ public interface ArtworkService {
      * 作品を作成
      */
     ArtworkResponse createArtwork(String email, ArtworkRequest request);
+
+    /**
+     * 画像ファイルをアップロードして作品を作成
+     */
+    ArtworkResponse createArtworkWithUpload(String email, MultipartFile file,
+                                            String title, String description,
+                                            Long categoryId, java.util.List<Long> tagIds);
 
     /**
      * 作品を更新

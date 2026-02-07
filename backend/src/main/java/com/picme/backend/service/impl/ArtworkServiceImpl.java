@@ -5,18 +5,27 @@ import com.picme.backend.dto.request.ArtworkRequest;
 import com.picme.backend.dto.response.ArtworkResponse;
 import com.picme.backend.exception.ApiException;
 import com.picme.backend.model.Artwork;
+import com.picme.backend.model.Category;
 import com.picme.backend.model.PlanType;
+import com.picme.backend.model.Tag;
 import com.picme.backend.model.User;
 import com.picme.backend.repository.ArtworkRepository;
+import com.picme.backend.repository.CategoryRepository;
+import com.picme.backend.repository.TagRepository;
 import com.picme.backend.repository.UserRepository;
 import com.picme.backend.service.ArtworkService;
+import com.picme.backend.service.CloudinaryService;
+import com.picme.backend.service.CloudinaryService.CloudinaryUploadResult;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -29,6 +38,9 @@ public class ArtworkServiceImpl implements ArtworkService {
 
     private final ArtworkRepository artworkRepository;
     private final UserRepository userRepository;
+    private final CloudinaryService cloudinaryService;
+    private final CategoryRepository categoryRepository;
+    private final TagRepository tagRepository;
 
     @Override
     @Transactional(readOnly = true)
@@ -118,11 +130,69 @@ public class ArtworkServiceImpl implements ArtworkService {
 
     @Override
     @Transactional
+    public ArtworkResponse createArtworkWithUpload(String email, MultipartFile file,
+                                                    String title, String description,
+                                                    Long categoryId, List<Long> tagIds) {
+        User user = getUserByEmail(email);
+
+        // プラン制限チェック（作品数）
+        checkArtworkLimit(user);
+
+        // ストレージ制限チェック
+        checkStorageLimit(user, file.getSize());
+
+        // Cloudinaryにアップロード
+        CloudinaryUploadResult uploadResult = cloudinaryService.uploadImage(file, "artworks", user.getId());
+
+        // カテゴリーの取得
+        Category category = null;
+        if (categoryId != null) {
+            category = categoryRepository.findByIdAndUser(categoryId, user)
+                    .orElse(null);
+        }
+
+        // タグの取得
+        Set<Tag> tags = new HashSet<>();
+        if (tagIds != null && !tagIds.isEmpty()) {
+            tags = new HashSet<>(tagRepository.findAllById(tagIds));
+        }
+
+        // 現在の作品数から表示順を決定
+        long currentCount = artworkRepository.countByUserId(user.getId());
+
+        Artwork artwork = Artwork.builder()
+                .user(user)
+                .title(title)
+                .description(description)
+                .imageUrl(uploadResult.secureUrl())
+                .thumbnailUrl(uploadResult.thumbnailUrl())
+                .cloudinaryPublicId(uploadResult.publicId())
+                .fileSize(uploadResult.bytes())
+                .categoryEntity(category)
+                .tags(tags)
+                .displayOrder((int) currentCount)
+                .visible(true)
+                .build();
+
+        artwork = artworkRepository.save(artwork);
+
+        log.info("Artwork created with upload: {} for user: {}", artwork.getId(), email);
+
+        return mapToResponse(artwork);
+    }
+
+    @Override
+    @Transactional
     public void deleteArtwork(String email, Long artworkId) {
         User user = getUserByEmail(email);
 
         Artwork artwork = artworkRepository.findByIdAndUserId(artworkId, user.getId())
                 .orElseThrow(() -> ApiException.notFound("作品"));
+
+        // Cloudinaryから画像を削除
+        if (artwork.getCloudinaryPublicId() != null) {
+            cloudinaryService.deleteImage(artwork.getCloudinaryPublicId());
+        }
 
         artworkRepository.delete(artwork);
 
@@ -180,6 +250,32 @@ public class ArtworkServiceImpl implements ArtworkService {
             case STARTER -> 20;
             case PRO -> 50;
             case STUDIO -> 200;
+        };
+    }
+
+    /**
+     * ストレージ使用量の制限をチェック
+     */
+    private void checkStorageLimit(User user, long additionalBytes) {
+        long currentUsage = artworkRepository.sumFileSizeByUserId(user.getId());
+        long limitBytes = getStorageLimitBytes(user.getPlanType());
+
+        if (currentUsage + additionalBytes > limitBytes) {
+            long limitMb = limitBytes / (1024 * 1024);
+            throw ApiException.limitExceeded(
+                    String.format("ストレージの上限（%dMB）に達しています。プランをアップグレードしてください。", limitMb));
+        }
+    }
+
+    /**
+     * プランごとのストレージ上限（バイト）を取得
+     */
+    private long getStorageLimitBytes(PlanType planType) {
+        return switch (planType) {
+            case FREE -> 300L * 1024 * 1024;     // 300MB
+            case STARTER -> 1024L * 1024 * 1024;  // 1GB
+            case PRO -> 2048L * 1024 * 1024;      // 2GB
+            case STUDIO -> 10240L * 1024 * 1024;   // 10GB
         };
     }
 

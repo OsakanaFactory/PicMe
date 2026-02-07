@@ -6,19 +6,19 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { useAuth } from '@/contexts/AuthContext';
 import { getProfile, updateProfile } from '@/lib/profile';
+import { uploadAvatar, uploadHeader } from '@/lib/upload';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select } from '@/components/ui/select';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { FileUpload } from '@/components/ui/file-upload';
 import { User, Palette } from 'lucide-react';
 
 const profileSchema = z.object({
   displayName: z.string().min(1, '表示名は必須です').max(50, '表示名は50文字以内で入力してください'),
   bio: z.string().max(160, '自己紹介は160文字以内で入力してください').optional(),
-  avatarUrl: z.string().url('有効なURLを入力してください').optional().or(z.literal('')),
-  headerUrl: z.string().url('有効なURLを入力してください').optional().or(z.literal('')),
   theme: z.string(),
   fontFamily: z.string(),
   layout: z.string(),
@@ -31,6 +31,12 @@ export default function ProfilePage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const [avatarUrl, setAvatarUrl] = useState('');
+  const [headerUrl, setHeaderUrl] = useState('');
+  const [avatarUploading, setAvatarUploading] = useState(false);
+  const [headerUploading, setHeaderUploading] = useState(false);
+  const [avatarProgress, setAvatarProgress] = useState(0);
+  const [headerProgress, setHeaderProgress] = useState(0);
 
   const {
     register,
@@ -43,8 +49,6 @@ export default function ProfilePage() {
     defaultValues: {
       displayName: '',
       bio: '',
-      avatarUrl: '',
-      headerUrl: '',
       theme: 'LIGHT',
       fontFamily: 'SANS_SERIF',
       layout: 'STANDARD',
@@ -60,12 +64,12 @@ export default function ProfilePage() {
         reset({
           displayName: profile.displayName || '',
           bio: profile.bio || '',
-          avatarUrl: profile.avatarUrl || '',
-          headerUrl: profile.headerUrl || '',
           theme: profile.theme || 'LIGHT',
           fontFamily: profile.fontFamily || 'SANS_SERIF',
           layout: profile.layout || 'STANDARD',
         });
+        setAvatarUrl(profile.avatarUrl || '');
+        setHeaderUrl(profile.headerUrl || '');
       } catch (error) {
         setMessage({ type: 'error', text: 'プロフィールの読み込みに失敗しました' });
       } finally {
@@ -78,6 +82,40 @@ export default function ProfilePage() {
     }
   }, [user, reset]);
 
+  const handleAvatarUpload = async (file: File) => {
+    setAvatarUploading(true);
+    setAvatarProgress(0);
+    try {
+      const profile = await uploadAvatar(file, (p) => setAvatarProgress(p));
+      setAvatarUrl(profile.avatarUrl || '');
+      setMessage({ type: 'success', text: 'アバターを更新しました' });
+      setTimeout(() => setMessage(null), 3000);
+    } catch (error: any) {
+      const msg = error.response?.data?.message || 'アバターのアップロードに失敗しました';
+      setMessage({ type: 'error', text: msg });
+    } finally {
+      setAvatarUploading(false);
+      setAvatarProgress(0);
+    }
+  };
+
+  const handleHeaderUpload = async (file: File) => {
+    setHeaderUploading(true);
+    setHeaderProgress(0);
+    try {
+      const profile = await uploadHeader(file, (p) => setHeaderProgress(p));
+      setHeaderUrl(profile.headerUrl || '');
+      setMessage({ type: 'success', text: 'ヘッダーを更新しました' });
+      setTimeout(() => setMessage(null), 3000);
+    } catch (error: any) {
+      const msg = error.response?.data?.message || 'ヘッダーのアップロードに失敗しました';
+      setMessage({ type: 'error', text: msg });
+    } finally {
+      setHeaderUploading(false);
+      setHeaderProgress(0);
+    }
+  };
+
   const onSubmit = async (data: ProfileFormValues) => {
     setIsSaving(true);
     setMessage(null);
@@ -85,8 +123,6 @@ export default function ProfilePage() {
     try {
       await updateProfile(data);
       setMessage({ type: 'success', text: 'プロフィールを更新しました' });
-      
-      // メッセージを3秒後に消す
       setTimeout(() => setMessage(null), 3000);
     } catch (error) {
       setMessage({ type: 'error', text: '更新に失敗しました。再度お試しください。' });
@@ -147,22 +183,26 @@ export default function ProfilePage() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="avatarUrl">アイコン画像URL</Label>
-                <Input
-                  id="avatarUrl"
-                  placeholder="https://example.com/avatar.png"
-                  {...register('avatarUrl')}
-                  error={errors.avatarUrl?.message}
+                <Label>アイコン画像</Label>
+                <FileUpload
+                  compact
+                  label="アイコンを変更"
+                  previewUrl={avatarUrl}
+                  onFileSelect={handleAvatarUpload}
+                  uploading={avatarUploading}
+                  progress={avatarProgress}
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="headerUrl">ヘッダー画像URL</Label>
-                <Input
-                  id="headerUrl"
-                  placeholder="https://example.com/header.png"
-                  {...register('headerUrl')}
-                  error={errors.headerUrl?.message}
+                <Label>ヘッダー画像</Label>
+                <FileUpload
+                  compact
+                  label="ヘッダーを変更"
+                  previewUrl={headerUrl}
+                  onFileSelect={handleHeaderUpload}
+                  uploading={headerUploading}
+                  progress={headerProgress}
                 />
               </div>
             </CardContent>
@@ -196,7 +236,7 @@ export default function ProfilePage() {
                   <option value="MONOSPACE">モノスペース</option>
                 </Select>
               </div>
-              
+
               <div className="space-y-2">
                 <Label htmlFor="layout">レイアウト</Label>
                 <Select id="layout" {...register('layout')} error={errors.layout?.message}>
@@ -215,7 +255,7 @@ export default function ProfilePage() {
                     {message.text}
                   </div>
                 )}
-                
+
                 <Button type="submit" className="w-full" isLoading={isSaving} disabled={!isDirty}>
                   変更を保存
                 </Button>
@@ -236,28 +276,28 @@ export default function ProfilePage() {
               <div className={`aspect-[9/16] w-full max-w-sm mx-auto bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden relative font-${(formValues.fontFamily === 'SERIF' ? 'serif' : formValues.fontFamily === 'MONOSPACE' ? 'mono' : 'sans')}`}>
                 {/* Header */}
                 <div className="h-32 bg-slate-200 w-full relative">
-                  {formValues.headerUrl && (
-                     <img src={formValues.headerUrl} alt="Header" className="w-full h-full object-cover" onError={(e) => (e.currentTarget.style.display = 'none')} />
+                  {headerUrl && (
+                     <img src={headerUrl} alt="Header" className="w-full h-full object-cover" onError={(e) => (e.currentTarget.style.display = 'none')} />
                   )}
                 </div>
-                
+
                 {/* Avatar */}
                 <div className="absolute top-24 left-4 h-20 w-20 rounded-full bg-slate-100 border-4 border-white overflow-hidden">
-                   {formValues.avatarUrl ? (
-                     <img src={formValues.avatarUrl} alt="Avatar" className="w-full h-full object-cover" onError={(e) => (e.currentTarget.style.display = 'none')}/>
+                   {avatarUrl ? (
+                     <img src={avatarUrl} alt="Avatar" className="w-full h-full object-cover" onError={(e) => (e.currentTarget.style.display = 'none')}/>
                    ) : (
                      <div className="w-full h-full flex items-center justify-center bg-slate-300 text-slate-500">
                        <User className="h-10 w-10" />
                      </div>
                    )}
                 </div>
-                
+
                 <div className="mt-14 px-4 space-y-2">
                   <div className="font-bold text-lg text-slate-900">{formValues.displayName || 'ユーザー名'}</div>
                   <div className="text-sm text-slate-500">@{user?.username}</div>
                   <div className="text-sm text-slate-700 whitespace-pre-wrap">{formValues.bio || '自己紹介がここに入ります'}</div>
                 </div>
-                
+
                 <div className="mt-8 px-4 grid grid-cols-2 gap-2">
                   <div className="aspect-square bg-slate-100 rounded"></div>
                   <div className="aspect-square bg-slate-100 rounded"></div>

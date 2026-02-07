@@ -90,7 +90,7 @@ export default function TagsPage() {
             </CardDescription>
           </CardHeader>
           <CardContent className="text-center">
-            <Button variant="default">
+            <Button variant="primary">
               プランをアップグレード
             </Button>
           </CardContent>

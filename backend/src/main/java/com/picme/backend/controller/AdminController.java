@@ -1,5 +1,6 @@
 package com.picme.backend.controller;
 
+import com.picme.backend.dto.request.AdminCreateUserRequest;
 import com.picme.backend.dto.request.InquiryStatusUpdateRequest;
 import com.picme.backend.dto.response.*;
 import com.picme.backend.service.AdminService;
@@ -8,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -35,6 +37,18 @@ public class AdminController {
     }
 
     // ========== ユーザー管理 ==========
+
+    /**
+     * ユーザー作成（管理者用）
+     */
+    @PostMapping("/users/create")
+    public ResponseEntity<ApiResponse<AdminUserResponse>> createUser(
+            @Valid @RequestBody AdminCreateUserRequest request) {
+        AdminUserResponse user = adminService.createUser(request);
+        return new ResponseEntity<>(
+                ApiResponse.success("ユーザーを作成しました", user),
+                HttpStatus.CREATED);
+    }
 
     /**
      * ユーザー一覧取得

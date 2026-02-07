@@ -5,7 +5,7 @@ import { getProfile, updateProfile, Profile } from '@/lib/profile';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Select } from '@/components/ui/select';
 import { Loader2, Palette, Type, LayoutGrid, Check } from 'lucide-react';
 
 // テーマ定義
@@ -262,17 +262,10 @@ export default function ThemesPage() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <Select value={selectedFont} onValueChange={setSelectedFont}>
-              <SelectTrigger>
-                <SelectValue placeholder="フォントを選択" />
-              </SelectTrigger>
-              <SelectContent>
-                {fonts.map((font) => (
-                  <SelectItem key={font.id} value={font.id}>
-                    <span style={{ fontFamily: font.family }}>{font.name}</span>
-                  </SelectItem>
-                ))}
-              </SelectContent>
+            <Select value={selectedFont} onChange={(e) => setSelectedFont(e.target.value)}>
+              {fonts.map((font) => (
+                <option key={font.id} value={font.id}>{font.name}</option>
+              ))}
             </Select>
             <div className="mt-4 p-4 bg-slate-50 rounded-lg">
               <p

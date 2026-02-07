@@ -1,5 +1,6 @@
 package com.picme.backend.service;
 
+import com.picme.backend.dto.request.AdminCreateUserRequest;
 import com.picme.backend.dto.request.InquiryStatusUpdateRequest;
 import com.picme.backend.dto.response.*;
 import org.springframework.data.domain.Page;
@@ -14,6 +15,7 @@ public interface AdminService {
     AdminDashboardResponse getDashboard();
 
     // ユーザー管理
+    AdminUserResponse createUser(AdminCreateUserRequest request);
     Page<AdminUserResponse> getUsers(String search, String planType, Pageable pageable);
     AdminUserResponse getUser(Long userId);
     void suspendUser(Long userId);

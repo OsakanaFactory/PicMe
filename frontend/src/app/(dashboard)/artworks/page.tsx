@@ -4,32 +4,39 @@ import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { getArtworks, createArtwork, updateArtwork, deleteArtwork, Artwork } from '@/lib/artworks';
+import { getArtworks, updateArtwork, deleteArtwork, Artwork } from '@/lib/artworks';
+import { uploadArtwork } from '@/lib/upload';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Card, CardContent, CardFooter } from '@/components/ui/card';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { FileUpload } from '@/components/ui/file-upload';
 import { Plus, Pencil, Trash2, Image as ImageIcon, Loader2 } from 'lucide-react';
 import { useSubscription } from '@/contexts/SubscriptionContext';
 import { UpgradePrompt, LimitBadge } from '@/components/ui/upgrade-prompt';
 
-const artworkSchema = z.object({
+const editSchema = z.object({
   title: z.string().min(1, 'タイトルは必須です').max(100, 'タイトルは100文字以内で入力してください'),
   description: z.string().max(500, '説明は500文字以内で入力してください').optional(),
   imageUrl: z.string().url('有効な画像URLを入力してください'),
 });
 
-type ArtworkFormValues = z.infer<typeof artworkSchema>;
+type EditFormValues = z.infer<typeof editSchema>;
 
 export default function ArtworksPage() {
   const [artworks, setArtworks] = useState<Artwork[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [editingArtwork, setEditingArtwork] = useState<Artwork | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState<number | null>(null);
+  const [uploadFile, setUploadFile] = useState<File | null>(null);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [uploadTitle, setUploadTitle] = useState('');
+  const [uploadDescription, setUploadDescription] = useState('');
   const { getLimit } = useSubscription();
   const artworkLimit = getLimit('artworks');
 
@@ -38,19 +45,15 @@ export default function ArtworksPage() {
     handleSubmit,
     reset,
     formState: { errors },
-  } = useForm<ArtworkFormValues>({
-    resolver: zodResolver(artworkSchema),
-    defaultValues: {
-      title: '',
-      description: '',
-      imageUrl: '',
-    },
+  } = useForm<EditFormValues>({
+    resolver: zodResolver(editSchema),
+    defaultValues: { title: '', description: '', imageUrl: '' },
   });
 
   const fetchArtworks = async () => {
     try {
       const data = await getArtworks();
-      setArtworks(data || []); // Ensure array
+      setArtworks(data || []);
     } catch (error) {
       console.error('Failed to fetch artworks', error);
     } finally {
@@ -63,13 +66,11 @@ export default function ArtworksPage() {
   }, []);
 
   const openCreateDialog = () => {
-    setEditingArtwork(null);
-    reset({
-      title: '',
-      description: '',
-      imageUrl: '',
-    });
-    setIsDialogOpen(true);
+    setUploadFile(null);
+    setUploadTitle('');
+    setUploadDescription('');
+    setUploadProgress(0);
+    setIsCreateDialogOpen(true);
   };
 
   const openEditDialog = (artwork: Artwork) => {
@@ -79,24 +80,44 @@ export default function ArtworksPage() {
       description: artwork.description || '',
       imageUrl: artwork.imageUrl,
     });
-    setIsDialogOpen(true);
+    setIsEditDialogOpen(true);
   };
 
-  const onSubmit = async (data: ArtworkFormValues) => {
+  const handleCreate = async () => {
+    if (!uploadFile) return;
+
     setIsSaving(true);
     try {
-      if (editingArtwork) {
-        await updateArtwork(editingArtwork.id, {
-          ...data,
-          description: data.description || '',
-        });
-      } else {
-        await createArtwork({
-          ...data,
-          description: data.description || '',
-        });
-      }
-      setIsDialogOpen(false);
+      await uploadArtwork(
+        uploadFile,
+        {
+          title: uploadTitle || uploadFile.name.replace(/\.[^.]+$/, ''),
+          description: uploadDescription,
+        },
+        (percent) => setUploadProgress(percent)
+      );
+      setIsCreateDialogOpen(false);
+      fetchArtworks();
+    } catch (error: any) {
+      console.error('Failed to upload artwork', error);
+      const msg = error.response?.data?.message || '作品のアップロードに失敗しました';
+      alert(msg);
+    } finally {
+      setIsSaving(false);
+      setUploadProgress(0);
+    }
+  };
+
+  const onEditSubmit = async (data: EditFormValues) => {
+    if (!editingArtwork) return;
+
+    setIsSaving(true);
+    try {
+      await updateArtwork(editingArtwork.id, {
+        ...data,
+        description: data.description || '',
+      });
+      setIsEditDialogOpen(false);
       fetchArtworks();
     } catch (error: any) {
       console.error('Failed to save artwork', error);
@@ -109,7 +130,7 @@ export default function ArtworksPage() {
 
   const handleDelete = async (id: number) => {
     if (!confirm('この作品を削除してもよろしいですか？')) return;
-    
+
     setIsDeleting(id);
     try {
       await deleteArtwork(id);
@@ -175,9 +196,9 @@ export default function ArtworksPage() {
           {artworks.map((artwork) => (
             <Card key={artwork.id} className="overflow-hidden group">
               <div className="aspect-square w-full relative bg-slate-100 overflow-hidden">
-                <img 
-                  src={artwork.imageUrl} 
-                  alt={artwork.title} 
+                <img
+                  src={artwork.thumbnailUrl || artwork.imageUrl}
+                  alt={artwork.title}
                   className="w-full h-full object-cover transition-transform group-hover:scale-105 duration-300"
                   onError={(e) => {
                     e.currentTarget.style.display = 'none';
@@ -196,9 +217,9 @@ export default function ArtworksPage() {
                 <Button variant="ghost" size="sm" onClick={() => openEditDialog(artwork)}>
                   <Pencil className="h-4 w-4 mr-1" /> 編集
                 </Button>
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
+                <Button
+                  variant="ghost"
+                  size="sm"
                   className="text-red-600 hover:text-red-700 hover:bg-red-50"
                   onClick={() => handleDelete(artwork.id)}
                   disabled={isDeleting === artwork.id}
@@ -216,16 +237,80 @@ export default function ArtworksPage() {
         </div>
       )}
 
-      {/* Create/Edit API Modal */}
-      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+      {/* Create Dialog - File Upload */}
+      <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
         <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
-            <DialogTitle>{editingArtwork ? '作品を編集' : '新しい作品を追加'}</DialogTitle>
+            <DialogTitle>新しい作品を追加</DialogTitle>
             <DialogDescription>
-              作品の情報を入力してください。画像はURLで指定します。
+              画像をアップロードして作品を追加します。
             </DialogDescription>
           </DialogHeader>
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 py-4">
+          <div className="space-y-4 py-4">
+            <FileUpload
+              onFileSelect={(file) => setUploadFile(file)}
+              onRemove={() => setUploadFile(null)}
+              uploading={isSaving}
+              progress={uploadProgress}
+            />
+
+            <div className="space-y-2">
+              <Label htmlFor="uploadTitle">タイトル</Label>
+              <Input
+                id="uploadTitle"
+                placeholder="作品のタイトル"
+                value={uploadTitle}
+                onChange={(e) => setUploadTitle(e.target.value)}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="uploadDescription">説明文 (任意)</Label>
+              <Textarea
+                id="uploadDescription"
+                placeholder="作品についての説明"
+                className="resize-none h-24"
+                value={uploadDescription}
+                onChange={(e) => setUploadDescription(e.target.value)}
+              />
+            </div>
+
+            <DialogFooter className="pt-4">
+              <Button type="button" variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
+                キャンセル
+              </Button>
+              <Button
+                onClick={handleCreate}
+                isLoading={isSaving}
+                disabled={!uploadFile}
+              >
+                アップロード
+              </Button>
+            </DialogFooter>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Dialog */}
+      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>作品を編集</DialogTitle>
+            <DialogDescription>
+              作品の情報を編集します。
+            </DialogDescription>
+          </DialogHeader>
+          <form onSubmit={handleSubmit(onEditSubmit)} className="space-y-4 py-4">
+            {editingArtwork && (
+              <div className="aspect-video w-full bg-slate-100 rounded-lg overflow-hidden">
+                <img
+                  src={editingArtwork.imageUrl}
+                  alt={editingArtwork.title}
+                  className="w-full h-full object-contain"
+                />
+              </div>
+            )}
+
             <div className="space-y-2">
               <Label htmlFor="title">タイトル</Label>
               <Input
@@ -234,17 +319,6 @@ export default function ArtworksPage() {
                 {...register('title')}
                 error={errors.title?.message}
               />
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="imageUrl">画像URL</Label>
-              <Input
-                id="imageUrl"
-                placeholder="https://example.com/image.jpg"
-                {...register('imageUrl')}
-                error={errors.imageUrl?.message}
-              />
-              <p className="text-xs text-slate-500">※ 画像ホスティングサービスのURLを入力してください</p>
             </div>
 
             <div className="space-y-2">
@@ -258,14 +332,12 @@ export default function ArtworksPage() {
               />
             </div>
 
-
-
             <DialogFooter className="pt-4">
-              <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
+              <Button type="button" variant="outline" onClick={() => setIsEditDialogOpen(false)}>
                 キャンセル
               </Button>
               <Button type="submit" isLoading={isSaving}>
-                {editingArtwork ? '更新する' : '追加する'}
+                更新する
               </Button>
             </DialogFooter>
           </form>

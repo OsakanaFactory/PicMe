@@ -58,6 +58,10 @@ public class Artwork {
     @Builder.Default
     private Set<Tag> tags = new HashSet<>();
 
+    @Column(name = "file_size")
+    @Builder.Default
+    private Long fileSize = 0L;
+
     @Column(name = "display_order")
     @Builder.Default
     private Integer displayOrder = 0;
