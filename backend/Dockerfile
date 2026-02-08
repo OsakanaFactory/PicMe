@@ -1,5 +1,5 @@
 # ビルドステージ
-FROM eclipse-temurin:17-jdk-alpine AS build
+FROM eclipse-temurin:17-jdk AS build
 
 WORKDIR /app
 
@@ -19,7 +19,7 @@ COPY backend/src src
 RUN ./mvnw package -DskipTests -B
 
 # 実行ステージ
-FROM eclipse-temurin:17-jre-alpine
+FROM eclipse-temurin:17-jre
 
 WORKDIR /app
 
