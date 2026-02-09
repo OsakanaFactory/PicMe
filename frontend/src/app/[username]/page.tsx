@@ -42,6 +42,37 @@ const getPlatformColor = (platform: string) => {
   }
 };
 
+// テーマ設定のマッピング
+const themeStyles = {
+  LIGHT: { bg: 'bg-white', text: 'text-slate-900', subtext: 'text-slate-500', mutedBg: 'bg-slate-50', mutedBorder: 'border-slate-100', cardBg: 'bg-white' },
+  DARK: { bg: 'bg-slate-900', text: 'text-white', subtext: 'text-slate-400', mutedBg: 'bg-slate-800', mutedBorder: 'border-slate-700', cardBg: 'bg-slate-800' },
+  WARM: { bg: 'bg-amber-50', text: 'text-amber-950', subtext: 'text-amber-700', mutedBg: 'bg-amber-100/50', mutedBorder: 'border-amber-200', cardBg: 'bg-white' },
+  COOL: { bg: 'bg-sky-50', text: 'text-sky-950', subtext: 'text-sky-700', mutedBg: 'bg-sky-100/50', mutedBorder: 'border-sky-200', cardBg: 'bg-white' },
+} as const;
+
+// フォントマッピング
+const fontFamilyMap: Record<string, string> = {
+  'default': 'system-ui, sans-serif',
+  'noto-sans-jp': '"Noto Sans JP", sans-serif',
+  'zen-kaku-gothic': '"Zen Kaku Gothic New", sans-serif',
+  'm-plus-1p': '"M PLUS 1p", sans-serif',
+};
+
+// Google Fontsのimport URL
+const fontImportMap: Record<string, string> = {
+  'noto-sans-jp': 'https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700;900&display=swap',
+  'zen-kaku-gothic': 'https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;700;900&display=swap',
+  'm-plus-1p': 'https://fonts.googleapis.com/css2?family=M+PLUS+1p:wght@400;700;900&display=swap',
+};
+
+// レイアウト→カラム数マッピング
+const layoutColumnsMap: Record<string, number> = {
+  'STANDARD': 2,
+  'GRID_3': 3,
+  'GRID_4': 4,
+  'MASONRY': 2,
+};
+
 export default function PublicPage({ params }: { params: Promise<{ username: string }> }) {
   const { username } = use(params);
   const [data, setData] = useState<PublicPageData | null>(null);
@@ -95,6 +126,15 @@ export default function PublicPage({ params }: { params: Promise<{ username: str
   const { profile, artworks, socialLinks, posts, categories = [], tags = [], contactFormEnabled, customCss } = data;
   const userPlanType = profile.planType || 'FREE';
 
+  // テーマ設定の適用
+  const themeKey = (profile.theme as keyof typeof themeStyles) || 'LIGHT';
+  const theme = themeStyles[themeKey] || themeStyles.LIGHT;
+  const fontFamily = fontFamilyMap[profile.fontFamily || 'default'] || fontFamilyMap['default'];
+  const fontImportUrl = fontImportMap[profile.fontFamily || ''];
+  const colorPrimary = profile.colorPrimary || '#3B82F6';
+  const colorAccent = profile.colorAccent || '#10B981';
+  const galleryColumns = layoutColumnsMap[profile.layout || 'STANDARD'] || 2;
+
   // フィルタリング処理
   const filteredArtworks = artworks.filter(artwork => {
       if (selectedCategory !== null && artwork.categoryId !== selectedCategory) return false;
@@ -106,7 +146,15 @@ export default function PublicPage({ params }: { params: Promise<{ username: str
   });
 
   return (
-    <div className="min-h-screen bg-paper-white text-slate-900 font-sans pb-40">
+    <div className={`min-h-screen ${theme.bg} ${theme.text} pb-40`} style={{ fontFamily }}>
+
+      {/* Google Fonts読み込み */}
+      {fontImportUrl && <style dangerouslySetInnerHTML={{ __html: `@import url('${fontImportUrl}');` }} />}
+
+      {/* テーマカラーCSS変数 */}
+      <style dangerouslySetInnerHTML={{ __html: `
+        :root { --color-primary: ${colorPrimary}; --color-accent: ${colorAccent}; }
+      ` }} />
 
       {/* カスタムCSS適用 */}
       {customCss && <style dangerouslySetInnerHTML={{ __html: customCss }} />}
@@ -119,17 +167,17 @@ export default function PublicPage({ params }: { params: Promise<{ username: str
           <div className="lg:col-span-5 space-y-12">
             <div className="space-y-8">
               <div className="inline-block">
-                <span className="font-outfit text-sm font-bold tracking-widest text-accent-secondary uppercase">
+                <span className="font-outfit text-sm font-bold tracking-widest uppercase" style={{ color: colorAccent }}>
                   Based in Tokyo {/* TODO: Add location field */}
                 </span>
-                <SquigglyLine className="text-accent-primary mt-2 w-40" />
+                <SquigglyLine className="mt-2 w-40" style={{ color: colorPrimary }} />
               </div>
 
               <div>
                 <h1 className="font-outfit text-6xl md:text-8xl lg:text-9xl font-bold tracking-tighter leading-[0.85] mb-4">
                   {profile.displayName}
                 </h1>
-                <p className="font-outfit text-xl md:text-2xl text-slate-400 font-medium ml-1">
+                <p className={`font-outfit text-xl md:text-2xl ${theme.subtext} font-medium ml-1`}>
                   @{username}
                 </p>
               </div>
@@ -142,7 +190,7 @@ export default function PublicPage({ params }: { params: Promise<{ username: str
                  </Avatar>
               </div>
 
-              <p className="text-slate-600 leading-relaxed text-lg md:text-xl whitespace-pre-wrap max-w-lg">
+              <p className={`${theme.subtext} leading-relaxed text-lg md:text-xl whitespace-pre-wrap max-w-lg`}>
                 {profile.bio || '自己紹介はまだありません。'}
               </p>
             </div>
@@ -186,20 +234,21 @@ export default function PublicPage({ params }: { params: Promise<{ username: str
                 <BentoGridItem
                   title="Current Status"
                   description="お仕事募集中！DMにてご連絡ください。" /* TODO: Dynamic Status */
-                  header={<Badge variant="accent" className="w-fit mb-3 text-lg px-4 py-1">OPEN</Badge>}
-                  className="md:col-span-1 bg-accent-primary/10 border-2 border-accent-primary/30"
+                  header={<Badge variant="accent" className="w-fit mb-3 text-lg px-4 py-1" style={{ backgroundColor: colorPrimary, color: '#fff' }}>OPEN</Badge>}
+                  className="md:col-span-1 border-2"
+                  style={{ backgroundColor: `${colorPrimary}15`, borderColor: `${colorPrimary}40` }}
                 />
                 
                 {/* Latest Check / News */}
-                <BentoGridItem 
+                <BentoGridItem
                    title="Latest News"
                    description={posts && posts.length > 0 ? posts[0].title : "お知らせはありません"}
-                   header={<div className="font-outfit font-bold text-3xl text-slate-300">NEWS</div>}
-                   className="md:col-span-2 bg-slate-50 border-2 border-slate-100"
+                   header={<div className={`font-outfit font-bold text-3xl ${theme.subtext} opacity-50`}>NEWS</div>}
+                   className={`md:col-span-2 ${theme.mutedBg} border-2 ${theme.mutedBorder}`}
                 />
 
                 {/* Skills Block (Mockup for now as Skills entitiy is not fully linked yet) */}
-                <div className="md:col-span-2 row-span-2 p-8 rounded-xl border-2 border-slate-100 bg-white shadow-none space-y-6">
+                <div className={`md:col-span-2 row-span-2 p-8 rounded-xl border-2 ${theme.mutedBorder} ${theme.cardBg} shadow-none space-y-6`}>
                    <div className="flex items-center justify-between">
                       <h3 className="font-outfit text-2xl font-bold">SKILL SET</h3>
                       <Badge variant="outline" className="text-base px-3">Verified</Badge>
@@ -217,8 +266,9 @@ export default function PublicPage({ params }: { params: Promise<{ username: str
                    <div 
                       key={cat.id} 
                       className={`md:col-span-1 p-6 rounded-xl border-2 cursor-pointer transition-all hover:-translate-y-2 hover:shadow-lg ${
-                        selectedCategory === cat.id ? 'bg-slate-900 text-white border-slate-900' : 'bg-white border-slate-200 hover:border-slate-900'
+                        selectedCategory === cat.id ? 'text-white border-transparent' : `${theme.cardBg} ${theme.mutedBorder} hover:border-current`
                       }`}
+                      style={selectedCategory === cat.id ? { backgroundColor: colorPrimary } : undefined}
                       onClick={() => setSelectedCategory(selectedCategory === cat.id ? null : cat.id)}
                    >
                       <div className="h-full flex flex-col justify-between">
@@ -266,15 +316,14 @@ export default function PublicPage({ params }: { params: Promise<{ username: str
         )}
 
         {filteredArtworks.length === 0 ? (
-            <div className="text-center py-40 border-2 border-dashed border-slate-200 rounded-2xl">
-                <p className="text-slate-400 text-xl md:text-2xl">作品が見つかりませんでした</p>
+            <div className={`text-center py-40 border-2 border-dashed ${theme.mutedBorder} rounded-2xl`}>
+                <p className={`${theme.subtext} text-xl md:text-2xl`}>作品が見つかりませんでした</p>
             </div>
         ) : (
-            /* v2.1: 3カラム → 2カラム（PC）、1カラム（SP）、gap拡大、角丸拡大 */
-            <MasonryGrid columns={2} mobileColumns={1} gap={32}>
+            <MasonryGrid columns={galleryColumns} mobileColumns={1} gap={32}>
                 {filteredArtworks.map(artwork => (
                     <div key={artwork.id} className="group relative break-inside-avoid">
-                        <div className="relative overflow-hidden rounded-2xl border-2 border-slate-100 bg-white shadow-none hover:shadow-[12px_12px_0px_#1A1A1A] hover:translate-x-[-6px] hover:translate-y-[-6px] transition-all duration-300 cursor-pointer">
+                        <div className={`relative overflow-hidden rounded-2xl border-2 ${theme.mutedBorder} ${theme.cardBg} shadow-none hover:shadow-lg hover:translate-x-[-6px] hover:translate-y-[-6px] transition-all duration-300 cursor-pointer`}>
                             {/* v2.1: 画像を大きく表示、scale効果追加 */}
                             <div className="overflow-hidden">
                                 <img
@@ -299,8 +348,8 @@ export default function PublicPage({ params }: { params: Promise<{ username: str
                         </div>
                         {/* v2.1: カード下にタイトル表示 */}
                         <div className="mt-4 px-1">
-                            <h3 className="font-bold text-lg md:text-xl text-slate-900 truncate">{artwork.title}</h3>
-                            <p className="text-sm text-slate-400 mt-1">
+                            <h3 className={`font-bold text-lg md:text-xl ${theme.text} truncate`}>{artwork.title}</h3>
+                            <p className={`text-sm ${theme.subtext} mt-1`}>
                                 {artwork.createdAt ? new Date(artwork.createdAt).toLocaleDateString('ja-JP', { year: 'numeric', month: 'short' }) : ''}
                             </p>
                         </div>
@@ -321,8 +370,8 @@ export default function PublicPage({ params }: { params: Promise<{ username: str
       )}
 
       {/* 3. Footer - v2.1: 余白拡大 */}
-      <footer className="mt-48 md:mt-56 border-t border-slate-100 py-20 text-center">
-         <p className="font-outfit text-slate-300 text-lg tracking-widest">DESIGNED WITH PICME</p>
+      <footer className={`mt-48 md:mt-56 border-t ${theme.mutedBorder} py-20 text-center`}>
+         <p className={`font-outfit ${theme.subtext} opacity-50 text-lg tracking-widest`}>DESIGNED WITH PICME</p>
       </footer>
 
     </div>
