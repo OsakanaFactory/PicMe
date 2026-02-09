@@ -11,10 +11,10 @@ spring:
   jpa:
     hibernate:
       ddl-auto: ${SPRING_JPA_HIBERNATE_DDL_AUTO:update}
-    show-sql: ${SPRING_JPA_SHOW_SQL:true}
+    show-sql: ${SPRING_JPA_SHOW_SQL:false}
     properties:
       hibernate:
-        format_sql: true
+        format_sql: false
         dialect: org.hibernate.dialect.PostgreSQLDialect
 
   servlet:
@@ -63,6 +63,9 @@ cors:
 # ログ設定
 logging:
   level:
-    com.picme: ${LOG_LEVEL:DEBUG}
-    org.springframework.web: INFO
-    org.hibernate: INFO
+    com.picme: ${LOG_LEVEL:INFO}
+    org.springframework.web: WARN
+    org.springframework.security: WARN
+    org.hibernate: WARN
+    org.hibernate.SQL: WARN
+    org.hibernate.type.descriptor.sql: WARN

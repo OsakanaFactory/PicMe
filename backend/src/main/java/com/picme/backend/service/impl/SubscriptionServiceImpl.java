@@ -16,7 +16,9 @@ import com.stripe.exception.SignatureVerificationException;
 import com.stripe.exception.StripeException;
 import com.stripe.model.Customer;
 import com.stripe.model.Event;
+import com.stripe.model.EventDataObjectDeserializer;
 import com.stripe.model.Invoice;
+import com.stripe.model.StripeObject;
 import com.stripe.model.checkout.Session;
 import com.stripe.net.Webhook;
 import com.stripe.param.checkout.SessionCreateParams;
@@ -328,10 +330,12 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     }
 
     private void handleCheckoutCompleted(Event event) {
-        Session session = (Session) event.getDataObjectDeserializer()
-                .getObject().orElse(null);
+        Session session = deserializeEventData(event, Session.class);
 
-        if (session == null) return;
+        if (session == null) {
+            log.error("Failed to deserialize checkout session from event");
+            return;
+        }
 
         String userId = session.getMetadata().get("user_id");
         String planTypeStr = session.getMetadata().get("plan_type");
@@ -368,10 +372,12 @@ public class SubscriptionServiceImpl implements SubscriptionService {
 
     private void handleSubscriptionUpdated(Event event) {
         com.stripe.model.Subscription stripeSubscription =
-                (com.stripe.model.Subscription) event.getDataObjectDeserializer()
-                        .getObject().orElse(null);
+                deserializeEventData(event, com.stripe.model.Subscription.class);
 
-        if (stripeSubscription == null) return;
+        if (stripeSubscription == null) {
+            log.error("Failed to deserialize subscription from event");
+            return;
+        }
 
         Subscription subscription = subscriptionRepository
                 .findByStripeSubscriptionId(stripeSubscription.getId())
@@ -394,10 +400,12 @@ public class SubscriptionServiceImpl implements SubscriptionService {
 
     private void handleSubscriptionDeleted(Event event) {
         com.stripe.model.Subscription stripeSubscription =
-                (com.stripe.model.Subscription) event.getDataObjectDeserializer()
-                        .getObject().orElse(null);
+                deserializeEventData(event, com.stripe.model.Subscription.class);
 
-        if (stripeSubscription == null) return;
+        if (stripeSubscription == null) {
+            log.error("Failed to deserialize subscription from event");
+            return;
+        }
 
         Subscription subscription = subscriptionRepository
                 .findByStripeSubscriptionId(stripeSubscription.getId())
@@ -418,19 +426,23 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     }
 
     private void handlePaymentSucceeded(Event event) {
-        Invoice invoice = (Invoice) event.getDataObjectDeserializer()
-                .getObject().orElse(null);
+        Invoice invoice = deserializeEventData(event, Invoice.class);
 
-        if (invoice == null) return;
+        if (invoice == null) {
+            log.error("Failed to deserialize invoice from event");
+            return;
+        }
 
         log.info("Payment succeeded for invoice: {}", invoice.getId());
     }
 
     private void handlePaymentFailed(Event event) {
-        Invoice invoice = (Invoice) event.getDataObjectDeserializer()
-                .getObject().orElse(null);
+        Invoice invoice = deserializeEventData(event, Invoice.class);
 
-        if (invoice == null) return;
+        if (invoice == null) {
+            log.error("Failed to deserialize invoice from event");
+            return;
+        }
 
         Subscription subscription = subscriptionRepository
                 .findByStripeCustomerId(invoice.getCustomer())
@@ -453,6 +465,33 @@ public class SubscriptionServiceImpl implements SubscriptionService {
             case "trialing" -> SubscriptionStatus.TRIALING;
             default -> SubscriptionStatus.ACTIVE;
         };
+    }
+
+    /**
+     * Stripe SDKバージョンとWebhook APIバージョンが不一致の場合、
+     * getObject()が空を返す。deserializeUnsafe()でフォールバックする。
+     */
+    @SuppressWarnings("unchecked")
+    private <T extends StripeObject> T deserializeEventData(Event event, Class<T> clazz) {
+        EventDataObjectDeserializer deserializer = event.getDataObjectDeserializer();
+
+        // まず安全なデシリアライゼーションを試行
+        T obj = (T) deserializer.getObject().orElse(null);
+        if (obj != null) return obj;
+
+        // APIバージョン不一致の場合、unsafe デシリアライゼーションにフォールバック
+        try {
+            log.warn("Stripe API version mismatch, using unsafe deserialization for event: {}", event.getType());
+            StripeObject unsafeObj = deserializer.deserializeUnsafe();
+            if (clazz.isInstance(unsafeObj)) {
+                return clazz.cast(unsafeObj);
+            }
+            log.error("Deserialized object type mismatch: expected={}, actual={}",
+                    clazz.getSimpleName(), unsafeObj.getClass().getSimpleName());
+        } catch (Exception e) {
+            log.error("Failed to deserialize event data for {}: {}", event.getType(), e.getMessage());
+        }
+        return null;
     }
 
     private LocalDateTime toLocalDateTime(Long timestamp) {
