@@ -1,101 +1,211 @@
 'use client';
 
 import { useAuth } from '@/contexts/AuthContext';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { SquigglyLine } from '@/components/ui/squiggly-line';
 import { PLAN_INFO, type PlanType } from '@/lib/subscription';
-import { ImageIcon, Palette, Link2, ArrowRight, Check } from 'lucide-react';
+import { ImageIcon, Palette, Link2, Check } from 'lucide-react';
 import Link from 'next/link';
+import {
+  motion,
+  useScroll,
+  useTransform,
+  useSpring,
+  AnimatePresence,
+} from 'framer-motion';
 
 // ---------------------------------------------------------------------------
-// useScrollReveal – Intersection Observer でフェードイン
+// アニメーション variants
 // ---------------------------------------------------------------------------
-function useScrollReveal() {
-  const ref = useRef<HTMLDivElement>(null);
-  const [isVisible, setIsVisible] = useState(false);
+const fadeInUp = {
+  hidden: { opacity: 0, y: 30 },
+  visible: (delay: number = 0) => ({
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.6, ease: 'easeOut' as const, delay },
+  }),
+};
 
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setIsVisible(true);
-          observer.unobserve(el);
-        }
-      },
-      { threshold: 0.15 },
-    );
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, []);
+const staggerContainer = {
+  hidden: {},
+  visible: {
+    transition: { staggerChildren: 0.12, delayChildren: 0.1 },
+  },
+};
 
-  return { ref, isVisible };
+const staggerItem = {
+  hidden: { opacity: 0, y: 24 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.5, ease: 'easeOut' as const },
+  },
+};
+
+// ---------------------------------------------------------------------------
+// 浮遊する幾何学図形（ページ全体に散りばめ + パララックス）
+// ---------------------------------------------------------------------------
+interface ShapeDef {
+  type: 'circle' | 'triangle' | 'square' | 'ring' | 'wave';
+  color: string;
+  size: number;
+  x: string;
+  y: string;
+  parallaxSpeed: number;
+  floatDuration: number;
+  floatDelay: number;
+  rotate?: number;
 }
 
-function RevealSection({
-  children,
-  className = '',
-  delay = 0,
-}: {
-  children: React.ReactNode;
-  className?: string;
-  delay?: number;
-}) {
-  const { ref, isVisible } = useScrollReveal();
+const ALL_SHAPES: ShapeDef[] = [
+  // ヒーロー周辺
+  { type: 'circle', color: '#D9F99D', size: 48, x: '5%', y: '8%', parallaxSpeed: -0.15, floatDuration: 6, floatDelay: 0 },
+  { type: 'triangle', color: '#FF8A65', size: 44, x: '88%', y: '15%', parallaxSpeed: -0.1, floatDuration: 7, floatDelay: 1 },
+  { type: 'square', color: '#1A1A1A', size: 36, x: '3%', y: '55%', parallaxSpeed: -0.2, floatDuration: 5.5, floatDelay: 0.5, rotate: 12 },
+  { type: 'ring', color: '#D9F99D', size: 52, x: '92%', y: '45%', parallaxSpeed: -0.12, floatDuration: 6.5, floatDelay: 1.5 },
+  { type: 'circle', color: '#FF8A65', size: 28, x: '85%', y: '70%', parallaxSpeed: -0.18, floatDuration: 8, floatDelay: 2 },
+  // 特徴セクション周辺
+  { type: 'wave', color: '#D9F99D', size: 60, x: '2%', y: '105%', parallaxSpeed: -0.08, floatDuration: 9, floatDelay: 0.3 },
+  { type: 'triangle', color: '#1A1A1A', size: 32, x: '95%', y: '115%', parallaxSpeed: -0.14, floatDuration: 7.5, floatDelay: 0.8, rotate: 45 },
+  { type: 'circle', color: '#D9F99D80', size: 40, x: '8%', y: '135%', parallaxSpeed: -0.1, floatDuration: 6, floatDelay: 1.2 },
+  // テーマデモ周辺
+  { type: 'ring', color: '#FF8A65', size: 44, x: '90%', y: '170%', parallaxSpeed: -0.16, floatDuration: 7, floatDelay: 0 },
+  { type: 'square', color: '#D9F99D', size: 30, x: '4%', y: '190%', parallaxSpeed: -0.12, floatDuration: 8, floatDelay: 1.8, rotate: -15 },
+  // ステップセクション周辺
+  { type: 'triangle', color: '#FF8A65', size: 36, x: '93%', y: '240%', parallaxSpeed: -0.1, floatDuration: 6.5, floatDelay: 0.5 },
+  { type: 'circle', color: '#1A1A1A18', size: 56, x: '6%', y: '260%', parallaxSpeed: -0.2, floatDuration: 9, floatDelay: 1 },
+  // プランセクション周辺
+  { type: 'wave', color: '#FF8A65', size: 50, x: '88%', y: '310%', parallaxSpeed: -0.08, floatDuration: 7, floatDelay: 0.6 },
+  { type: 'ring', color: '#1A1A1A', size: 38, x: '3%', y: '340%', parallaxSpeed: -0.14, floatDuration: 8, floatDelay: 2 },
+  { type: 'circle', color: '#D9F99D', size: 24, x: '96%', y: '360%', parallaxSpeed: -0.1, floatDuration: 5.5, floatDelay: 0.3 },
+];
+
+function ShapeElement({ shape }: { shape: ShapeDef }) {
+  const { scrollY } = useScroll();
+  const y = useTransform(scrollY, [0, 5000], [0, 5000 * shape.parallaxSpeed]);
+  const smoothY = useSpring(y, { stiffness: 50, damping: 20 });
+
+  const floatStyle: React.CSSProperties = {
+    animation: `float ${shape.floatDuration}s ease-in-out infinite`,
+    animationDelay: `${shape.floatDelay}s`,
+  };
+
+  const common = 'pointer-events-none';
+
+  if (shape.type === 'circle') {
+    return (
+      <motion.div
+        className={common}
+        style={{
+          position: 'absolute',
+          left: shape.x,
+          top: shape.y,
+          width: shape.size,
+          height: shape.size,
+          borderRadius: '50%',
+          backgroundColor: shape.color,
+          y: smoothY,
+          ...floatStyle,
+        }}
+      />
+    );
+  }
+
+  if (shape.type === 'ring') {
+    return (
+      <motion.div
+        className={common}
+        style={{
+          position: 'absolute',
+          left: shape.x,
+          top: shape.y,
+          width: shape.size,
+          height: shape.size,
+          borderRadius: '50%',
+          border: `2px solid ${shape.color}`,
+          y: smoothY,
+          ...floatStyle,
+        }}
+      />
+    );
+  }
+
+  if (shape.type === 'triangle') {
+    return (
+      <motion.svg
+        className={common}
+        width={shape.size}
+        height={shape.size}
+        viewBox="0 0 40 40"
+        fill={shape.color}
+        style={{
+          position: 'absolute',
+          left: shape.x,
+          top: shape.y,
+          rotate: shape.rotate ?? 0,
+          y: smoothY,
+          ...floatStyle,
+        }}
+      >
+        <polygon points="20,4 36,36 4,36" />
+      </motion.svg>
+    );
+  }
+
+  if (shape.type === 'square') {
+    return (
+      <motion.div
+        className={common}
+        style={{
+          position: 'absolute',
+          left: shape.x,
+          top: shape.y,
+          width: shape.size,
+          height: shape.size,
+          border: `2px solid ${shape.color}`,
+          rotate: shape.rotate ?? 0,
+          y: smoothY,
+          ...floatStyle,
+        }}
+      />
+    );
+  }
+
+  // wave
   return (
-    <div
-      ref={ref}
-      className={`transition-all duration-700 ease-out ${
-        isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-      } ${className}`}
-      style={{ transitionDelay: `${delay}ms` }}
+    <motion.svg
+      className={common}
+      width={shape.size}
+      height={shape.size * 0.4}
+      viewBox="0 0 100 40"
+      fill="none"
+      style={{
+        position: 'absolute',
+        left: shape.x,
+        top: shape.y,
+        y: smoothY,
+        ...floatStyle,
+      }}
     >
-      {children}
-    </div>
+      <path
+        d="M0 20C12 20 12 8 24 8C36 8 36 32 48 32C60 32 60 20 72 20C84 20 84 8 96 8"
+        stroke={shape.color}
+        strokeWidth="3"
+        strokeLinecap="round"
+      />
+    </motion.svg>
   );
 }
 
-// ---------------------------------------------------------------------------
-// 浮遊する幾何学図形
-// ---------------------------------------------------------------------------
-const SHAPES = [
-  { type: 'circle', color: 'bg-brand-green', size: 'w-12 h-12 md:w-16 md:h-16', top: '10%', left: '5%', duration: '6s', delay: '0s' },
-  { type: 'triangle', color: 'text-brand-coral', size: 'w-10 h-10 md:w-14 md:h-14', top: '20%', right: '8%', duration: '7s', delay: '1s' },
-  { type: 'square', color: 'border-slate-900', size: 'w-8 h-8 md:w-12 md:h-12', top: '65%', left: '3%', duration: '5.5s', delay: '0.5s' },
-  { type: 'circle', color: 'bg-brand-coral/40', size: 'w-6 h-6 md:w-10 md:h-10', top: '75%', right: '12%', duration: '8s', delay: '2s' },
-  { type: 'square', color: 'border-brand-green', size: 'w-10 h-10 md:w-14 md:h-14', top: '45%', left: '8%', duration: '6.5s', delay: '1.5s' },
-  { type: 'circle', color: 'bg-slate-900/10', size: 'w-8 h-8 md:w-10 md:h-10', top: '30%', right: '3%', duration: '7.5s', delay: '0.8s' },
-] as const;
-
-function FloatingShapes() {
+function GlobalFloatingShapes() {
   return (
-    <>
-      {SHAPES.map((s, i) => {
-        const posStyle: React.CSSProperties = {
-          top: s.top,
-          left: 'left' in s ? s.left : undefined,
-          right: 'right' in s ? s.right : undefined,
-          animationDuration: s.duration,
-          animationDelay: s.delay,
-        };
-        const base = 'absolute animate-float pointer-events-none';
-        if (s.type === 'circle') {
-          return <div key={i} className={`${base} rounded-full ${s.color} ${s.size}`} style={posStyle} />;
-        }
-        if (s.type === 'triangle') {
-          return (
-            <svg key={i} className={`${base} ${s.color} ${s.size}`} style={posStyle} viewBox="0 0 40 40" fill="currentColor">
-              <polygon points="20,4 36,36 4,36" />
-            </svg>
-          );
-        }
-        // square – outline only
-        return <div key={i} className={`${base} border-2 ${s.color} ${s.size} rotate-12`} style={posStyle} />;
-      })}
-    </>
+    <div className="absolute inset-0 overflow-hidden pointer-events-none" style={{ zIndex: 0 }}>
+      {ALL_SHAPES.map((shape, i) => (
+        <ShapeElement key={i} shape={shape} />
+      ))}
+    </div>
   );
 }
 
@@ -104,8 +214,18 @@ function FloatingShapes() {
 // ---------------------------------------------------------------------------
 function MockupCard() {
   return (
-    <div className="relative w-64 md:w-80 rotate-3 hover:rotate-0 transition-transform duration-500 ease-out group">
-      <div className="bg-white border-2 border-slate-900 rounded-lg p-5 shadow-[6px_6px_0px_#1A1A1A] group-hover:shadow-[8px_8px_0px_#1A1A1A] transition-shadow">
+    <motion.div
+      className="relative w-64 md:w-80"
+      initial={{ rotate: 3 }}
+      whileHover={{ rotate: 0, scale: 1.02 }}
+      transition={{ type: 'spring', stiffness: 200, damping: 15 }}
+    >
+      <motion.div
+        className="bg-white border-2 border-slate-900 rounded-lg p-5"
+        initial={{ boxShadow: '6px 6px 0px #1A1A1A' }}
+        whileHover={{ boxShadow: '10px 10px 0px #1A1A1A' }}
+        transition={{ type: 'spring', stiffness: 200, damping: 15 }}
+      >
         {/* avatar */}
         <div className="flex items-center gap-3 mb-4">
           <div className="w-10 h-10 rounded-full bg-gradient-to-br from-brand-green to-emerald-400 border-2 border-slate-900" />
@@ -115,22 +235,33 @@ function MockupCard() {
           </div>
         </div>
         {/* gallery grid */}
-        <div className="grid grid-cols-3 gap-2 mb-3">
-          <div className="aspect-square rounded bg-brand-green/60" />
-          <div className="aspect-square rounded bg-brand-coral/60" />
-          <div className="aspect-square rounded bg-sky-300/60" />
-          <div className="aspect-square rounded bg-amber-300/60" />
-          <div className="aspect-square rounded bg-violet-300/60" />
-          <div className="aspect-square rounded bg-rose-300/60" />
-        </div>
+        <motion.div
+          className="grid grid-cols-3 gap-2 mb-3"
+          variants={staggerContainer}
+          initial="hidden"
+          animate="visible"
+        >
+          {['bg-brand-green/60', 'bg-brand-coral/60', 'bg-sky-300/60', 'bg-amber-300/60', 'bg-violet-300/60', 'bg-rose-300/60'].map(
+            (color) => (
+              <motion.div
+                key={color}
+                className={`aspect-square rounded ${color}`}
+                variants={{
+                  hidden: { opacity: 0, scale: 0.8 },
+                  visible: { opacity: 1, scale: 1, transition: { duration: 0.4 } },
+                }}
+              />
+            ),
+          )}
+        </motion.div>
         {/* sns icons */}
         <div className="flex gap-2">
           {[1, 2, 3].map((n) => (
             <div key={n} className="w-6 h-6 rounded-full bg-slate-200 border border-slate-300" />
           ))}
         </div>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 }
 
@@ -138,11 +269,20 @@ function MockupCard() {
 // テーマデモ プレビュー
 // ---------------------------------------------------------------------------
 type ThemeKey = 'LIGHT' | 'DARK' | 'WARM' | 'COOL';
-const THEMES: Record<ThemeKey, { bg: string; text: string; accent: string; card: string; label: string }> = {
-  LIGHT: { bg: 'bg-white', text: 'text-slate-900', accent: 'bg-brand-green', card: 'bg-slate-100', label: 'Light' },
-  DARK: { bg: 'bg-slate-900', text: 'text-white', accent: 'bg-brand-green', card: 'bg-slate-800', label: 'Dark' },
-  WARM: { bg: 'bg-amber-50', text: 'text-amber-950', accent: 'bg-amber-400', card: 'bg-amber-100', label: 'Warm' },
-  COOL: { bg: 'bg-sky-50', text: 'text-sky-950', accent: 'bg-sky-400', card: 'bg-sky-100', label: 'Cool' },
+
+interface ThemeConfig {
+  bg: string;
+  text: string;
+  accent: string;
+  card: string;
+  label: string;
+}
+
+const THEMES: Record<ThemeKey, ThemeConfig> = {
+  LIGHT: { bg: '#ffffff', text: '#0f172a', accent: '#D9F99D', card: '#f1f5f9', label: 'Light' },
+  DARK: { bg: '#0f172a', text: '#ffffff', accent: '#D9F99D', card: '#1e293b', label: 'Dark' },
+  WARM: { bg: '#fffbeb', text: '#451a03', accent: '#fbbf24', card: '#fef3c7', label: 'Warm' },
+  COOL: { bg: '#f0f9ff', text: '#082f49', accent: '#38bdf8', card: '#e0f2fe', label: 'Cool' },
 };
 
 function ThemeDemo() {
@@ -151,48 +291,78 @@ function ThemeDemo() {
   return (
     <div className="flex flex-col md:flex-row items-center md:items-start gap-8 md:gap-12">
       {/* selector */}
-      <div className="flex md:flex-col gap-3">
+      <motion.div className="flex md:flex-col gap-3" variants={staggerContainer} initial="hidden" whileInView="visible" viewport={{ once: true }}>
         {(Object.keys(THEMES) as ThemeKey[]).map((k) => (
-          <button
+          <motion.button
             key={k}
+            variants={staggerItem}
             onClick={() => setTheme(k)}
-            className={`flex items-center gap-2 px-4 py-2 rounded-md border-2 text-sm font-bold transition-all ${
+            className={`flex items-center gap-2 px-4 py-2 rounded-md border-2 text-sm font-bold transition-colors ${
               theme === k
                 ? 'border-slate-900 shadow-[3px_3px_0px_#1A1A1A]'
                 : 'border-slate-200 hover:border-slate-400'
             }`}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.97 }}
           >
-            <span
-              className={`w-3 h-3 rounded-full transition-all ${
-                theme === k ? `${THEMES[k].accent} scale-125` : 'bg-slate-300'
-              }`}
+            <motion.span
+              className="w-3 h-3 rounded-full"
+              animate={{
+                backgroundColor: theme === k ? THEMES[k].accent : '#cbd5e1',
+                scale: theme === k ? 1.3 : 1,
+              }}
+              transition={{ type: 'spring', stiffness: 300, damping: 20 }}
             />
             {THEMES[k].label}
-          </button>
+          </motion.button>
         ))}
-      </div>
+      </motion.div>
       {/* preview */}
-      <div className={`relative w-72 md:w-80 rotate-1 border-2 border-slate-900 rounded-lg overflow-hidden shadow-[6px_6px_0px_#1A1A1A] transition-colors duration-300 ${t.bg} ${t.text}`}>
+      <motion.div
+        className="relative w-72 md:w-80 border-2 border-slate-900 rounded-lg overflow-hidden"
+        initial={{ rotate: 1 }}
+        whileHover={{ rotate: 0, scale: 1.02 }}
+        animate={{
+          backgroundColor: t.bg,
+          color: t.text,
+          boxShadow: '6px 6px 0px #1A1A1A',
+        }}
+        transition={{ duration: 0.4, ease: 'easeInOut' }}
+      >
         <div className="p-5">
           <div className="flex items-center gap-3 mb-4">
-            <div className={`w-10 h-10 rounded-full ${t.accent} border-2 border-current/20`} />
+            <motion.div
+              className="w-10 h-10 rounded-full border-2"
+              animate={{ backgroundColor: t.accent, borderColor: t.text + '33' }}
+              transition={{ duration: 0.4 }}
+            />
             <div>
-              <div className="h-3 w-20 rounded-full bg-current opacity-80" />
-              <div className="h-2 w-14 rounded-full bg-current opacity-30 mt-1.5" />
+              <motion.div className="h-3 w-20 rounded-full" animate={{ backgroundColor: t.text + 'cc' }} transition={{ duration: 0.4 }} />
+              <motion.div className="h-2 w-14 rounded-full mt-1.5" animate={{ backgroundColor: t.text + '4d' }} transition={{ duration: 0.4 }} />
             </div>
           </div>
           <div className="grid grid-cols-3 gap-2 mb-3">
-            {['opacity-40', 'opacity-30', 'opacity-50', 'opacity-25', 'opacity-45', 'opacity-35'].map((op, i) => (
-              <div key={i} className={`aspect-square rounded ${t.card} ${op}`} />
+            {[0.6, 0.45, 0.7, 0.4, 0.65, 0.5].map((op, i) => (
+              <motion.div
+                key={i}
+                className="aspect-square rounded"
+                animate={{ backgroundColor: t.card, opacity: op }}
+                transition={{ duration: 0.4 }}
+              />
             ))}
           </div>
           <div className="flex gap-2">
             {[1, 2, 3].map((n) => (
-              <div key={n} className={`w-6 h-6 rounded-full ${t.card}`} />
+              <motion.div
+                key={n}
+                className="w-6 h-6 rounded-full"
+                animate={{ backgroundColor: t.card }}
+                transition={{ duration: 0.4 }}
+              />
             ))}
           </div>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 }
@@ -200,15 +370,24 @@ function ThemeDemo() {
 // ---------------------------------------------------------------------------
 // プランカード
 // ---------------------------------------------------------------------------
-function PlanCard({ plan, isRecommended }: { plan: PlanType; isRecommended?: boolean }) {
+function PlanCard({ plan, isRecommended, index }: { plan: PlanType; isRecommended?: boolean; index: number }) {
   const info = PLAN_INFO[plan];
   return (
-    <div
-      className={`relative flex flex-col border-2 rounded-lg p-6 transition-all hover:translate-x-[-2px] hover:translate-y-[-2px] ${
+    <motion.div
+      className={`relative flex flex-col border-2 rounded-lg p-6 bg-white ${
         isRecommended
           ? 'border-brand-coral shadow-[4px_4px_0px_hsl(14,100%,70%)] scale-[1.03] z-10'
-          : 'border-slate-200 shadow-[4px_4px_0px_#E5E7EB] hover:shadow-[6px_6px_0px_#E5E7EB]'
+          : 'border-slate-200 shadow-[4px_4px_0px_#E5E7EB]'
       }`}
+      variants={staggerItem}
+      whileHover={{
+        x: -3,
+        y: -3,
+        boxShadow: isRecommended
+          ? '8px 8px 0px hsl(14,100%,70%)'
+          : '8px 8px 0px #E5E7EB',
+        transition: { type: 'spring', stiffness: 300, damping: 20 },
+      }}
     >
       {isRecommended && (
         <Badge variant="coral" className="absolute -top-3 left-4 text-xs">おすすめ</Badge>
@@ -227,7 +406,7 @@ function PlanCard({ plan, isRecommended }: { plan: PlanType; isRecommended?: boo
           </li>
         ))}
       </ul>
-    </div>
+    </motion.div>
   );
 }
 
@@ -236,11 +415,18 @@ function PlanCard({ plan, isRecommended }: { plan: PlanType; isRecommended?: boo
 // ---------------------------------------------------------------------------
 function SectionTitle({ number, title }: { number: string; title: string }) {
   return (
-    <div className="flex items-center gap-3 mb-10 md:mb-14">
+    <motion.div
+      className="flex items-center gap-3 mb-10 md:mb-14"
+      variants={fadeInUp}
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: true, margin: '-50px' }}
+      custom={0}
+    >
       <span className="font-outfit font-black text-sm text-brand-coral">{number}</span>
       <div className="h-px flex-1 max-w-[40px] bg-slate-300" />
       <h2 className="font-outfit font-black text-2xl md:text-3xl tracking-tight">{title}</h2>
-    </div>
+    </motion.div>
   );
 }
 
@@ -249,14 +435,7 @@ function SectionTitle({ number, title }: { number: string; title: string }) {
 // ---------------------------------------------------------------------------
 export default function LandingPage() {
   const { user } = useAuth();
-  const [heroLoaded, setHeroLoaded] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-
-  useEffect(() => {
-    // ヒーローのstaggered reveal
-    const timer = setTimeout(() => setHeroLoaded(true), 50);
-    return () => clearTimeout(timer);
-  }, []);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 10);
@@ -267,14 +446,22 @@ export default function LandingPage() {
   const ctaHref = user ? '/dashboard' : '/register';
   const ctaLabel = user ? 'ダッシュボードへ →' : '無料ではじめる →';
 
-  // ログイン済みユーザーがLPを見ることも許容する（自動リダイレクトしない）
-
   return (
     <div className="relative overflow-hidden">
+      {/* 全ページ散りばめ幾何学図形 */}
+      <GlobalFloatingShapes />
+
       {/* ================================================================ */}
       {/* Header */}
       {/* ================================================================ */}
-      <header className={`fixed top-0 inset-x-0 z-50 h-16 flex items-center justify-between px-4 md:px-8 bg-white/80 backdrop-blur-md border-b transition-colors ${scrolled ? 'border-slate-200' : 'border-transparent'}`}>
+      <motion.header
+        className={`fixed top-0 inset-x-0 z-50 h-16 flex items-center justify-between px-4 md:px-8 bg-white/80 backdrop-blur-md border-b transition-colors ${
+          scrolled ? 'border-slate-200' : 'border-transparent'
+        }`}
+        initial={{ y: -64 }}
+        animate={{ y: 0 }}
+        transition={{ duration: 0.5, ease: 'easeOut' }}
+      >
         <Link href="/" className="flex items-center gap-1">
           <span className="font-outfit font-black text-xl tracking-tight">PicMe</span>
           <SquigglyLine className="w-14 h-3 text-brand-green -ml-1" />
@@ -295,7 +482,7 @@ export default function LandingPage() {
             </>
           )}
         </div>
-      </header>
+      </motion.header>
 
       {/* spacer for fixed header */}
       <div className="h-16" />
@@ -304,81 +491,85 @@ export default function LandingPage() {
       {/* Hero */}
       {/* ================================================================ */}
       <section className="relative min-h-[calc(100dvh-4rem)] flex items-center px-4 md:px-8 lg:px-16 py-16 md:py-0">
-        <FloatingShapes />
-
-        <div className="relative z-10 w-full max-w-7xl mx-auto flex flex-col md:flex-row items-center md:items-center gap-10 md:gap-16">
+        <motion.div
+          className="relative z-10 w-full max-w-7xl mx-auto flex flex-col md:flex-row items-center md:items-center gap-10 md:gap-16"
+          variants={staggerContainer}
+          initial="hidden"
+          animate="visible"
+        >
           {/* left */}
           <div className="flex-1 max-w-xl">
-            <p
-              className={`text-sm font-bold text-brand-coral tracking-wider uppercase mb-4 transition-all duration-600 ease-out ${
-                heroLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
-              }`}
+            <motion.p
+              className="text-sm font-bold text-brand-coral tracking-wider uppercase mb-4"
+              variants={staggerItem}
             >
               クリエイターのためのポートフォリオ
-            </p>
+            </motion.p>
 
-            <h1
-              className={`font-outfit font-black text-6xl md:text-7xl lg:text-8xl tracking-tighter leading-[0.9] mb-6 transition-all duration-600 ease-out ${
-                heroLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
-              }`}
-              style={{ transitionDelay: '100ms' }}
+            <motion.h1
+              className="font-outfit font-black text-6xl md:text-7xl lg:text-8xl tracking-tighter leading-[0.9] mb-6"
+              variants={staggerItem}
             >
               つくる人の、
               <br />
               <span className="relative inline-block">
                 <span className="relative z-10">見せる場所。</span>
-                <span className="absolute bottom-1 left-0 w-full h-[0.35em] bg-brand-green -z-0 -skew-x-2" />
+                <motion.span
+                  className="absolute bottom-1 left-0 w-full h-[0.35em] bg-brand-green -z-0 -skew-x-2"
+                  initial={{ scaleX: 0 }}
+                  animate={{ scaleX: 1 }}
+                  transition={{ duration: 0.6, delay: 0.5, ease: 'easeOut' as const }}
+                  style={{ originX: 0 }}
+                />
               </span>
-            </h1>
+            </motion.h1>
 
-            <p
-              className={`text-base md:text-lg text-slate-500 leading-relaxed mb-8 max-w-md transition-all duration-600 ease-out ${
-                heroLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
-              }`}
-              style={{ transitionDelay: '200ms' }}
+            <motion.p
+              className="text-base md:text-lg text-slate-500 leading-relaxed mb-8 max-w-md"
+              variants={staggerItem}
             >
               イラスト・デザイン・写真。
               <br className="hidden sm:block" />
               あなたの作品を、1分でポートフォリオに。
-            </p>
+            </motion.p>
 
-            <div
-              className={`transition-all duration-600 ease-out ${
-                heroLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
-              }`}
-              style={{ transitionDelay: '300ms' }}
-            >
+            <motion.div variants={staggerItem}>
               <Link href={ctaHref}>
-                <Button variant="accent" size="lg" className="text-base px-8 py-3 h-auto">
-                  {ctaLabel}
-                </Button>
+                <motion.div
+                  className="inline-block"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.97 }}
+                >
+                  <Button variant="accent" size="lg" className="text-base px-8 py-3 h-auto">
+                    {ctaLabel}
+                  </Button>
+                </motion.div>
               </Link>
-            </div>
+            </motion.div>
           </div>
 
           {/* right – mockup */}
-          <div
-            className={`flex-shrink-0 transition-all duration-700 ease-out ${
-              heroLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
-            }`}
-            style={{ transitionDelay: '200ms' }}
-          >
+          <motion.div className="flex-shrink-0" variants={staggerItem}>
             <MockupCard />
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
       </section>
 
       {/* ================================================================ */}
       {/* 特徴セクション */}
       {/* ================================================================ */}
-      <section className="px-4 md:px-8 lg:px-16 py-20 md:py-28">
-        <div className="max-w-5xl mx-auto">
-          <RevealSection>
-            <SectionTitle number="01" title="PicMeでできること" />
-          </RevealSection>
+      <section className="relative px-4 md:px-8 lg:px-16 py-20 md:py-28">
+        <div className="max-w-5xl mx-auto relative z-10">
+          <SectionTitle number="01" title="PicMeでできること" />
 
           {/* staggered cards */}
-          <div className="space-y-6 md:space-y-0 md:grid md:grid-cols-3 md:gap-6">
+          <motion.div
+            className="space-y-6 md:space-y-0 md:grid md:grid-cols-3 md:gap-6"
+            variants={staggerContainer}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: '-80px' }}
+          >
             {[
               {
                 icon: <ImageIcon className="w-10 h-10" />,
@@ -386,7 +577,6 @@ export default function LandingPage() {
                 title: '作品をギャラリーで魅せる',
                 desc: 'Masonry/グリッドで作品を美しく配置。カテゴリー・タグで絞り込み。',
                 offset: 'md:mt-0',
-                delay: 0,
               },
               {
                 icon: <Palette className="w-10 h-10" />,
@@ -394,7 +584,6 @@ export default function LandingPage() {
                 title: 'テーマで自分らしく',
                 desc: 'LIGHT・DARK・WARM・COOL。カラーもフォントもカスタマイズ。',
                 offset: 'md:mt-10',
-                delay: 100,
               },
               {
                 icon: <Link2 className="w-10 h-10" />,
@@ -402,113 +591,152 @@ export default function LandingPage() {
                 title: 'SNSリンクをひとまとめ',
                 desc: 'Twitter、Instagram、pixiv…全SNSを1ページに。',
                 offset: 'md:mt-5',
-                delay: 200,
               },
             ].map((card) => (
-              <RevealSection key={card.title} delay={card.delay} className={card.offset}>
-                <div className="bg-white border-2 border-slate-900 rounded-lg p-6 transition-all hover:shadow-[6px_6px_0px_#1A1A1A] hover:translate-x-[-3px] hover:translate-y-[-3px]">
+              <motion.div
+                key={card.title}
+                className={card.offset}
+                variants={staggerItem}
+              >
+                <motion.div
+                  className="bg-white border-2 border-slate-900 rounded-lg p-6"
+                  whileHover={{
+                    x: -3,
+                    y: -3,
+                    boxShadow: '6px 6px 0px #1A1A1A',
+                    transition: { type: 'spring', stiffness: 300, damping: 20 },
+                  }}
+                  initial={{ boxShadow: '0px 0px 0px #1A1A1A' }}
+                >
                   <div className={`w-full h-1.5 ${card.accent} rounded-full mb-5`} />
                   <div className="mb-4">{card.icon}</div>
                   <h3 className="font-outfit font-bold text-lg mb-2">{card.title}</h3>
                   <p className="text-sm text-slate-500 leading-relaxed">{card.desc}</p>
-                </div>
-              </RevealSection>
+                </motion.div>
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
 
           {/* 追加機能バッジ */}
-          <RevealSection delay={300} className="mt-8 flex flex-wrap gap-2 justify-center">
+          <motion.div
+            className="mt-8 flex flex-wrap gap-2 justify-center"
+            variants={staggerContainer}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+          >
             {['お知らせ投稿', 'お問い合わせフォーム', 'アクセス解析', 'カスタムCSS', 'Markdown', 'D&D並び替え'].map(
               (label) => (
-                <Badge key={label} variant="secondary" className="text-xs">
-                  {label}
-                </Badge>
+                <motion.div key={label} variants={staggerItem}>
+                  <Badge variant="secondary" className="text-xs">
+                    {label}
+                  </Badge>
+                </motion.div>
               ),
             )}
-          </RevealSection>
+          </motion.div>
         </div>
       </section>
 
       {/* ================================================================ */}
       {/* テーマデモ */}
       {/* ================================================================ */}
-      <section className="px-4 md:px-8 lg:px-16 py-20 md:py-28 bg-slate-50">
-        <div className="max-w-5xl mx-auto">
-          <RevealSection>
-            <SectionTitle number="02" title="あなたのページ、こんな感じに。" />
-          </RevealSection>
-          <RevealSection delay={100}>
+      <section className="relative px-4 md:px-8 lg:px-16 py-20 md:py-28 bg-slate-50">
+        <div className="max-w-5xl mx-auto relative z-10">
+          <SectionTitle number="02" title="あなたのページ、こんな感じに。" />
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: '-50px' }}
+            transition={{ duration: 0.6, ease: 'easeOut' as const, delay: 0.1 }}
+          >
             <ThemeDemo />
-          </RevealSection>
+          </motion.div>
         </div>
       </section>
 
       {/* ================================================================ */}
       {/* ステップ */}
       {/* ================================================================ */}
-      <section className="px-4 md:px-8 lg:px-16 py-20 md:py-28">
-        <div className="max-w-5xl mx-auto">
-          <RevealSection>
-            <SectionTitle number="03" title="はじめかた" />
-          </RevealSection>
+      <section className="relative px-4 md:px-8 lg:px-16 py-20 md:py-28">
+        <div className="max-w-5xl mx-auto relative z-10">
+          <SectionTitle number="03" title="はじめかた" />
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-10 md:gap-6">
+          <motion.div
+            className="grid grid-cols-1 md:grid-cols-3 gap-10 md:gap-6"
+            variants={staggerContainer}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: '-80px' }}
+          >
             {[
               { num: '01', title: 'アカウント登録', desc: 'メールアドレスだけでOK' },
               { num: '02', title: '作品を追加', desc: '画像をアップロードするだけ' },
               { num: '03', title: '公開！', desc: 'あなた専用URLですぐ公開' },
             ].map((step, i) => (
-              <RevealSection key={step.num} delay={i * 100}>
-                <div className="relative text-center md:text-left">
-                  <span className="font-outfit font-black text-7xl md:text-8xl text-slate-900/[0.06] leading-none select-none">
-                    {step.num}
-                  </span>
-                  <div className="relative -mt-10 md:-mt-12">
-                    <h3 className="font-outfit font-bold text-lg mb-1">{step.title}</h3>
-                    <p className="text-sm text-slate-500">{step.desc}</p>
-                  </div>
-                  {/* connector line */}
-                  {i < 2 && (
-                    <div className="hidden md:block absolute top-1/2 -right-3 w-6 border-t-2 border-dashed border-slate-300" />
-                  )}
+              <motion.div key={step.num} className="relative text-center md:text-left" variants={staggerItem}>
+                <span className="font-outfit font-black text-7xl md:text-8xl text-slate-900/[0.06] leading-none select-none">
+                  {step.num}
+                </span>
+                <div className="relative -mt-10 md:-mt-12">
+                  <h3 className="font-outfit font-bold text-lg mb-1">{step.title}</h3>
+                  <p className="text-sm text-slate-500">{step.desc}</p>
                 </div>
-              </RevealSection>
+                {/* connector line */}
+                {i < 2 && (
+                  <div className="hidden md:block absolute top-1/2 -right-3 w-6 border-t-2 border-dashed border-slate-300" />
+                )}
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
         </div>
       </section>
 
       {/* ================================================================ */}
       {/* プラン */}
       {/* ================================================================ */}
-      <section className="px-4 md:px-8 lg:px-16 py-20 md:py-28 bg-slate-50">
-        <div className="max-w-5xl mx-auto">
-          <RevealSection>
-            <SectionTitle number="04" title="シンプルな料金" />
-          </RevealSection>
+      <section className="relative px-4 md:px-8 lg:px-16 py-20 md:py-28 bg-slate-50">
+        <div className="max-w-5xl mx-auto relative z-10">
+          <SectionTitle number="04" title="シンプルな料金" />
 
-          <RevealSection delay={100}>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {(['FREE', 'STARTER', 'PRO', 'STUDIO'] as PlanType[]).map((p) => (
-                <PlanCard key={p} plan={p} isRecommended={p === 'PRO'} />
-              ))}
-            </div>
-          </RevealSection>
+          <motion.div
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
+            variants={staggerContainer}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: '-80px' }}
+          >
+            {(['FREE', 'STARTER', 'PRO', 'STUDIO'] as PlanType[]).map((p, i) => (
+              <PlanCard key={p} plan={p} isRecommended={p === 'PRO'} index={i} />
+            ))}
+          </motion.div>
 
-          <RevealSection delay={200} className="mt-12 text-center">
+          <motion.div
+            className="mt-12 text-center"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5, delay: 0.3 }}
+          >
             <Link href={ctaHref}>
-              <Button variant="accent" size="lg" className="text-base px-8 py-3 h-auto">
-                まずは無料ではじめる →
-              </Button>
+              <motion.div
+                className="inline-block"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.97 }}
+              >
+                <Button variant="accent" size="lg" className="text-base px-8 py-3 h-auto">
+                  まずは無料ではじめる →
+                </Button>
+              </motion.div>
             </Link>
-          </RevealSection>
+          </motion.div>
         </div>
       </section>
 
       {/* ================================================================ */}
       {/* フッター */}
       {/* ================================================================ */}
-      <footer className="border-t-2 border-slate-900 px-4 md:px-8 lg:px-16 py-8">
+      <footer className="relative z-10 border-t-2 border-slate-900 px-4 md:px-8 lg:px-16 py-8">
         <div className="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-slate-500">
           <div className="flex items-center gap-1">
             <span className="font-outfit font-black text-slate-900">PicMe</span>
