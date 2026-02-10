@@ -1,118 +1,142 @@
 'use client';
 
 import { useAuth } from '@/contexts/AuthContext';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { PageHeader } from '@/components/ui/page-header';
 import Link from 'next/link';
-import { Plus, Image as ImageIcon, Link as LinkIcon, Eye } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { dashStaggerContainer, dashStaggerItem, neoBrutalistHover } from '@/lib/motion';
+import { Plus, Image as ImageIcon, Link as LinkIcon, Eye, LayoutDashboard, User } from 'lucide-react';
+
+const quickActions = [
+  {
+    title: '作品を追加',
+    desc: '新しいイラストや作品をギャラリーに追加します',
+    icon: ImageIcon,
+    href: '/artworks',
+    accent: 'bg-brand-green',
+    buttonLabel: '追加する',
+    buttonIcon: Plus,
+  },
+  {
+    title: 'SNSリンク管理',
+    desc: 'X (Twitter) や Instagram などのリンクを編集',
+    icon: LinkIcon,
+    href: '/social-links',
+    accent: 'bg-brand-coral',
+    buttonLabel: '編集する',
+    buttonVariant: 'outline' as const,
+  },
+  {
+    title: 'プロフィール編集',
+    desc: '自己紹介文やアイコン画像を変更します',
+    icon: User,
+    href: '/profile',
+    accent: 'bg-slate-900',
+    buttonLabel: '編集する',
+    buttonVariant: 'outline' as const,
+  },
+];
 
 export default function DashboardPage() {
   const { user } = useAuth();
 
   return (
     <div className="space-y-8">
-      <div className="flex flex-col gap-2">
-        <h1 className="text-3xl font-bold tracking-tight">ダッシュボード</h1>
-        <p className="text-slate-500">
-          ようこそ、{user?.username}さん。ポートフォリオの管理状況を確認しましょう。
-        </p>
-      </div>
+      <PageHeader
+        icon={LayoutDashboard}
+        title="ダッシュボード"
+        description={`ようこそ、${user?.username}さん。ポートフォリオの管理状況を確認しましょう。`}
+      />
 
       {/* Quick Actions */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card className="hover:shadow-md transition-shadow">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">作品を追加</CardTitle>
-            <ImageIcon className="h-4 w-4 text-slate-500" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-xs text-slate-500 mb-4">
-              新しいイラストや作品をギャラリーに追加します
-            </div>
-            <Link href="/artworks">
-              <Button size="sm" className="w-full">
-                <Plus className="mr-2 h-4 w-4" /> 追加する
-              </Button>
-            </Link>
-          </CardContent>
-        </Card>
+      <motion.div
+        className="grid gap-4 md:grid-cols-2 lg:grid-cols-4"
+        variants={dashStaggerContainer}
+        initial="hidden"
+        animate="visible"
+      >
+        {quickActions.map((action) => (
+          <motion.div key={action.title} variants={dashStaggerItem}>
+            <motion.div
+              className="bg-white border-2 border-slate-900 rounded-lg p-5 h-full flex flex-col"
+              initial={{ boxShadow: '4px 4px 0px #1A1A1A' }}
+              whileHover={neoBrutalistHover}
+            >
+              <div className={`w-full h-1.5 ${action.accent} rounded-full mb-4`} />
+              <div className="flex items-center justify-between mb-2">
+                <h3 className="font-outfit font-bold text-sm">{action.title}</h3>
+                <action.icon className="h-4 w-4 text-slate-500" />
+              </div>
+              <p className="text-xs text-slate-500 mb-4 flex-1">{action.desc}</p>
+              <Link href={action.href}>
+                <Button size="sm" variant={action.buttonVariant || 'primary'} className="w-full">
+                  {action.buttonIcon && <action.buttonIcon className="mr-2 h-4 w-4" />}
+                  {action.buttonLabel}
+                </Button>
+              </Link>
+            </motion.div>
+          </motion.div>
+        ))}
 
-        <Card className="hover:shadow-md transition-shadow">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">SNSリンク管理</CardTitle>
-            <LinkIcon className="h-4 w-4 text-slate-500" />
-          </CardHeader>
-          <CardContent>
-             <div className="text-xs text-slate-500 mb-4">
-              X (Twitter) や Instagram などのリンクを編集
+        {/* 公開ページカード */}
+        <motion.div variants={dashStaggerItem}>
+          <motion.div
+            className="bg-slate-900 text-white border-2 border-slate-900 rounded-lg p-5 h-full flex flex-col"
+            initial={{ boxShadow: '4px 4px 0px #D9F99D' }}
+            whileHover={{
+              x: -3,
+              y: -3,
+              boxShadow: '6px 6px 0px #D9F99D',
+              transition: { type: 'spring', stiffness: 300, damping: 20 },
+            }}
+          >
+            <div className="w-full h-1.5 bg-brand-green rounded-full mb-4" />
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="font-outfit font-bold text-sm">公開ページを確認</h3>
+              <Eye className="h-4 w-4 text-slate-400" />
             </div>
-            <Link href="/social-links">
-              <Button size="sm" variant="outline" className="w-full">
-                編集する
-              </Button>
-            </Link>
-          </CardContent>
-        </Card>
-        
-        <Card className="hover:shadow-md transition-shadow">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">プロフィール編集</CardTitle>
-            <UserIcon className="h-4 w-4 text-slate-500" />
-          </CardHeader>
-          <CardContent>
-             <div className="text-xs text-slate-500 mb-4">
-              自己紹介文やアイコン画像を変更します
-            </div>
-            <Link href="/profile">
-              <Button size="sm" variant="outline" className="w-full">
-                編集する
-              </Button>
-            </Link>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-primary text-primary-foreground hover:bg-primary/90 transition-colors border-primary">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-primary-foreground">公開ページを確認</CardTitle>
-            <Eye className="h-4 w-4 text-primary-foreground/70" />
-          </CardHeader>
-          <CardContent>
-             <div className="text-xs text-primary-foreground/70 mb-4">
+            <p className="text-xs text-slate-400 mb-4 flex-1">
               あなたのポートフォリオがどう見えるか確認します
-            </div>
+            </p>
             <Link href={`/${user?.username}`} target="_blank">
               <Button size="sm" variant="secondary" className="w-full">
                 ページを見る
               </Button>
             </Link>
-          </CardContent>
-        </Card>
-      </div>
+          </motion.div>
+        </motion.div>
+      </motion.div>
 
-      {/* Stats Placeholder */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-        <Card className="col-span-4">
-          <CardHeader>
-            <CardTitle>最近のアクセス（デモ）</CardTitle>
-            <CardDescription>
-              過去30日間のページビュー数
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="pl-2">
+      {/* Stats */}
+      <motion.div
+        className="grid gap-4 md:grid-cols-2 lg:grid-cols-7"
+        variants={dashStaggerContainer}
+        initial="hidden"
+        animate="visible"
+      >
+        <motion.div
+          className="col-span-4 bg-white border-2 border-slate-200 rounded-lg overflow-hidden"
+          variants={dashStaggerItem}
+          whileHover={{ y: -2, boxShadow: '0 4px 12px rgba(0,0,0,0.06)' }}
+        >
+          <div className="p-6">
+            <h3 className="font-outfit font-bold text-lg mb-1">最近のアクセス</h3>
+            <p className="text-sm text-slate-500 mb-4">過去30日間のページビュー数</p>
             <div className="h-[200px] flex items-center justify-center text-slate-400 bg-slate-50 rounded-md border border-dashed border-slate-200">
               グラフが表示されます (Coming Soon)
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </motion.div>
 
-        <Card className="col-span-3">
-          <CardHeader>
-            <CardTitle>最近の作品</CardTitle>
-            <CardDescription>
-              最近アップロードした作品
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
+        <motion.div
+          className="col-span-3 bg-white border-2 border-slate-200 rounded-lg overflow-hidden"
+          variants={dashStaggerItem}
+          whileHover={{ y: -2, boxShadow: '0 4px 12px rgba(0,0,0,0.06)' }}
+        >
+          <div className="p-6">
+            <h3 className="font-outfit font-bold text-lg mb-1">最近の作品</h3>
+            <p className="text-sm text-slate-500 mb-4">最近アップロードした作品</p>
             <div className="space-y-4">
               <div className="flex items-center gap-4">
                 <div className="h-12 w-12 rounded bg-slate-100 flex items-center justify-center">
@@ -124,29 +148,9 @@ export default function DashboardPage() {
                 </div>
               </div>
             </div>
-          </CardContent>
-        </Card>
-      </div>
+          </div>
+        </motion.div>
+      </motion.div>
     </div>
   );
-}
-
-function UserIcon(props: any) {
-  return (
-    <svg
-      {...props}
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
-      <circle cx="12" cy="7" r="4" />
-    </svg>
-  )
 }

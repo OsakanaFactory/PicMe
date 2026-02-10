@@ -6,12 +6,16 @@ import Link from 'next/link';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
+import { motion, AnimatePresence } from 'framer-motion';
 import { resetPassword } from '@/lib/auth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Loader2 } from 'lucide-react';
+import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
+import { SquigglyLine } from '@/components/ui/squiggly-line';
+import { FloatingShapes } from '@/components/ui/floating-shapes';
+import { Loader2, CheckCircle2 } from 'lucide-react';
+import { dashFadeIn } from '@/lib/motion';
 
 const schema = z.object({
   newPassword: z.string().min(8, 'パスワードは8文字以上で入力してください'),
@@ -58,10 +62,10 @@ function ResetPasswordContent() {
 
   if (!token) {
     return (
-      <Card className="w-full max-w-md">
+      <Card className="w-full max-w-md border-2 border-slate-900 shadow-[6px_6px_0px_#1A1A1A] bg-white">
         <CardHeader className="text-center">
-          <CardTitle>エラー</CardTitle>
-          <CardDescription>リセットトークンが見つかりません</CardDescription>
+          <h1 className="font-outfit font-black text-xl">エラー</h1>
+          <p className="text-sm text-slate-500 mt-2">リセットトークンが見つかりません</p>
         </CardHeader>
         <CardContent className="text-center">
           <Link href="/forgot-password">
@@ -74,37 +78,59 @@ function ResetPasswordContent() {
 
   if (isComplete) {
     return (
-      <Card className="w-full max-w-md">
-        <CardHeader className="text-center">
-          <CardTitle>パスワードを変更しました</CardTitle>
-          <CardDescription>
-            新しいパスワードでログインしてください。
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="text-center">
-          <Link href="/login">
-            <Button>ログインページへ</Button>
-          </Link>
-        </CardContent>
-      </Card>
+      <motion.div
+        initial={{ opacity: 0, y: 24 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4 }}
+      >
+        <Card className="w-full max-w-md border-2 border-slate-900 shadow-[6px_6px_0px_#1A1A1A] bg-white">
+          <CardHeader className="text-center pb-4">
+            <motion.div
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ type: 'spring', stiffness: 300, damping: 20, delay: 0.2 }}
+              className="mx-auto mb-3"
+            >
+              <CheckCircle2 className="h-12 w-12 text-brand-green" />
+            </motion.div>
+            <h1 className="font-outfit font-black text-xl">パスワードを変更しました</h1>
+            <p className="text-sm text-slate-500 mt-2">
+              新しいパスワードでログインしてください。
+            </p>
+          </CardHeader>
+          <CardContent className="text-center">
+            <Link href="/login">
+              <Button>ログインページへ</Button>
+            </Link>
+          </CardContent>
+        </Card>
+      </motion.div>
     );
   }
 
   return (
-    <Card className="w-full max-w-md">
-      <CardHeader className="text-center">
-        <CardTitle>新しいパスワードを設定</CardTitle>
-        <CardDescription>
+    <Card className="w-full max-w-md border-2 border-slate-900 shadow-[6px_6px_0px_#1A1A1A] bg-white">
+      <CardHeader className="text-center pb-4">
+        <h1 className="font-outfit font-black text-xl">新しいパスワードを設定</h1>
+        <p className="text-sm text-slate-500 mt-2">
           新しいパスワードを入力してください。
-        </CardDescription>
+        </p>
       </CardHeader>
       <form onSubmit={handleSubmit(onSubmit)}>
         <CardContent className="space-y-4">
-          {error && (
-            <div className="rounded-md bg-red-50 p-3 text-sm text-red-600">
-              {error}
-            </div>
-          )}
+          <AnimatePresence mode="wait">
+            {error && (
+              <motion.div
+                initial={{ opacity: 0, y: -8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -8 }}
+                transition={{ duration: 0.2 }}
+                className="rounded-md bg-red-50 p-3 text-sm text-red-600 border border-red-200"
+              >
+                {error}
+              </motion.div>
+            )}
+          </AnimatePresence>
           <div className="space-y-2">
             <Label htmlFor="newPassword">新しいパスワード</Label>
             <Input
@@ -138,17 +164,39 @@ function ResetPasswordContent() {
 
 export default function ResetPasswordPage() {
   return (
-    <div className="flex min-h-screen items-center justify-center p-4">
-      <Suspense fallback={
-        <Card className="w-full max-w-md">
-          <CardContent className="flex flex-col items-center gap-4 p-8">
-            <Loader2 className="h-12 w-12 animate-spin text-slate-400" />
-            <p className="text-slate-600">読み込み中...</p>
-          </CardContent>
-        </Card>
-      }>
-        <ResetPasswordContent />
-      </Suspense>
+    <div className="relative flex min-h-screen items-center justify-center bg-white p-4 overflow-hidden">
+      <FloatingShapes variant="auth" />
+
+      <motion.div
+        className="w-full max-w-md relative z-10"
+        initial={{ opacity: 0, y: 24 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, ease: 'easeOut' }}
+      >
+        <motion.div
+          className="text-center mb-8"
+          variants={dashFadeIn}
+          initial="hidden"
+          animate="visible"
+          custom={0}
+        >
+          <Link href="/" className="inline-flex items-center gap-1">
+            <span className="font-outfit font-black text-3xl tracking-tight">PicMe</span>
+            <SquigglyLine className="w-16 h-4 text-brand-green -ml-1" />
+          </Link>
+        </motion.div>
+
+        <Suspense fallback={
+          <Card className="w-full max-w-md border-2 border-slate-900 shadow-[6px_6px_0px_#1A1A1A] bg-white">
+            <CardContent className="flex flex-col items-center gap-4 p-8">
+              <Loader2 className="h-12 w-12 animate-spin text-slate-400" />
+              <p className="text-slate-600">読み込み中...</p>
+            </CardContent>
+          </Card>
+        }>
+          <ResetPasswordContent />
+        </Suspense>
+      </motion.div>
     </div>
   );
 }

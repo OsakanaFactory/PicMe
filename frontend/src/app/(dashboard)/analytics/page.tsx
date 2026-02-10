@@ -1,11 +1,21 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
 import { useAuth } from '@/contexts/AuthContext';
 import { getAnalyticsSummary, getAnalyticsTimeline, AnalyticsSummary, TimelineEntry } from '@/lib/analytics';
-import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { BarChart3, Eye, TrendingUp, Globe, Loader2 } from 'lucide-react';
+import { PageHeader } from '@/components/ui/page-header';
+import { dashStaggerContainer, dashStaggerItem, scaleIn } from '@/lib/motion';
+import { BarChart3, Eye, TrendingUp, Globe, Loader2, Lock } from 'lucide-react';
+import Link from 'next/link';
+
+const STAT_CONFIG = [
+  { key: 'totalViews', label: '総PV', icon: Eye, accent: 'bg-blue-500' },
+  { key: 'todayViews', label: '今日', icon: TrendingUp, accent: 'bg-green-500' },
+  { key: 'weekViews', label: '今週', icon: BarChart3, accent: 'bg-violet-500' },
+  { key: 'monthViews', label: '今月', icon: Globe, accent: 'bg-brand-coral' },
+] as const;
 
 export default function AnalyticsPage() {
   const { user } = useAuth();
@@ -19,157 +29,151 @@ export default function AnalyticsPage() {
 
   useEffect(() => {
     if (!isPro) return;
-
     const loadData = async () => {
       try {
         setIsLoading(true);
-        const [summaryData, timelineData] = await Promise.all([
-          getAnalyticsSummary(),
-          getAnalyticsTimeline(days),
-        ]);
+        const [summaryData, timelineData] = await Promise.all([getAnalyticsSummary(), getAnalyticsTimeline(days)]);
         setSummary(summaryData);
         setTimeline(timelineData);
       } catch (err) {
-        console.error('Failed to load analytics', err);
         setError('データの読み込みに失敗しました');
       } finally {
         setIsLoading(false);
       }
     };
-
     loadData();
   }, [isPro, days]);
 
   if (!isPro) {
     return (
-      <div className="p-8">
-        <h1 className="text-2xl font-bold text-slate-900 mb-4">アクセス解析</h1>
-        <Card>
-          <CardContent className="p-8 text-center">
-            <BarChart3 className="h-12 w-12 text-slate-300 mx-auto mb-4" />
-            <p className="text-slate-500 mb-4">アクセス解析はPRO以上のプランで利用できます</p>
-            <Button onClick={() => window.location.href = '/upgrade'}>プランをアップグレード</Button>
-          </CardContent>
-        </Card>
+      <div className="space-y-6">
+        <PageHeader icon={BarChart3} title="アクセス解析" accentColor="text-violet-500" />
+        <motion.div
+          className="max-w-md mx-auto border-2 border-slate-900 shadow-[4px_4px_0px_#1A1A1A] rounded-lg bg-white p-8 text-center"
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+        >
+          <motion.div
+            className="mx-auto w-12 h-12 bg-violet-100 rounded-full flex items-center justify-center mb-4"
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ type: 'spring', stiffness: 300, damping: 20, delay: 0.2 }}
+          >
+            <Lock className="w-6 h-6 text-violet-600" />
+          </motion.div>
+          <h2 className="font-outfit font-bold text-xl mb-2">Pro機能</h2>
+          <p className="text-sm text-slate-500 mb-6">アクセス解析はPRO以上のプランで利用できます</p>
+          <Link href="/upgrade"><Button>プランをアップグレード</Button></Link>
+        </motion.div>
       </div>
     );
   }
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center p-20">
-        <Loader2 className="h-8 w-8 animate-spin text-slate-400" />
+      <div className="space-y-6">
+        <PageHeader icon={BarChart3} title="アクセス解析" accentColor="text-violet-500" />
+        <div className="flex items-center justify-center p-20"><Loader2 className="h-8 w-8 animate-spin text-slate-400" /></div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="p-8">
+      <div className="space-y-6">
+        <PageHeader icon={BarChart3} title="アクセス解析" accentColor="text-violet-500" />
         <p className="text-red-500">{error}</p>
       </div>
     );
   }
 
-  // タイムラインの最大値（バーチャート用）
   const maxViews = Math.max(...timeline.map(t => t.views), 1);
 
   return (
-    <div className="p-8 space-y-8">
-      <h1 className="text-2xl font-bold text-slate-900">アクセス解析</h1>
+    <div className="space-y-8">
+      <PageHeader icon={BarChart3} title="アクセス解析" accentColor="text-violet-500" />
 
       {/* サマリーカード */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center gap-3 mb-2">
-              <Eye className="h-5 w-5 text-blue-500" />
-              <span className="text-sm text-slate-500">総PV</span>
-            </div>
-            <p className="text-3xl font-bold text-slate-900">{summary?.totalViews?.toLocaleString() ?? 0}</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center gap-3 mb-2">
-              <TrendingUp className="h-5 w-5 text-green-500" />
-              <span className="text-sm text-slate-500">今日</span>
-            </div>
-            <p className="text-3xl font-bold text-slate-900">{summary?.todayViews?.toLocaleString() ?? 0}</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center gap-3 mb-2">
-              <BarChart3 className="h-5 w-5 text-purple-500" />
-              <span className="text-sm text-slate-500">今週</span>
-            </div>
-            <p className="text-3xl font-bold text-slate-900">{summary?.weekViews?.toLocaleString() ?? 0}</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center gap-3 mb-2">
-              <Globe className="h-5 w-5 text-orange-500" />
-              <span className="text-sm text-slate-500">今月</span>
-            </div>
-            <p className="text-3xl font-bold text-slate-900">{summary?.monthViews?.toLocaleString() ?? 0}</p>
-          </CardContent>
-        </Card>
-      </div>
+      <motion.div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4" variants={dashStaggerContainer} initial="hidden" animate="visible">
+        {STAT_CONFIG.map((stat) => (
+          <motion.div key={stat.key} variants={dashStaggerItem}>
+            <motion.div
+              className="border-2 border-slate-200 rounded-lg bg-white p-5 overflow-hidden"
+              whileHover={{ y: -2, boxShadow: '0 4px 12px rgba(0,0,0,0.06)' }}
+            >
+              <div className={`w-full h-1 ${stat.accent} rounded-full mb-3`} />
+              <div className="flex items-center gap-3 mb-2">
+                <stat.icon className="h-5 w-5 text-slate-400" />
+                <span className="text-sm text-slate-500">{stat.label}</span>
+              </div>
+              <p className="text-3xl font-outfit font-black text-slate-900">
+                {(summary?.[stat.key] ?? 0).toLocaleString()}
+              </p>
+            </motion.div>
+          </motion.div>
+        ))}
+      </motion.div>
 
       {/* 期間選択 */}
       <div className="flex gap-2">
         {[7, 14, 30, 60, 90].map(d => (
-          <Button
-            key={d}
-            variant={days === d ? 'primary' : 'outline'}
-            size="sm"
-            onClick={() => setDays(d)}
-          >
+          <Button key={d} variant={days === d ? 'primary' : 'outline'} size="sm" onClick={() => setDays(d)}>
             {d}日
           </Button>
         ))}
       </div>
 
-      {/* タイムラインバーチャート（CSS描画） */}
-      <Card>
-        <CardContent className="p-6">
-          <h2 className="text-lg font-bold text-slate-900 mb-4">日別アクセス数</h2>
+      {/* タイムラインバーチャート */}
+      <motion.div
+        className="border-2 border-slate-200 rounded-lg bg-white overflow-hidden"
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.2 }}
+      >
+        <div className="p-6">
+          <h2 className="font-outfit font-bold text-lg mb-4">日別アクセス数</h2>
           <div className="space-y-1">
-            {timeline.map(entry => (
+            {timeline.map((entry, i) => (
               <div key={entry.date} className="flex items-center gap-3">
                 <span className="text-xs text-slate-400 w-20 shrink-0">
                   {new Date(entry.date).toLocaleDateString('ja-JP', { month: 'short', day: 'numeric' })}
                 </span>
                 <div className="flex-1 h-6 bg-slate-100 rounded overflow-hidden">
-                  <div
-                    className="h-full bg-blue-500 rounded transition-all duration-300"
-                    style={{ width: `${(entry.views / maxViews) * 100}%` }}
+                  <motion.div
+                    className="h-full bg-blue-500 rounded"
+                    initial={{ scaleX: 0 }}
+                    animate={{ scaleX: 1 }}
+                    transition={{ duration: 0.4, delay: i * 0.02, ease: 'easeOut' }}
+                    style={{ width: `${(entry.views / maxViews) * 100}%`, transformOrigin: 'left' }}
                   />
                 </div>
                 <span className="text-xs text-slate-500 w-10 text-right">{entry.views}</span>
               </div>
             ))}
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </motion.div>
 
       {/* トップリファラー */}
       {summary?.topReferrers && summary.topReferrers.length > 0 && (
-        <Card>
-          <CardContent className="p-6">
-            <h2 className="text-lg font-bold text-slate-900 mb-4">流入元</h2>
+        <motion.div
+          className="border-2 border-slate-200 rounded-lg bg-white overflow-hidden"
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+        >
+          <div className="p-6">
+            <h2 className="font-outfit font-bold text-lg mb-4">流入元</h2>
             <div className="space-y-3">
               {summary.topReferrers.map((ref, i) => (
                 <div key={i} className="flex items-center justify-between">
                   <span className="text-sm text-slate-700 truncate">{ref.referrer || '（直接アクセス）'}</span>
-                  <span className="text-sm font-medium text-slate-900">{ref.count}</span>
+                  <span className="text-sm font-bold font-outfit text-slate-900">{ref.count}</span>
                 </div>
               ))}
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </motion.div>
       )}
     </div>
   );

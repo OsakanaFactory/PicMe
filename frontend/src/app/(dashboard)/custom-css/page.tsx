@@ -1,11 +1,14 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '@/contexts/AuthContext';
 import { getProfile, updateCustomCss } from '@/lib/profile';
-import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Code, Loader2, Save, Eye } from 'lucide-react';
+import { PageHeader } from '@/components/ui/page-header';
+import { dashFadeIn } from '@/lib/motion';
+import { Code, Loader2, Save, Eye, Lock } from 'lucide-react';
+import Link from 'next/link';
 
 export default function CustomCssPage() {
   const { user } = useAuth();
@@ -19,58 +22,55 @@ export default function CustomCssPage() {
   const maxLines = user?.planType === 'STUDIO' ? 500 : 100;
 
   useEffect(() => {
-    if (!isPro) {
-      setIsLoading(false);
-      return;
-    }
-
+    if (!isPro) { setIsLoading(false); return; }
     const loadProfile = async () => {
-      try {
-        const profile = await getProfile();
-        setCss(profile.customCss || '');
-      } catch (err) {
-        console.error('Failed to load profile', err);
-      } finally {
-        setIsLoading(false);
-      }
+      try { const profile = await getProfile(); setCss(profile.customCss || ''); }
+      catch (err) { console.error('Failed to load profile', err); }
+      finally { setIsLoading(false); }
     };
-
     loadProfile();
   }, [isPro]);
 
   const handleSave = async () => {
     try {
-      setIsSaving(true);
-      setMessage(null);
+      setIsSaving(true); setMessage(null);
       await updateCustomCss(css);
       setMessage({ type: 'success', text: 'カスタムCSSを保存しました' });
     } catch (err: any) {
-      const errorMsg = err.response?.data?.message || 'CSSの保存に失敗しました';
-      setMessage({ type: 'error', text: errorMsg });
-    } finally {
-      setIsSaving(false);
-    }
+      setMessage({ type: 'error', text: err.response?.data?.message || 'CSSの保存に失敗しました' });
+    } finally { setIsSaving(false); }
   };
 
   if (!isPro) {
     return (
-      <div className="p-8">
-        <h1 className="text-2xl font-bold text-slate-900 mb-4">カスタムCSS</h1>
-        <Card>
-          <CardContent className="p-8 text-center">
-            <Code className="h-12 w-12 text-slate-300 mx-auto mb-4" />
-            <p className="text-slate-500 mb-4">カスタムCSSはPRO以上のプランで利用できます</p>
-            <Button onClick={() => window.location.href = '/upgrade'}>プランをアップグレード</Button>
-          </CardContent>
-        </Card>
+      <div className="space-y-6">
+        <PageHeader icon={Code} title="カスタムCSS" />
+        <motion.div
+          className="max-w-md mx-auto border-2 border-slate-900 shadow-[4px_4px_0px_#1A1A1A] rounded-lg bg-white p-8 text-center"
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+        >
+          <motion.div
+            className="mx-auto w-12 h-12 bg-sky-100 rounded-full flex items-center justify-center mb-4"
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ type: 'spring', stiffness: 300, damping: 20, delay: 0.2 }}
+          >
+            <Lock className="w-6 h-6 text-sky-600" />
+          </motion.div>
+          <h2 className="font-outfit font-bold text-xl mb-2">Pro機能</h2>
+          <p className="text-sm text-slate-500 mb-6">カスタムCSSはPRO以上のプランで利用できます</p>
+          <Link href="/upgrade"><Button>プランをアップグレード</Button></Link>
+        </motion.div>
       </div>
     );
   }
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center p-20">
-        <Loader2 className="h-8 w-8 animate-spin text-slate-400" />
+      <div className="space-y-6">
+        <PageHeader icon={Code} title="カスタムCSS" />
+        <div className="flex items-center justify-center p-20"><Loader2 className="h-8 w-8 animate-spin text-slate-400" /></div>
       </div>
     );
   }
@@ -78,62 +78,67 @@ export default function CustomCssPage() {
   const lineCount = css ? css.split('\n').length : 0;
 
   return (
-    <div className="p-8 space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-slate-900">カスタムCSS</h1>
-        <div className="flex gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setShowPreview(!showPreview)}
-          >
-            <Eye className="h-4 w-4 mr-1" />
-            {showPreview ? 'プレビューを閉じる' : 'プレビュー'}
-          </Button>
-          <Button
-            variant="primary"
-            size="sm"
-            onClick={handleSave}
-            disabled={isSaving}
-          >
-            {isSaving ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : <Save className="h-4 w-4 mr-1" />}
-            保存
-          </Button>
-        </div>
-      </div>
+    <div className="space-y-6">
+      <PageHeader icon={Code} title="カスタムCSS">
+        <Button variant="outline" size="sm" onClick={() => setShowPreview(!showPreview)}>
+          <Eye className="h-4 w-4 mr-1" />
+          {showPreview ? 'プレビューを閉じる' : 'プレビュー'}
+        </Button>
+        <Button variant="primary" size="sm" onClick={handleSave} disabled={isSaving}>
+          {isSaving ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : <Save className="h-4 w-4 mr-1" />}
+          保存
+        </Button>
+      </PageHeader>
 
-      {message && (
-        <div className={`px-4 py-3 rounded-lg text-sm ${
-          message.type === 'success' ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'
-        }`}>
-          {message.text}
-        </div>
-      )}
+      <AnimatePresence mode="wait">
+        {message && (
+          <motion.div
+            initial={{ opacity: 0, y: -8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            className={`px-4 py-3 rounded-lg text-sm border ${
+              message.type === 'success' ? 'bg-green-50 text-green-700 border-green-200' : 'bg-red-50 text-red-700 border-red-200'
+            }`}
+          >
+            {message.text}
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <div className="text-xs text-slate-400">
-        {lineCount} / {maxLines} 行
-        {' | '}
-        @import, url(), expression() は使用できません
+        {lineCount} / {maxLines} 行 | @import, url(), expression() は使用できません
       </div>
 
-      <div className={`grid ${showPreview ? 'grid-cols-2' : 'grid-cols-1'} gap-6`}>
+      <motion.div
+        className={`grid ${showPreview ? 'grid-cols-1 lg:grid-cols-2' : 'grid-cols-1'} gap-6`}
+        variants={dashFadeIn}
+        initial="hidden"
+        animate="visible"
+      >
         {/* CSSエディタ */}
-        <Card>
-          <CardContent className="p-0">
-            <textarea
-              value={css}
-              onChange={(e) => setCss(e.target.value)}
-              className="w-full h-[500px] p-4 font-mono text-sm bg-slate-950 text-green-400 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder={`/* 公開ページに適用されるカスタムCSS */\n\n.picme-profile h1 {\n  color: #ff6b6b;\n}\n\n.picme-works img {\n  border-radius: 16px;\n}`}
-              spellCheck={false}
-            />
-          </CardContent>
-        </Card>
+        <motion.div
+          className="border-2 border-slate-900 shadow-[4px_4px_0px_#1A1A1A] rounded-lg overflow-hidden"
+          whileHover={{ y: -2 }}
+        >
+          <div className="w-full h-1.5 bg-brand-green" />
+          <textarea
+            value={css}
+            onChange={(e) => setCss(e.target.value)}
+            className="w-full h-[500px] p-4 font-mono text-sm bg-slate-950 text-green-400 resize-none focus:outline-none"
+            placeholder={`/* 公開ページに適用されるカスタムCSS */\n\n.picme-profile h1 {\n  color: #ff6b6b;\n}\n\n.picme-works img {\n  border-radius: 16px;\n}`}
+            spellCheck={false}
+          />
+        </motion.div>
 
         {/* ライブプレビュー */}
         {showPreview && (
-          <Card>
-            <CardContent className="p-4">
+          <motion.div
+            className="border-2 border-slate-200 rounded-lg bg-white overflow-hidden"
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.3 }}
+          >
+            <div className="p-4">
               <h3 className="text-sm font-medium text-slate-500 mb-3">プレビュー</h3>
               <div className="border rounded-lg p-4 min-h-[460px] bg-white">
                 <style>{css}</style>
@@ -141,19 +146,15 @@ export default function CustomCssPage() {
                   <h1 className="text-2xl font-bold">表示名サンプル</h1>
                   <p className="text-slate-600">これはプレビュー用のサンプルテキストです。</p>
                   <div className="picme-works grid grid-cols-2 gap-4">
-                    <div className="aspect-square bg-slate-100 rounded-lg flex items-center justify-center text-slate-400">
-                      作品1
-                    </div>
-                    <div className="aspect-square bg-slate-100 rounded-lg flex items-center justify-center text-slate-400">
-                      作品2
-                    </div>
+                    <div className="aspect-square bg-slate-100 rounded-lg flex items-center justify-center text-slate-400">作品1</div>
+                    <div className="aspect-square bg-slate-100 rounded-lg flex items-center justify-center text-slate-400">作品2</div>
                   </div>
                 </div>
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </motion.div>
         )}
-      </div>
+      </motion.div>
     </div>
   );
 }
