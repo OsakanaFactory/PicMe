@@ -4,9 +4,9 @@ FROM eclipse-temurin:17-jdk AS build
 WORKDIR /app
 
 # Mavenラッパーをコピー
-COPY backend/.mvn .mvn
-COPY backend/mvnw .
-COPY backend/pom.xml .
+COPY .mvn .mvn
+COPY mvnw .
+COPY pom.xml .
 
 # 実行権限を付与
 RUN chmod +x mvnw
@@ -15,7 +15,7 @@ RUN chmod +x mvnw
 RUN ./mvnw dependency:go-offline -B || true
 
 # ソースコードをコピーしてビルド
-COPY backend/src src
+COPY src src
 RUN ./mvnw package -DskipTests -B
 
 # 実行ステージ
