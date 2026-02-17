@@ -37,6 +37,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       url: `${SITE_URL}/signup`,
       lastModified: new Date("2026-02-17"),
     },
+    {
+      url: `${SITE_URL}/features`,
+      lastModified: new Date("2026-02-17"),
+    },
   ];
 
   const users = await getSitemapUsers();
