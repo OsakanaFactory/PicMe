@@ -62,4 +62,10 @@ public interface UserRepository extends JpaRepository<User, Long> {
      * 最近登録されたユーザーを取得
      */
     List<User> findTop10ByOrderByCreatedAtDesc();
+
+    /**
+     * サイトマップ用: 全アクティブユーザーのusernameとupdatedAtを取得
+     */
+    @Query("SELECT u.username, u.updatedAt FROM User u WHERE u.isActive = true")
+    List<Object[]> findAllActiveUsernamesAndUpdatedAt();
 }

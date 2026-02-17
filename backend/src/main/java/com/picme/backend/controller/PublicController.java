@@ -7,6 +7,7 @@ import com.picme.backend.dto.response.CategoryResponse;
 import com.picme.backend.dto.response.PostResponse;
 import com.picme.backend.dto.response.ProfileResponse;
 import com.picme.backend.dto.response.PublicPageResponse;
+import com.picme.backend.dto.response.SitemapUserResponse;
 import com.picme.backend.dto.response.SocialLinkResponse;
 import com.picme.backend.dto.response.TagResponse;
 import com.picme.backend.exception.ApiException;
@@ -45,12 +46,28 @@ public class PublicController {
     private final InquiryRepository inquiryRepository;
     private final EmailService emailService;
 
+    private final AnalyticsService analyticsService;
+
+    /**
+     * サイトマップ用: 全アクティブユーザー一覧
+     * GET /api/users/sitemap
+     */
+    @GetMapping("/sitemap")
+    public ResponseEntity<ApiResponse<List<SitemapUserResponse>>> getSitemapUsers() {
+        List<Object[]> results = userRepository.findAllActiveUsernamesAndUpdatedAt();
+        List<SitemapUserResponse> users = results.stream()
+                .map(r -> new SitemapUserResponse(
+                        (String) r[0],
+                        r[1] != null ? r[1].toString() : null
+                ))
+                .toList();
+        return ResponseEntity.ok(ApiResponse.success(users));
+    }
+
     /**
      * ユーザーの公開ページデータを取得
      * GET /api/users/:username
      */
-    private final AnalyticsService analyticsService;
-
     @GetMapping("/{username}")
     public ResponseEntity<ApiResponse<PublicPageResponse>> getPublicPage(
             @PathVariable String username,
