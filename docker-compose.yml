@@ -42,7 +42,6 @@ services:
     networks:
       - picme-network
     volumes:
-      - ./backend:/app
       - maven_cache:/root/.m2
 
   # Next.js Frontend
