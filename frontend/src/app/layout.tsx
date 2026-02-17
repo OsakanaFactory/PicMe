@@ -5,6 +5,7 @@ import { Providers } from "@/components/providers";
 import "./globals.css";
 
 const adsenseClientId = process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID;
+const gaId = process.env.NEXT_PUBLIC_GA_ID;
 
 const outfit = Outfit({
   subsets: ["latin"],
@@ -43,6 +44,23 @@ export default function RootLayout({
   return (
     <html lang="ja">
       <head>
+        {gaId && (
+          <>
+            <Script
+              async
+              src={`https://www.googletagmanager.com/gtag/js?id=${gaId}`}
+              strategy="afterInteractive"
+            />
+            <Script id="gtag-init" strategy="afterInteractive">
+              {`
+                window.dataLayer = window.dataLayer || [];
+                function gtag(){dataLayer.push(arguments);}
+                gtag('js', new Date());
+                gtag('config', '${gaId}');
+              `}
+            </Script>
+          </>
+        )}
         {adsenseClientId && (
           <Script
             async
