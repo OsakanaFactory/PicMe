@@ -90,11 +90,14 @@ export default function LandingPage() {
           <li>Studio — ¥2,500/月（全機能、優先サポート、500行CSS）</li>
         </ul>
 
+        {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
         <nav>
+          {/* eslint-disable @next/next/no-html-link-for-pages */}
           <a href="/login">ログイン</a>
           <a href="/signup">新規登録</a>
           <a href="/terms">利用規約</a>
           <a href="/privacy">プライバシーポリシー</a>
+          {/* eslint-enable @next/next/no-html-link-for-pages */}
         </nav>
       </div>
 
