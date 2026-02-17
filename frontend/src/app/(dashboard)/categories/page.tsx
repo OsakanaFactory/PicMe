@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { PageHeader } from '@/components/ui/page-header';
-import { dashStaggerContainer, dashStaggerItem, scaleIn } from '@/lib/motion';
+import { dashStaggerContainer, dashStaggerItem } from '@/lib/motion';
 import { Category, getCategories, createCategory, updateCategory, deleteCategory } from '@/lib/categories';
 import { Plus, Edit2, Trash2, Folder, Lock } from 'lucide-react';
 import { useSubscription } from '@/contexts/SubscriptionContext';
@@ -69,18 +69,13 @@ export default function CategoriesPage() {
       <div className="space-y-6">
         <PageHeader icon={Folder} title="カテゴリー管理" />
         <motion.div
-          className="max-w-md mx-auto border-2 border-slate-900 shadow-[4px_4px_0px_#1A1A1A] rounded-lg bg-white p-8 text-center"
+          className="max-w-md mx-auto border border-slate-200 rounded-lg bg-white p-8 text-center"
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
         >
-          <motion.div
-            className="mx-auto w-12 h-12 bg-amber-100 rounded-full flex items-center justify-center mb-4"
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            transition={{ type: 'spring', stiffness: 300, damping: 20, delay: 0.2 }}
-          >
+          <div className="mx-auto w-12 h-12 bg-amber-100 rounded-full flex items-center justify-center mb-4">
             <Lock className="w-6 h-6 text-amber-600" />
-          </motion.div>
+          </div>
           <h2 className="font-outfit font-bold text-xl mb-2">Pro機能</h2>
           <p className="text-sm text-slate-500 mb-6">カテゴリー機能はProプラン以上でご利用いただけます</p>
           <Link href="/upgrade"><Button variant="primary">プランをアップグレード</Button></Link>
@@ -123,10 +118,10 @@ export default function CategoriesPage() {
       {loading ? (
         <div className="text-center py-8 text-slate-500">読み込み中...</div>
       ) : categories.length === 0 ? (
-        <motion.div className="flex flex-col items-center justify-center p-12 text-center border-2 border-dashed border-slate-300 rounded-lg bg-white" initial="hidden" animate="visible">
-          <motion.div variants={scaleIn} className="h-16 w-16 rounded-full bg-slate-100 flex items-center justify-center mb-4">
+        <motion.div className="flex flex-col items-center justify-center p-12 text-center border border-dashed border-slate-300 rounded-lg bg-white" initial="hidden" animate="visible">
+          <div className="h-16 w-16 rounded-full bg-slate-100 flex items-center justify-center mb-4">
             <Folder className="w-8 h-8 text-slate-400" />
-          </motion.div>
+          </div>
           <h3 className="font-outfit font-bold text-lg mb-2">カテゴリーがありません</h3>
           <p className="text-sm text-slate-500 mb-4">作品を分類するカテゴリーを作成しましょう</p>
           <Button onClick={() => setIsCreateOpen(true)}><Plus className="w-4 h-4 mr-2" />カテゴリーを作成</Button>
@@ -135,10 +130,7 @@ export default function CategoriesPage() {
         <motion.div className="grid gap-3" variants={dashStaggerContainer} initial="hidden" animate="visible">
           {categories.map((category) => (
             <motion.div key={category.id} variants={dashStaggerItem}>
-              <motion.div
-                className="flex items-center justify-between p-4 rounded-lg border-2 border-slate-200 bg-white"
-                whileHover={{ y: -2, boxShadow: '0 4px 12px rgba(0,0,0,0.06)' }}
-              >
+              <div className="flex items-center justify-between p-4 rounded-lg border border-slate-200 bg-white transition-shadow hover:shadow-sm">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 bg-brand-green/20 rounded-lg flex items-center justify-center">
                     <Folder className="w-5 h-5 text-slate-700" />
@@ -152,7 +144,7 @@ export default function CategoriesPage() {
                   <Button variant="outline" size="icon" onClick={() => openEditDialog(category)}><Edit2 className="w-4 h-4" /></Button>
                   <Button variant="outline" size="icon" onClick={() => handleDelete(category.id)}><Trash2 className="w-4 h-4" /></Button>
                 </div>
-              </motion.div>
+              </div>
             </motion.div>
           ))}
         </motion.div>

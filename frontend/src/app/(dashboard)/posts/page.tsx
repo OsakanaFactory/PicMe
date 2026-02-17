@@ -12,7 +12,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { PageHeader } from '@/components/ui/page-header';
-import { dashStaggerContainer, dashStaggerItem, scaleIn } from '@/lib/motion';
+import { dashStaggerContainer, dashStaggerItem } from '@/lib/motion';
 import { Plus, Pencil, Trash2, FileText, Loader2, Eye, EyeOff } from 'lucide-react';
 import { useSubscription } from '@/contexts/SubscriptionContext';
 import { UpgradePrompt, LimitBadge } from '@/components/ui/upgrade-prompt';
@@ -123,10 +123,10 @@ export default function PostsPage() {
       <UpgradePrompt currentCount={posts.length} limit={postLimit} itemName="お知らせ" />
 
       {posts.length === 0 ? (
-        <motion.div className="flex flex-col items-center justify-center p-12 text-center border-2 border-dashed border-slate-300 rounded-lg bg-white" initial="hidden" animate="visible">
-          <motion.div variants={scaleIn} className="h-16 w-16 rounded-full bg-slate-100 flex items-center justify-center mb-4">
+        <motion.div className="flex flex-col items-center justify-center p-12 text-center border border-dashed border-slate-300 rounded-lg bg-white" initial="hidden" animate="visible">
+          <div className="h-16 w-16 rounded-full bg-slate-100 flex items-center justify-center mb-4">
             <FileText className="h-8 w-8 text-slate-400" />
-          </motion.div>
+          </div>
           <h3 className="font-outfit font-bold text-lg text-slate-900">お知らせがありません</h3>
           <p className="text-sm text-slate-500 mt-2 mb-6 max-w-sm">最初のお知らせを投稿して、あなたのファンに近況を伝えましょう。</p>
           <Button onClick={openCreateDialog} variant="outline">お知らせを投稿する</Button>
@@ -135,10 +135,7 @@ export default function PostsPage() {
         <motion.div className="space-y-4" variants={dashStaggerContainer} initial="hidden" animate="visible">
           {posts.map((post) => (
             <motion.div key={post.id} variants={dashStaggerItem}>
-              <motion.div
-                className="overflow-hidden rounded-lg border-2 border-slate-200 bg-white"
-                whileHover={{ y: -2, boxShadow: '0 4px 12px rgba(0,0,0,0.06)' }}
-              >
+              <div className="overflow-hidden rounded-lg border border-slate-200 bg-white transition-shadow hover:shadow-sm">
                 <div className="flex flex-col sm:flex-row">
                   {post.thumbnailUrl && (
                     <div className="sm:w-48 h-32 sm:h-auto bg-slate-100 flex-shrink-0">
@@ -175,7 +172,7 @@ export default function PostsPage() {
                     </div>
                   </div>
                 </div>
-              </motion.div>
+              </div>
             </motion.div>
           ))}
         </motion.div>

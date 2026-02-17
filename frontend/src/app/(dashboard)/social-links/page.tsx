@@ -12,7 +12,7 @@ import { Label } from '@/components/ui/label';
 import { Select } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { PageHeader } from '@/components/ui/page-header';
-import { dashStaggerContainer, dashStaggerItem, scaleIn } from '@/lib/motion';
+import { dashStaggerContainer, dashStaggerItem } from '@/lib/motion';
 import { Plus, Pencil, Trash2, Link as LinkIcon, Loader2, Twitter, Instagram, Facebook, Youtube, ArrowUpDown } from 'lucide-react';
 import { useSubscription } from '@/contexts/SubscriptionContext';
 import { UpgradePrompt, LimitBadge } from '@/components/ui/upgrade-prompt';
@@ -131,10 +131,10 @@ export default function SocialLinksPage() {
 
       <div className="space-y-4">
         {links.length === 0 ? (
-          <motion.div className="flex flex-col items-center justify-center p-12 text-center border-2 border-dashed border-slate-300 rounded-lg bg-white" initial="hidden" animate="visible">
-            <motion.div variants={scaleIn} className="h-16 w-16 rounded-full bg-slate-100 flex items-center justify-center mb-4">
+          <motion.div className="flex flex-col items-center justify-center p-12 text-center border border-dashed border-slate-300 rounded-lg bg-white" initial="hidden" animate="visible">
+            <div className="h-16 w-16 rounded-full bg-slate-100 flex items-center justify-center mb-4">
               <LinkIcon className="h-8 w-8 text-slate-400" />
-            </motion.div>
+            </div>
             <h3 className="font-outfit font-bold text-lg text-slate-900">リンクがありません</h3>
             <p className="text-sm text-slate-500 mt-2 mb-6 max-w-sm">SNSアカウントやブログを追加して、フォロワーと繋がりましょう。</p>
             <Button onClick={openCreateDialog} variant="outline">リンクを追加する</Button>
@@ -151,18 +151,11 @@ export default function SocialLinksPage() {
           <motion.div className="space-y-3" variants={dashStaggerContainer} initial="hidden" animate="visible">
             {links.map((link) => (
               <motion.div key={link.id} variants={dashStaggerItem}>
-                <motion.div
-                  className="flex items-center justify-between p-4 rounded-lg border-2 border-slate-200 bg-white"
-                  whileHover={{ y: -2, boxShadow: '0 4px 12px rgba(0,0,0,0.06)' }}
-                >
+                <div className="flex items-center justify-between p-4 rounded-lg border border-slate-200 bg-white transition-shadow hover:shadow-sm">
                   <div className="flex items-center gap-4 overflow-hidden">
-                    <motion.div
-                      className="flex-shrink-0 h-10 w-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-600"
-                      whileHover={{ rotate: 15 }}
-                      transition={{ type: 'spring', stiffness: 300, damping: 15 }}
-                    >
+                    <div className="flex-shrink-0 h-10 w-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-600">
                       {getPlatformIcon(link.platform)}
-                    </motion.div>
+                    </div>
                     <div className="min-w-0">
                       <h4 className="text-sm font-medium text-slate-900">{link.platform}</h4>
                       <a href={link.url} target="_blank" rel="noopener noreferrer" className="text-sm text-slate-500 hover:text-blue-600 hover:underline truncate table-cell max-w-xs sm:max-w-md">
@@ -176,7 +169,7 @@ export default function SocialLinksPage() {
                       {isDeleting === link.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
                     </Button>
                   </div>
-                </motion.div>
+                </div>
               </motion.div>
             ))}
           </motion.div>

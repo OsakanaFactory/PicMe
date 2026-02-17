@@ -46,18 +46,13 @@ export default function CustomCssPage() {
       <div className="space-y-6">
         <PageHeader icon={Code} title="カスタムCSS" />
         <motion.div
-          className="max-w-md mx-auto border-2 border-slate-900 shadow-[4px_4px_0px_#1A1A1A] rounded-lg bg-white p-8 text-center"
+          className="max-w-md mx-auto border border-slate-200 rounded-lg bg-white p-8 text-center"
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
         >
-          <motion.div
-            className="mx-auto w-12 h-12 bg-sky-100 rounded-full flex items-center justify-center mb-4"
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            transition={{ type: 'spring', stiffness: 300, damping: 20, delay: 0.2 }}
-          >
+          <div className="mx-auto w-12 h-12 bg-sky-100 rounded-full flex items-center justify-center mb-4">
             <Lock className="w-6 h-6 text-sky-600" />
-          </motion.div>
+          </div>
           <h2 className="font-outfit font-bold text-xl mb-2">Pro機能</h2>
           <p className="text-sm text-slate-500 mb-6">カスタムCSSはPRO以上のプランで利用できます</p>
           <Link href="/upgrade"><Button>プランをアップグレード</Button></Link>
@@ -116,11 +111,7 @@ export default function CustomCssPage() {
         animate="visible"
       >
         {/* CSSエディタ */}
-        <motion.div
-          className="border-2 border-slate-900 shadow-[4px_4px_0px_#1A1A1A] rounded-lg overflow-hidden"
-          whileHover={{ y: -2 }}
-        >
-          <div className="w-full h-1.5 bg-brand-green" />
+        <div className="border border-slate-200 rounded-lg overflow-hidden">
           <textarea
             value={css}
             onChange={(e) => setCss(e.target.value)}
@@ -128,12 +119,12 @@ export default function CustomCssPage() {
             placeholder={`/* 公開ページに適用されるカスタムCSS */\n\n.picme-profile h1 {\n  color: #ff6b6b;\n}\n\n.picme-works img {\n  border-radius: 16px;\n}`}
             spellCheck={false}
           />
-        </motion.div>
+        </div>
 
         {/* ライブプレビュー */}
         {showPreview && (
           <motion.div
-            className="border-2 border-slate-200 rounded-lg bg-white overflow-hidden"
+            className="border border-slate-200 rounded-lg bg-white overflow-hidden"
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.3 }}

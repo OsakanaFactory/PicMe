@@ -96,7 +96,6 @@ export default function UpgradePage() {
         icon={Crown}
         title="プランをアップグレード"
         description="より多くの機能を使って、ポートフォリオをパワーアップしましょう"
-        accentColor="text-brand-coral"
       />
 
       {/* Current Plan Status */}
@@ -105,7 +104,7 @@ export default function UpgradePage() {
           <motion.div
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
-            className="border-2 border-slate-900 shadow-[4px_4px_0px_#1A1A1A] rounded-lg bg-white p-5"
+            className="border border-slate-200 rounded-lg bg-white p-5"
           >
             <h3 className="font-outfit font-bold text-lg flex items-center gap-2 mb-3">
               <Crown className="h-5 w-5 text-yellow-500" />
@@ -151,22 +150,12 @@ export default function UpgradePage() {
             <motion.div
               key={planType}
               variants={dashStaggerItem}
-              whileHover={{
-                x: -3,
-                y: -3,
-                boxShadow: isRecommended
-                  ? '8px 8px 0px hsl(14,100%,70%)'
-                  : isCurrentPlan
-                    ? '8px 8px 0px #D9F99D'
-                    : '8px 8px 0px #E5E7EB',
-                transition: { type: 'spring', stiffness: 300, damping: 20 },
-              }}
-              className={`relative flex flex-col border-2 rounded-lg p-6 bg-white ${
+              className={`relative flex flex-col border rounded-lg p-6 bg-white transition-shadow hover:shadow-md ${
                 isRecommended
-                  ? 'border-brand-coral shadow-[4px_4px_0px_hsl(14,100%,70%)]'
+                  ? 'border-brand-coral ring-1 ring-brand-coral/20'
                   : isCurrentPlan
-                    ? 'border-brand-green shadow-[4px_4px_0px_#D9F99D]'
-                    : 'border-slate-200 shadow-[4px_4px_0px_#E5E7EB]'
+                    ? 'border-slate-900'
+                    : 'border-slate-200'
               }`}
             >
               {isRecommended && !isCurrentPlan && (
@@ -225,7 +214,7 @@ export default function UpgradePage() {
       {/* Usage Info */}
       {subscription && (
         <motion.div
-          className="border-2 border-slate-200 rounded-lg bg-white overflow-hidden"
+          className="border border-slate-200 rounded-lg bg-white overflow-hidden"
           variants={dashFadeIn}
           initial="hidden"
           animate="visible"

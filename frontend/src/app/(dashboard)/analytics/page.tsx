@@ -6,7 +6,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { getAnalyticsSummary, getAnalyticsTimeline, AnalyticsSummary, TimelineEntry } from '@/lib/analytics';
 import { Button } from '@/components/ui/button';
 import { PageHeader } from '@/components/ui/page-header';
-import { dashStaggerContainer, dashStaggerItem, scaleIn } from '@/lib/motion';
+import { dashStaggerContainer, dashStaggerItem } from '@/lib/motion';
 import { BarChart3, Eye, TrendingUp, Globe, Loader2, Lock } from 'lucide-react';
 import Link from 'next/link';
 
@@ -47,20 +47,15 @@ export default function AnalyticsPage() {
   if (!isPro) {
     return (
       <div className="space-y-6">
-        <PageHeader icon={BarChart3} title="アクセス解析" accentColor="text-violet-500" />
+        <PageHeader icon={BarChart3} title="アクセス解析" />
         <motion.div
-          className="max-w-md mx-auto border-2 border-slate-900 shadow-[4px_4px_0px_#1A1A1A] rounded-lg bg-white p-8 text-center"
+          className="max-w-md mx-auto border border-slate-200 rounded-lg bg-white p-8 text-center"
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
         >
-          <motion.div
-            className="mx-auto w-12 h-12 bg-violet-100 rounded-full flex items-center justify-center mb-4"
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            transition={{ type: 'spring', stiffness: 300, damping: 20, delay: 0.2 }}
-          >
+          <div className="mx-auto w-12 h-12 bg-violet-100 rounded-full flex items-center justify-center mb-4">
             <Lock className="w-6 h-6 text-violet-600" />
-          </motion.div>
+          </div>
           <h2 className="font-outfit font-bold text-xl mb-2">Pro機能</h2>
           <p className="text-sm text-slate-500 mb-6">アクセス解析はPRO以上のプランで利用できます</p>
           <Link href="/upgrade"><Button>プランをアップグレード</Button></Link>
@@ -72,7 +67,7 @@ export default function AnalyticsPage() {
   if (isLoading) {
     return (
       <div className="space-y-6">
-        <PageHeader icon={BarChart3} title="アクセス解析" accentColor="text-violet-500" />
+        <PageHeader icon={BarChart3} title="アクセス解析" />
         <div className="flex items-center justify-center p-20"><Loader2 className="h-8 w-8 animate-spin text-slate-400" /></div>
       </div>
     );
@@ -81,7 +76,7 @@ export default function AnalyticsPage() {
   if (error) {
     return (
       <div className="space-y-6">
-        <PageHeader icon={BarChart3} title="アクセス解析" accentColor="text-violet-500" />
+        <PageHeader icon={BarChart3} title="アクセス解析" />
         <p className="text-red-500">{error}</p>
       </div>
     );
@@ -91,16 +86,13 @@ export default function AnalyticsPage() {
 
   return (
     <div className="space-y-8">
-      <PageHeader icon={BarChart3} title="アクセス解析" accentColor="text-violet-500" />
+      <PageHeader icon={BarChart3} title="アクセス解析" />
 
       {/* サマリーカード */}
       <motion.div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4" variants={dashStaggerContainer} initial="hidden" animate="visible">
         {STAT_CONFIG.map((stat) => (
           <motion.div key={stat.key} variants={dashStaggerItem}>
-            <motion.div
-              className="border-2 border-slate-200 rounded-lg bg-white p-5 overflow-hidden"
-              whileHover={{ y: -2, boxShadow: '0 4px 12px rgba(0,0,0,0.06)' }}
-            >
+            <div className="border border-slate-200 rounded-lg bg-white p-5 overflow-hidden transition-shadow hover:shadow-sm">
               <div className={`w-full h-1 ${stat.accent} rounded-full mb-3`} />
               <div className="flex items-center gap-3 mb-2">
                 <stat.icon className="h-5 w-5 text-slate-400" />
@@ -109,7 +101,7 @@ export default function AnalyticsPage() {
               <p className="text-3xl font-outfit font-black text-slate-900">
                 {(summary?.[stat.key] ?? 0).toLocaleString()}
               </p>
-            </motion.div>
+            </div>
           </motion.div>
         ))}
       </motion.div>
@@ -125,7 +117,7 @@ export default function AnalyticsPage() {
 
       {/* タイムラインバーチャート */}
       <motion.div
-        className="border-2 border-slate-200 rounded-lg bg-white overflow-hidden"
+        className="border border-slate-200 rounded-lg bg-white overflow-hidden"
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}
@@ -157,7 +149,7 @@ export default function AnalyticsPage() {
       {/* トップリファラー */}
       {summary?.topReferrers && summary.topReferrers.length > 0 && (
         <motion.div
-          className="border-2 border-slate-200 rounded-lg bg-white overflow-hidden"
+          className="border border-slate-200 rounded-lg bg-white overflow-hidden"
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}

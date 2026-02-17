@@ -151,11 +151,9 @@ export default function ProfilePage() {
       >
         <motion.div variants={dashStaggerItem}>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-            <motion.div
-              className="bg-white border-2 border-slate-900 shadow-[4px_4px_0px_#1A1A1A] rounded-lg overflow-hidden"
-              whileHover={{ y: -2 }}
+            <div
+              className="bg-white border border-slate-200 rounded-lg overflow-hidden"
             >
-              <div className="w-full h-1.5 bg-brand-green" />
               <div className="p-6">
                 <h3 className="font-outfit font-bold text-lg flex items-center gap-2 mb-1">
                   <User className="h-5 w-5" /> 基本情報
@@ -181,13 +179,11 @@ export default function ProfilePage() {
                   </div>
                 </div>
               </div>
-            </motion.div>
+            </div>
 
-            <motion.div
-              className="bg-white border-2 border-slate-900 shadow-[4px_4px_0px_#1A1A1A] rounded-lg overflow-hidden"
-              whileHover={{ y: -2 }}
+            <div
+              className="bg-white border border-slate-200 rounded-lg overflow-hidden"
             >
-              <div className="w-full h-1.5 bg-brand-coral" />
               <div className="p-6">
                 <h3 className="font-outfit font-bold text-lg flex items-center gap-2 mb-1">
                   <Palette className="h-5 w-5" /> デザイン設定
@@ -242,24 +238,21 @@ export default function ProfilePage() {
                   変更を保存
                 </Button>
               </div>
-            </motion.div>
+            </div>
           </form>
         </motion.div>
 
         {/* Preview */}
         <motion.div variants={dashStaggerItem}>
-          <motion.div
-            className="bg-white border-2 border-slate-200 rounded-lg overflow-hidden sticky top-4"
-            whileHover={{ y: -2, boxShadow: '0 4px 12px rgba(0,0,0,0.06)' }}
+          <div
+            className="bg-white border border-slate-200 rounded-lg overflow-hidden sticky top-4"
           >
             <div className="p-6">
               <h3 className="font-outfit font-bold text-lg mb-1">プレビュー</h3>
               <p className="text-sm text-slate-500 mb-4">実際の表示イメージ（簡易版）</p>
 
-              <motion.div
+              <div
                 className={`aspect-[9/16] w-full max-w-sm mx-auto bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden relative font-${(formValues.fontFamily === 'SERIF' ? 'serif' : formValues.fontFamily === 'MONOSPACE' ? 'mono' : 'sans')}`}
-                whileHover={{ scale: 1.02 }}
-                transition={{ type: 'spring', stiffness: 200, damping: 15 }}
               >
                 <div className="h-32 bg-slate-200 w-full relative">
                   {headerUrl && (
@@ -285,10 +278,10 @@ export default function ProfilePage() {
                     <div key={i} className="aspect-square bg-slate-100 rounded" />
                   ))}
                 </div>
-              </motion.div>
+              </div>
               <p className="text-center text-xs text-slate-400 mt-4">※ 実際の公開ページとは表示が異なる場合があります</p>
             </div>
-          </motion.div>
+          </div>
         </motion.div>
       </motion.div>
     </div>

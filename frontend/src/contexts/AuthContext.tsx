@@ -40,6 +40,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
               email: '', // プロフィールにはメールがないため空
               emailVerified: true,
               planType: profile.planType || 'FREE',
+              colorAccent: profile.colorAccent || undefined,
             });
           }
         } catch (error) {

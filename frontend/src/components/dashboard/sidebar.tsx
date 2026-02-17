@@ -3,7 +3,6 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
-import { motion } from 'framer-motion';
 import {
   LayoutDashboard,
   User,
@@ -71,7 +70,7 @@ export function Sidebar({ variant = 'desktop', onClose }: SidebarProps) {
           {navItems.map((item) => {
             const isActive = pathname === item.href;
             return (
-              <motion.div key={item.href} whileHover={{ x: 4 }} transition={{ duration: 0.15 }}>
+              <div key={item.href}>
                 <Link
                   href={item.href}
                   onClick={handleNavClick}
@@ -87,7 +86,7 @@ export function Sidebar({ variant = 'desktop', onClose }: SidebarProps) {
                     <span className="ml-auto text-[10px] text-slate-400 font-normal">PRO</span>
                   )}
                 </Link>
-              </motion.div>
+              </div>
             );
           })}
         </nav>
@@ -101,14 +100,12 @@ export function Sidebar({ variant = 'desktop', onClose }: SidebarProps) {
             onClick={handleNavClick}
             className="block"
           >
-            <motion.div
-              className="flex items-center gap-2 px-3 py-2.5 rounded-md border-2 border-slate-900 bg-brand-green/20 text-sm font-medium hover:bg-brand-green/30 transition-colors"
-              whileHover={{ x: -2, y: -2, boxShadow: '4px 4px 0px #1A1A1A' }}
-              transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+            <div
+              className="flex items-center gap-2 px-3 py-2.5 rounded-md border border-slate-200 bg-slate-50 text-sm font-medium hover:bg-slate-100 transition-colors"
             >
               <ExternalLink className="h-4 w-4" />
               <span className="truncate">pic-me.net/{user.username}</span>
-            </motion.div>
+            </div>
           </Link>
         )}
 

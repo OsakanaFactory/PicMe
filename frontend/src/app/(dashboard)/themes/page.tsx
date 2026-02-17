@@ -81,7 +81,7 @@ export default function ThemesPage() {
 
   return (
     <div className="space-y-6">
-      <PageHeader icon={Palette} title="テーマ設定" description="公開ページのデザインをカスタマイズします" accentColor="text-brand-coral">
+      <PageHeader icon={Palette} title="テーマ設定" description="公開ページのデザインをカスタマイズします">
         <Button onClick={handleSave} disabled={isSaving}>
           {isSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
           変更を保存
@@ -90,21 +90,18 @@ export default function ThemesPage() {
 
       <motion.div className="grid gap-6 lg:grid-cols-2" variants={dashStaggerContainer} initial="hidden" animate="visible">
         {/* テーマ選択 */}
-        <motion.div className="bg-white border-2 border-slate-900 shadow-[4px_4px_0px_#1A1A1A] rounded-lg overflow-hidden" variants={dashStaggerItem}>
-          <div className="w-full h-1.5 bg-brand-coral" />
+        <motion.div className="bg-white border border-slate-200 rounded-lg overflow-hidden" variants={dashStaggerItem}>
           <div className="p-6">
             <h3 className="font-outfit font-bold text-lg flex items-center gap-2 mb-1"><Palette className="h-5 w-5" /> テーマ</h3>
             <p className="text-sm text-slate-500 mb-4">ベースとなるテーマを選択します</p>
             <div className="grid grid-cols-2 gap-4">
               {themes.map((theme) => (
-                <motion.button
+                <button
                   key={theme.id}
                   onClick={() => setSelectedTheme(theme.id)}
-                  className={`relative p-4 rounded-lg border-2 text-left transition-colors ${
-                    selectedTheme === theme.id ? 'border-slate-900 shadow-[3px_3px_0px_#1A1A1A]' : 'border-slate-200 hover:border-slate-400'
+                  className={`relative p-4 rounded-lg border text-left transition-all ${
+                    selectedTheme === theme.id ? 'border-slate-900 shadow-sm' : 'border-slate-200 hover:border-slate-300'
                   }`}
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
                 >
                   <div className="h-12 rounded-md mb-3 border" style={{ backgroundColor: theme.bg }}>
                     <div className="flex gap-1 p-2">
@@ -124,15 +121,14 @@ export default function ThemesPage() {
                       <Check className="h-3 w-3 text-white" />
                     </motion.div>
                   )}
-                </motion.button>
+                </button>
               ))}
             </div>
           </div>
         </motion.div>
 
         {/* カラー設定 */}
-        <motion.div className="bg-white border-2 border-slate-900 shadow-[4px_4px_0px_#1A1A1A] rounded-lg overflow-hidden" variants={dashStaggerItem}>
-          <div className="w-full h-1.5 bg-brand-green" />
+        <motion.div className="bg-white border border-slate-200 rounded-lg overflow-hidden" variants={dashStaggerItem}>
           <div className="p-6 space-y-6">
             <div>
               <h3 className="font-outfit font-bold text-lg flex items-center gap-2 mb-1"><Palette className="h-5 w-5" /> カラー</h3>
@@ -143,13 +139,11 @@ export default function ThemesPage() {
               <div className="flex items-center gap-3">
                 <div className="flex gap-2">
                   {presetColors.map((color) => (
-                    <motion.button
+                    <button
                       key={color}
                       onClick={() => setColorPrimary(color)}
-                      className={`h-8 w-8 rounded-full ${colorPrimary === color ? 'ring-2 ring-offset-2 ring-slate-400' : ''}`}
+                      className={`h-8 w-8 rounded-full transition-transform hover:scale-110 ${colorPrimary === color ? 'ring-2 ring-offset-2 ring-slate-400' : ''}`}
                       style={{ backgroundColor: color }}
-                      whileHover={{ scale: 1.2 }}
-                      whileTap={{ scale: 0.9 }}
                     />
                   ))}
                 </div>
@@ -161,13 +155,11 @@ export default function ThemesPage() {
               <div className="flex items-center gap-3">
                 <div className="flex gap-2">
                   {presetColors.map((color) => (
-                    <motion.button
+                    <button
                       key={color}
                       onClick={() => setColorAccent(color)}
-                      className={`h-8 w-8 rounded-full ${colorAccent === color ? 'ring-2 ring-offset-2 ring-slate-400' : ''}`}
+                      className={`h-8 w-8 rounded-full transition-transform hover:scale-110 ${colorAccent === color ? 'ring-2 ring-offset-2 ring-slate-400' : ''}`}
                       style={{ backgroundColor: color }}
-                      whileHover={{ scale: 1.2 }}
-                      whileTap={{ scale: 0.9 }}
                     />
                   ))}
                 </div>
@@ -178,30 +170,29 @@ export default function ThemesPage() {
         </motion.div>
 
         {/* レイアウト設定 */}
-        <motion.div className="bg-white border-2 border-slate-200 rounded-lg overflow-hidden" variants={dashStaggerItem} whileHover={{ y: -2 }}>
+        <motion.div className="bg-white border border-slate-200 rounded-lg overflow-hidden" variants={dashStaggerItem}>
           <div className="p-6">
             <h3 className="font-outfit font-bold text-lg flex items-center gap-2 mb-1"><LayoutGrid className="h-5 w-5" /> レイアウト</h3>
             <p className="text-sm text-slate-500 mb-4">ギャラリーのレイアウトを選択します</p>
             <div className="space-y-3">
               {layouts.map((layout) => (
-                <motion.button
+                <button
                   key={layout.id}
                   onClick={() => setSelectedLayout(layout.id)}
-                  className={`w-full p-4 rounded-lg border-2 text-left transition-colors ${
+                  className={`w-full p-4 rounded-lg border text-left transition-colors ${
                     selectedLayout === layout.id ? 'border-slate-900 bg-slate-50' : 'border-slate-200 hover:border-slate-300'
                   }`}
-                  whileHover={{ x: 4 }}
                 >
                   <p className="font-medium">{layout.name}</p>
                   <p className="text-sm text-slate-500">{layout.description}</p>
-                </motion.button>
+                </button>
               ))}
             </div>
           </div>
         </motion.div>
 
         {/* フォント設定 */}
-        <motion.div className="bg-white border-2 border-slate-200 rounded-lg overflow-hidden" variants={dashStaggerItem} whileHover={{ y: -2 }}>
+        <motion.div className="bg-white border border-slate-200 rounded-lg overflow-hidden" variants={dashStaggerItem}>
           <div className="p-6">
             <h3 className="font-outfit font-bold text-lg flex items-center gap-2 mb-1"><Type className="h-5 w-5" /> フォント</h3>
             <p className="text-sm text-slate-500 mb-4">テキストのフォントを選択します（Pro以上）</p>
@@ -218,12 +209,12 @@ export default function ThemesPage() {
       </motion.div>
 
       {/* プレビュー */}
-      <motion.div className="bg-white border-2 border-slate-200 rounded-lg overflow-hidden" variants={dashFadeIn} initial="hidden" animate="visible" custom={0.3}>
+      <motion.div className="bg-white border border-slate-200 rounded-lg overflow-hidden" variants={dashFadeIn} initial="hidden" animate="visible" custom={0.3}>
         <div className="p-6">
           <h3 className="font-outfit font-bold text-lg mb-1">プレビュー</h3>
           <p className="text-sm text-slate-500 mb-4">実際の公開ページでの見え方を確認できます</p>
           <motion.div
-            className="p-6 rounded-lg border-2"
+            className="p-6 rounded-lg border"
             animate={{
               backgroundColor: themes.find(t => t.id === selectedTheme)?.bg || '#fff',
               borderColor: selectedTheme === 'DARK' ? '#334155' : '#e2e8f0',

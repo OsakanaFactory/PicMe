@@ -5,7 +5,6 @@ import { SubscriptionProvider } from '@/contexts/SubscriptionContext';
 import { Sidebar } from '@/components/dashboard/sidebar';
 import { EmailVerificationBanner } from '@/components/dashboard/email-verification-banner';
 import { SquigglyLine } from '@/components/ui/squiggly-line';
-import { FloatingShapes } from '@/components/ui/floating-shapes';
 import { useRouter, usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -50,7 +49,7 @@ export default function DashboardLayout({
 
   return (
     <SubscriptionProvider>
-      <div className="flex h-screen bg-white relative">
+      <div className="flex h-screen bg-slate-50 relative">
         {/* Desktop Sidebar */}
         <div className="hidden md:block">
           <Sidebar variant="desktop" />
@@ -98,16 +97,15 @@ export default function DashboardLayout({
         </AnimatePresence>
 
         {/* Main Content */}
-        <div className="flex-1 flex flex-col overflow-hidden relative">
-          <FloatingShapes variant="dashboard" />
-          <main className="flex-1 overflow-y-auto pt-14 md:pt-0 p-4 md:p-8 relative z-10">
+        <div className="flex-1 flex flex-col overflow-hidden">
+          <main className="flex-1 overflow-y-auto pt-14 md:pt-0 p-4 md:p-8">
             <div className="mx-auto max-w-5xl">
               <EmailVerificationBanner />
               <motion.div
                 key={pathname}
-                initial={{ opacity: 0, y: 8 }}
+                initial={{ opacity: 0, y: 6 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.25, ease: 'easeOut' }}
+                transition={{ duration: 0.2, ease: 'easeOut' }}
               >
                 {children}
               </motion.div>

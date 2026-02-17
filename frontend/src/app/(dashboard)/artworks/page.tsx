@@ -186,10 +186,8 @@ export default function ArtworksPage() {
         >
           {artworks.map((artwork) => (
             <motion.div key={artwork.id} variants={dashStaggerItem}>
-              <motion.div
-                className="overflow-hidden rounded-lg border-2 border-slate-200 bg-white group"
-                whileHover={{ y: -4, boxShadow: '0 8px 24px rgba(0,0,0,0.08)' }}
-                transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+              <div
+                className="overflow-hidden rounded-lg border border-slate-200 bg-white group transition-shadow hover:shadow-sm"
               >
                 <div className="aspect-square w-full relative bg-slate-100 overflow-hidden">
                   <img
@@ -215,7 +213,7 @@ export default function ArtworksPage() {
                     {isDeleting === artwork.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4 mr-1" />} 削除
                   </Button>
                 </CardFooter>
-              </motion.div>
+              </div>
             </motion.div>
           ))}
         </motion.div>

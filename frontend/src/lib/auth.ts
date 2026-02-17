@@ -17,6 +17,7 @@ export interface User {
   email: string;
   emailVerified: boolean;
   planType: 'FREE' | 'STARTER' | 'PRO' | 'STUDIO';
+  colorAccent?: string;
 }
 
 export interface Tokens {
