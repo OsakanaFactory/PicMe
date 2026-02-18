@@ -2,7 +2,7 @@ import { ImageResponse } from 'next/og';
 import { loadOutfitFont, loadNotoSansJPFont } from '@/lib/og-fonts';
 
 export const runtime = 'edge';
-export const alt = 'PicMe - イラストレーターのためのポートフォリオ';
+export const alt = 'PicMe - つくる人の、見せる場所。';
 export const size = { width: 1200, height: 630 };
 export const contentType = 'image/png';
 
@@ -78,17 +78,23 @@ export default async function Image() {
             gap: 8,
           }}
         >
+          {/* LPヒーローコピー */}
           <div
             style={{
-              fontSize: 120,
-              fontFamily: 'Outfit',
+              fontSize: 64,
+              fontFamily: 'Noto Sans JP',
               fontWeight: 700,
               color: '#1A1A1A',
-              letterSpacing: '-0.03em',
-              lineHeight: 1,
+              letterSpacing: '0.02em',
+              lineHeight: 1.4,
+              textAlign: 'center',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
             }}
           >
-            PicMe
+            <span>つくる人の、</span>
+            <span>見せる場所。</span>
           </div>
 
           {/* 区切り線 */}
@@ -99,27 +105,23 @@ export default async function Image() {
               backgroundColor: '#1A1A1A',
               borderRadius: 3,
               display: 'flex',
-              marginTop: 8,
+              marginTop: 12,
               marginBottom: 16,
             }}
           />
 
+          {/* PicMe ブランド名 */}
           <div
             style={{
-              fontSize: 36,
-              fontFamily: 'Noto Sans JP',
+              fontSize: 80,
+              fontFamily: 'Outfit',
               fontWeight: 700,
               color: '#1A1A1A',
-              letterSpacing: '0.05em',
-              lineHeight: 1.5,
-              textAlign: 'center',
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
+              letterSpacing: '-0.03em',
+              lineHeight: 1,
             }}
           >
-            <span>イラストレーターのための</span>
-            <span>ポートフォリオサイト</span>
+            PicMe
           </div>
         </div>
 
@@ -128,34 +130,33 @@ export default async function Image() {
           style={{
             display: 'flex',
             gap: 20,
-            marginTop: 48,
+            marginTop: 44,
           }}
         >
           <div
             style={{
-              width: 56,
-              height: 56,
-              backgroundColor: '#FF8A65',
-              borderRadius: 12,
-              display: 'flex',
-            }}
-          />
-          <div
-            style={{
-              width: 56,
-              height: 56,
+              width: 48,
+              height: 48,
               backgroundColor: '#1A1A1A',
-              borderRadius: 12,
+              borderRadius: 10,
               display: 'flex',
             }}
           />
           <div
             style={{
-              width: 56,
-              height: 56,
-              backgroundColor: '#FFFFFF',
-              borderRadius: 12,
-              border: '3px solid #1A1A1A',
+              width: 48,
+              height: 48,
+              backgroundColor: '#FF8A65',
+              borderRadius: 10,
+              display: 'flex',
+            }}
+          />
+          <div
+            style={{
+              width: 48,
+              height: 48,
+              backgroundColor: '#A3E635',
+              borderRadius: '50%',
               display: 'flex',
             }}
           />
