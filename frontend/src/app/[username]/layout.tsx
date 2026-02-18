@@ -3,10 +3,7 @@ import { Metadata } from 'next';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
 const INTERNAL_API_URL = process.env.INTERNAL_API_URL || API_BASE_URL;
-
-type Props = {
-  params: { username: string };
-};
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://pic-me.net';
 
 export async function generateMetadata({ params }: { params: Promise<{ username: string }> }): Promise<Metadata> {
   const { username } = await params;
@@ -35,28 +32,20 @@ export async function generateMetadata({ params }: { params: Promise<{ username:
     return {
       title,
       description,
+      alternates: {
+        canonical: `${SITE_URL}/${username}`,
+      },
       openGraph: {
         type: 'profile',
         title,
         description,
-        url: `https://picme.com/${username}`,
+        url: `${SITE_URL}/${username}`,
         siteName: 'PicMe',
-        images: profile.avatarUrl
-          ? [
-              {
-                url: profile.avatarUrl,
-                width: 400,
-                height: 400,
-                alt: profile.displayName,
-              },
-            ]
-          : [],
       },
       twitter: {
-        card: 'summary',
+        card: 'summary_large_image',
         title,
         description,
-        images: profile.avatarUrl ? [profile.avatarUrl] : [],
       },
     };
   } catch (error: any) {

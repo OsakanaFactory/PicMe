@@ -28,6 +28,7 @@ export const metadata: Metadata = {
     type: "website",
     siteName: "PicMe",
     locale: "ja_JP",
+    url: "https://pic-me.net",
   },
   twitter: {
     card: "summary_large_image",
